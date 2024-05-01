@@ -38,69 +38,69 @@ import com.hrvs.cardnest.ui.theme.TH_WHITE_60
 @Preview
 @Composable
 fun App() {
-	val (search, onSearchChange) = remember { mutableStateOf("") }
+  val (search, onSearchChange) = remember { mutableStateOf("") }
 
-	CardNestTheme {
-		Surface(Modifier.fillMaxSize(), color = TH_BLACK) {
-			Column {
-				Box(Modifier.padding(top = 32.dp, start = 18.dp, end = 16.dp)) {
-					Text(
-						text = "Home",
-						color = TH_WHITE,
-						fontSize = 28.sp,
-						fontWeight = FontWeight(600),
-						lineHeight = 34.sp
-					)
-				}
-				Box(Modifier.padding(16.dp)) {
-					TextField(
-						singleLine = true,
-						value = search,
-						onValueChange = onSearchChange,
-						placeholder = {
-							Text(
-								text = "Enter card number, bank or network",
-								color = TH_WHITE_60,
-								fontSize = 16.sp,
-								lineHeight = 20.sp
-							)
-						},
-						prefix = {
-							Icon(
-								imageVector = Icons.Outlined.Search,
-								contentDescription = "Search",
-								Modifier
-									.padding(end = 8.dp)
-									.size(28.dp),
-								tint = TH_WHITE_60
-							)
-						},
-						suffix = {
-							if (search.isNotEmpty()) {
-								IconButton(onClick = { onSearchChange("") }) {
-									Icon(
-										imageVector = Icons.Outlined.Clear,
-										contentDescription = "Clear",
-										tint = TH_WHITE_60
-									)
-								}
-							}
-						},
-						textStyle = TextStyle(color = TH_WHITE, fontSize = 16.sp),
-						modifier = Modifier.fillMaxWidth(),
-						shape = RoundedCornerShape(14.dp),
-						colors = TextFieldDefaults.colors(
-							unfocusedContainerColor = TH_WHITE_07,
-							focusedContainerColor = TH_WHITE_10,
-							focusedIndicatorColor = Color.Transparent,
-							unfocusedIndicatorColor = Color.Transparent,
-						)
-					)
-				}
-				Column(Modifier.padding(16.dp), Arrangement.spacedBy(16.dp)) {
-					CardPreview(cardNumber = "6383 8737 7637 5373", expiry = "08/30")
-				}
-			}
-		}
-	}
+  CardNestTheme {
+    Surface(Modifier.fillMaxSize(), color = TH_BLACK) {
+      Column {
+        Box(Modifier.padding(top = 32.dp, start = 18.dp, end = 16.dp)) {
+          Text(
+            text = "Home",
+            color = TH_WHITE,
+            fontSize = 28.sp,
+            fontWeight = FontWeight(600),
+            lineHeight = 34.sp
+          )
+        }
+        Box(Modifier.padding(16.dp)) {
+          TextField(
+            singleLine = true,
+            value = search,
+            onValueChange = onSearchChange,
+            placeholder = {
+              Text(
+                text = "Enter card number, bank or network",
+                color = TH_WHITE_60,
+                fontSize = 16.sp,
+                lineHeight = 20.sp
+              )
+            },
+            prefix = {
+              Icon(
+                imageVector = Icons.Outlined.Search,
+                contentDescription = "Search",
+                Modifier
+                  .padding(end = 8.dp)
+                  .size(28.dp),
+                tint = TH_WHITE_60
+              )
+            },
+            suffix = {
+              if (search.isNotEmpty()) {
+                IconButton(onClick = { onSearchChange("") }) {
+                  Icon(
+                    imageVector = Icons.Outlined.Clear,
+                    contentDescription = "Clear",
+                    tint = TH_WHITE_60
+                  )
+                }
+              }
+            },
+            textStyle = TextStyle(color = TH_WHITE, fontSize = 16.sp),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            colors = TextFieldDefaults.colors(
+              unfocusedContainerColor = TH_WHITE_07,
+              focusedContainerColor = TH_WHITE_10,
+              focusedIndicatorColor = Color.Transparent,
+              unfocusedIndicatorColor = Color.Transparent,
+            )
+          )
+        }
+        Column(Modifier.padding(16.dp), Arrangement.spacedBy(16.dp)) {
+          CardPreview(cardNumber = "6383 8737 7637 5373", expiry = "08/30")
+        }
+      }
+    }
+  }
 }

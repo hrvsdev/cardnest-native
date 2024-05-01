@@ -27,72 +27,76 @@ import com.hrvs.cardnest.ui.theme.getCardTheme
 
 @Composable
 fun CardPreview(cardNumber: String, expiry: String) {
-	Column(
-		Modifier
-			.aspectRatio(1.586f)
-			.clip(RoundedCornerShape(16.dp))
-			.background(Brush.linearGradient(getCardTheme(CardColor.entries.toTypedArray().random())))
-			.padding(16.dp),
-		verticalArrangement = Arrangement.SpaceBetween
-	) {
-		Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-			Column {
-				AppText(
-					text = "CARDHOLDER", size = AppTextSize.XXS,
-					color = TH_WHITE_70,
-					letterSpacing = (10 / 10).sp
-				)
-				AppText(
-					text = "Harsh Vyas", size = AppTextSize.LG, weight = FontWeight.Medium,
-					color = TH_WHITE,
-					letterSpacing = (18 / 20).sp
-				)
-			}
-			Column(horizontalAlignment = Alignment.End) {
-				AppText(
-					text = "ISSUER", size = AppTextSize.XXS,
-					color = TH_WHITE_70,
-					letterSpacing = (10 / 10).sp
-				)
-				AppText(
-					text = "HDFC Bank", size = AppTextSize.LG, weight = FontWeight.Medium,
-					color = TH_WHITE,
-					letterSpacing = (18 / 20).sp
-				)
-			}
-		}
-		Row {
-			for (char in cardNumber) {
-				AppText(
-					text = char.toString(),
-					modifier = Modifier.width(if (char.toString().trim() == "") 8.dp else 16.dp),
-					size = AppTextSize.XXL,
-					weight = FontWeight.Bold,
-					align = TextAlign.Center,
-					color = TH_WHITE
-				)
-			}
-		}
-		Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-			Column {
-				AppText(
-					text = "VALID THRU", size = AppTextSize.XXS,
-					color = TH_WHITE_70,
-					letterSpacing = (10 / 10).sp
-				)
-				Row {
-					for (char in expiry) {
-						AppText(
-							text = char.toString(),
-							modifier = Modifier.width(10.dp),
-							weight = FontWeight.Bold,
-							lineHeight = 28.sp,
-							align = TextAlign.Center,
-							color = TH_WHITE
-						)
-					}
-				}
-			}
-		}
-	}
+  Column(
+    Modifier
+      .aspectRatio(1.586f)
+      .clip(RoundedCornerShape(16.dp))
+      .background(Brush.linearGradient(getCardTheme(CardColor.ROSE)))
+      .padding(16.dp),
+    verticalArrangement = Arrangement.SpaceBetween
+  ) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+      Column {
+        AppText(
+          text = "CARDHOLDER",
+          size = AppTextSize.XXS,
+          color = TH_WHITE_70,
+          letterSpacing = (10 / 10).sp
+        )
+        AppText(
+          text = "Harsh Vyas",
+          size = AppTextSize.LG,
+          weight = FontWeight.Medium,
+          color = TH_WHITE,
+          letterSpacing = (18 / 20).sp
+        )
+      }
+      Column(horizontalAlignment = Alignment.End) {
+        AppText(
+          text = "ISSUER", size = AppTextSize.XXS, color = TH_WHITE_70, letterSpacing = (10 / 10).sp
+        )
+        AppText(
+          text = "HDFC Bank",
+          size = AppTextSize.LG,
+          weight = FontWeight.Medium,
+          color = TH_WHITE,
+          letterSpacing = (18 / 20).sp
+        )
+      }
+    }
+    Row {
+      for (char in cardNumber) {
+        AppText(
+          text = char.toString(),
+          modifier = Modifier.width(if (char.toString().trim() == "") 8.dp else 16.dp),
+          size = AppTextSize.XXL,
+          weight = FontWeight.Bold,
+          align = TextAlign.Center,
+          color = TH_WHITE
+        )
+      }
+    }
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+      Column {
+        AppText(
+          text = "VALID THRU",
+          size = AppTextSize.XXS,
+          color = TH_WHITE_70,
+          letterSpacing = (10 / 10).sp
+        )
+        Row {
+          for (char in expiry) {
+            AppText(
+              text = char.toString(),
+              modifier = Modifier.width(10.dp),
+              weight = FontWeight.Bold,
+              lineHeight = 28.sp,
+              align = TextAlign.Center,
+              color = TH_WHITE
+            )
+          }
+        }
+      }
+    }
+  }
 }

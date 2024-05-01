@@ -10,17 +10,17 @@ import androidx.core.view.WindowCompat
 
 @Composable
 fun CardNestTheme(content: @Composable () -> Unit) {
-	val view = LocalView.current
-	if (!view.isInEditMode) {
-		SideEffect {
-			val window = (view.context as Activity).window
-			window.statusBarColor = TH_BLACK.toArgb()
-			WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
-		}
-	}
+  val view = LocalView.current
+  if (!view.isInEditMode) {
+    SideEffect {
+      val window = (view.context as Activity).window
+      window.statusBarColor = TH_BLACK.toArgb()
+      WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+    }
+  }
 
-	MaterialTheme(
-		content = content
-	)
+  MaterialTheme(
+    content = content
+  )
 }
 
