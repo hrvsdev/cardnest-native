@@ -1,5 +1,6 @@
 package com.hrvs.cardnest
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,8 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hrvs.cardnest.components.CardPreview
 import com.hrvs.cardnest.ui.theme.CardNestTheme
 import com.hrvs.cardnest.ui.theme.TH_BLACK
 import com.hrvs.cardnest.ui.theme.TH_WHITE
@@ -32,6 +35,7 @@ import com.hrvs.cardnest.ui.theme.TH_WHITE_07
 import com.hrvs.cardnest.ui.theme.TH_WHITE_10
 import com.hrvs.cardnest.ui.theme.TH_WHITE_60
 
+@Preview
 @Composable
 fun App() {
 	val (search, onSearchChange) = remember { mutableStateOf("") }
@@ -41,7 +45,7 @@ fun App() {
 			Column {
 				Box(Modifier.padding(top = 32.dp, start = 18.dp, end = 16.dp)) {
 					Text(
-						text = "Hello World!",
+						text = "Home",
 						color = TH_WHITE,
 						fontSize = 28.sp,
 						fontWeight = FontWeight(600),
@@ -83,8 +87,7 @@ fun App() {
 							}
 						},
 						textStyle = TextStyle(color = TH_WHITE, fontSize = 16.sp),
-						modifier = Modifier
-							.fillMaxWidth(),
+						modifier = Modifier.fillMaxWidth(),
 						shape = RoundedCornerShape(14.dp),
 						colors = TextFieldDefaults.colors(
 							unfocusedContainerColor = TH_WHITE_07,
@@ -94,10 +97,8 @@ fun App() {
 						)
 					)
 				}
-				Box(Modifier.padding(16.dp)) {
-
-
-
+				Column(Modifier.padding(16.dp), Arrangement.spacedBy(16.dp)) {
+					CardPreview(cardNumber = "6383 8737 7637 5373", expiry = "08/30")
 				}
 			}
 		}
