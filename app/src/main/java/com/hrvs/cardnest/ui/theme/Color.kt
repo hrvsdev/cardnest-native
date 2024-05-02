@@ -1,6 +1,7 @@
 package com.hrvs.cardnest.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import com.hrvs.cardnest.data.CardTheme
 
 val TH_BLACK = Color(0xFF00060C)
 val TH_BLACK_00 = Color(0x0000060C)
@@ -79,38 +80,21 @@ val CARD_PINK_700 = Color(0xFFBE185D)
 val CARD_ROSE_500 = Color(0xFFF43F5E)
 val CARD_ROSE_700 = Color(0xFFBE123C)
 
-fun getCardTheme(color: CardColor) = when (color) {
-  CardColor.RED -> listOf(CARD_RED_500, CARD_RED_700)
-  CardColor.ORANGE -> listOf(CARD_ORANGE_500, CARD_ORANGE_700)
-  CardColor.YELLOW -> listOf(CARD_YELLOW_500, CARD_YELLOW_700)
-  CardColor.GREEN -> listOf(CARD_GREEN_500, CARD_GREEN_700)
-  CardColor.EMERALD -> listOf(CARD_EMERALD_500, CARD_EMERALD_700)
-  CardColor.TEAL -> listOf(CARD_TEAL_500, CARD_TEAL_700)
-  CardColor.CYAN -> listOf(CARD_CYAN_500, CARD_CYAN_700)
-  CardColor.SKY -> listOf(CARD_SKY_500, CARD_SKY_700)
-  CardColor.BLUE -> listOf(CARD_BLUE_500, CARD_BLUE_700)
-  CardColor.INDIGO -> listOf(CARD_INDIGO_500, CARD_INDIGO_700)
-  CardColor.VIOLET -> listOf(CARD_VIOLET_500, CARD_VIOLET_700)
-  CardColor.PURPLE -> listOf(CARD_PURPLE_500, CARD_PURPLE_700)
-  CardColor.FUCHSIA -> listOf(CARD_FUCHSIA_500, CARD_FUCHSIA_700)
-  CardColor.PINK -> listOf(CARD_PINK_500, CARD_PINK_700)
-  CardColor.ROSE -> listOf(CARD_ROSE_500, CARD_ROSE_700)
+fun getCardTheme(color: CardTheme) = when (color) {
+  CardTheme.RED -> listOf(CARD_RED_500, CARD_RED_700)
+  CardTheme.ORANGE -> listOf(CARD_ORANGE_500, CARD_ORANGE_700)
+  CardTheme.YELLOW -> listOf(CARD_YELLOW_500, CARD_YELLOW_700)
+  CardTheme.GREEN -> listOf(CARD_GREEN_500, CARD_GREEN_700)
+  CardTheme.EMERALD -> listOf(CARD_EMERALD_500, CARD_EMERALD_700)
+  CardTheme.TEAL -> listOf(CARD_TEAL_500, CARD_TEAL_700)
+  CardTheme.CYAN -> listOf(CARD_CYAN_500, CARD_CYAN_700)
+  CardTheme.SKY -> listOf(CARD_SKY_500, CARD_SKY_700)
+  CardTheme.BLUE -> listOf(CARD_BLUE_500, CARD_BLUE_700)
+  CardTheme.INDIGO -> listOf(CARD_INDIGO_500, CARD_INDIGO_700)
+  CardTheme.VIOLET -> listOf(CARD_VIOLET_500, CARD_VIOLET_700)
+  CardTheme.PURPLE -> listOf(CARD_PURPLE_500, CARD_PURPLE_700)
+  CardTheme.FUCHSIA -> listOf(CARD_FUCHSIA_500, CARD_FUCHSIA_700)
+  CardTheme.PINK -> listOf(CARD_PINK_500, CARD_PINK_700)
+  CardTheme.ROSE -> listOf(CARD_ROSE_500, CARD_ROSE_700)
 }
 
-enum class CardColor {
-  RED,
-  ORANGE,
-  YELLOW,
-  GREEN,
-  EMERALD,
-  TEAL,
-  CYAN,
-  SKY,
-  BLUE,
-  INDIGO,
-  VIOLET,
-  PURPLE,
-  FUCHSIA,
-  PINK,
-  ROSE,
-}
