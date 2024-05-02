@@ -1,4 +1,4 @@
-package com.hrvs.cardnest.components
+package com.hrvs.cardnest.components.card
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,20 +18,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hrvs.cardnest.data.CardFullProfile
 import com.hrvs.cardnest.ui.theme.AppText
 import com.hrvs.cardnest.ui.theme.AppTextSize
-import com.hrvs.cardnest.ui.theme.CardColor
 import com.hrvs.cardnest.ui.theme.TH_WHITE
 import com.hrvs.cardnest.ui.theme.TH_WHITE_70
 import com.hrvs.cardnest.ui.theme.getCardTheme
+import com.hrvs.cardnest.utils.formatCardViewDetails
 
 @Composable
-fun CardPreview(cardNumber: String, expiry: String) {
+fun CardPreview(card: CardFullProfile, usePlaceholders: Boolean = false) {
+
+  val formattedCard = formatCardViewDetails(card, usePlaceholders)
+
   Column(
     Modifier
       .aspectRatio(1.586f)
       .clip(RoundedCornerShape(16.dp))
-      .background(Brush.linearGradient(getCardTheme(CardColor.ROSE)))
+      .background(Brush.linearGradient(getCardTheme(card.theme)))
       .padding(16.dp),
     verticalArrangement = Arrangement.SpaceBetween
   ) {
@@ -44,19 +48,20 @@ fun CardPreview(cardNumber: String, expiry: String) {
           letterSpacing = (10 / 10).sp
         )
         AppText(
-          text = "Harsh Vyas",
+          text = formattedCard.cardholder,
           size = AppTextSize.LG,
           weight = FontWeight.Medium,
           color = TH_WHITE,
           letterSpacing = (18 / 20).sp
         )
       }
+
       Column(horizontalAlignment = Alignment.End) {
         AppText(
           text = "ISSUER", size = AppTextSize.XXS, color = TH_WHITE_70, letterSpacing = (10 / 10).sp
         )
         AppText(
-          text = "HDFC Bank",
+          text = formattedCard.issuer,
           size = AppTextSize.LG,
           weight = FontWeight.Medium,
           color = TH_WHITE,
@@ -64,8 +69,9 @@ fun CardPreview(cardNumber: String, expiry: String) {
         )
       }
     }
+
     Row {
-      for (char in cardNumber) {
+      for (char in formattedCard.number) {
         AppText(
           text = char.toString(),
           modifier = Modifier.width(if (char.toString().trim() == "") 8.dp else 16.dp),
@@ -76,6 +82,7 @@ fun CardPreview(cardNumber: String, expiry: String) {
         )
       }
     }
+
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
       Column {
         AppText(
@@ -85,7 +92,7 @@ fun CardPreview(cardNumber: String, expiry: String) {
           letterSpacing = (10 / 10).sp
         )
         Row {
-          for (char in expiry) {
+          for (char in formattedCard.expiry) {
             AppText(
               text = char.toString(),
               modifier = Modifier.width(10.dp),
