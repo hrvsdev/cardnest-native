@@ -19,7 +19,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.hrvs.cardnest.data.CardFullProfile
+import com.hrvs.cardnest.screens.home.card.CardViewScreen
 import com.hrvs.cardnest.ui.theme.AppText
 import com.hrvs.cardnest.ui.theme.AppTextSize
 import com.hrvs.cardnest.ui.theme.TH_WHITE
@@ -29,7 +32,7 @@ import com.hrvs.cardnest.utils.formatCardViewDetails
 
 @Composable
 fun CardPreview(card: CardFullProfile, usePlaceholders: Boolean = false) {
-
+  val navigator = LocalNavigator.currentOrThrow
   val formattedCard = formatCardViewDetails(card, usePlaceholders)
 
   Column(
@@ -37,7 +40,7 @@ fun CardPreview(card: CardFullProfile, usePlaceholders: Boolean = false) {
       .aspectRatio(1.586f)
       .clip(RoundedCornerShape(16.dp))
       .background(Brush.linearGradient(getCardTheme(card.theme)))
-      .clickable {  }
+      .clickable { navigator.push(CardViewScreen(card)) }
       .padding(16.dp),
     verticalArrangement = Arrangement.SpaceBetween
   ) {
