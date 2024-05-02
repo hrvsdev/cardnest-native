@@ -1,6 +1,7 @@
 package com.hrvs.cardnest.components.card
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,7 @@ fun CardPreview(card: CardFullProfile, usePlaceholders: Boolean = false) {
       .aspectRatio(1.586f)
       .clip(RoundedCornerShape(16.dp))
       .background(Brush.linearGradient(getCardTheme(card.theme)))
+      .clickable {  }
       .padding(16.dp),
     verticalArrangement = Arrangement.SpaceBetween
   ) {
