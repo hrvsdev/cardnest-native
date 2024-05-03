@@ -41,7 +41,7 @@ class HomeScreen : Screen {
       HeaderTitle("Home")
       HeaderSearch()
       ScreenContainer(16.dp) {
-        cards.forEach { CardPreview(it) }
+        cards.forEach { CardPreview(it, clickable = true) }
       }
     }
   }

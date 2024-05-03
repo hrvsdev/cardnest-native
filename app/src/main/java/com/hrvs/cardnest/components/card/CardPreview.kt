@@ -31,7 +31,11 @@ import com.hrvs.cardnest.ui.theme.getCardTheme
 import com.hrvs.cardnest.utils.formatCardViewDetails
 
 @Composable
-fun CardPreview(card: CardFullProfile, usePlaceholders: Boolean = false) {
+fun CardPreview(
+  card: CardFullProfile,
+  clickable: Boolean = false,
+  usePlaceholders: Boolean = false
+) {
   val navigator = LocalNavigator.currentOrThrow
   val formattedCard = formatCardViewDetails(card, usePlaceholders)
 
@@ -40,7 +44,7 @@ fun CardPreview(card: CardFullProfile, usePlaceholders: Boolean = false) {
       .aspectRatio(1.586f)
       .clip(RoundedCornerShape(16.dp))
       .background(Brush.linearGradient(getCardTheme(card.theme)))
-      .clickable { navigator.push(CardViewScreen(card)) }
+      .clickable(enabled = clickable) { navigator.push(CardViewScreen(card)) }
       .padding(16.dp),
     verticalArrangement = Arrangement.SpaceBetween
   ) {
