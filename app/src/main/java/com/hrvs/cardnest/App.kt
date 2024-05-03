@@ -2,7 +2,6 @@ package com.hrvs.cardnest
 
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.transitions.ScaleTransition
 import cafe.adriel.voyager.transitions.SlideTransition
 import com.hrvs.cardnest.screens.home.HomeScreen
 
