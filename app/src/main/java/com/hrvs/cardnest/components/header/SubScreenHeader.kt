@@ -19,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.hrvs.cardnest.ui.theme.AppText
 import com.hrvs.cardnest.ui.theme.TH_SKY
 import com.hrvs.cardnest.ui.theme.TH_WHITE
@@ -34,6 +36,9 @@ fun SubScreenHeader(
   rightButtonIcon: ImageVector? = null,
   onRightButtonClick: () -> Unit = {},
 ) {
+
+  val navigator = LocalNavigator.currentOrThrow
+
   Column {
     Box(Modifier.fillMaxWidth(), Alignment.Center) {
       AppText(
@@ -52,7 +57,7 @@ fun SubScreenHeader(
           horizontalArrangement = Arrangement.spacedBy(2.dp),
           modifier = Modifier
             .height(48.dp)
-            .clickable { }
+            .clickable { navigator.pop() }
             .padding(horizontal = 16.dp)
         ) {
           Icon(
