@@ -46,6 +46,7 @@ fun AppTextField(
   maxLength: Int = Int.MAX_VALUE,
 
   keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+  visualTransformation: VisualTransformation = VisualTransformation.None,
 
   onFocus: () -> Unit = {},
   onBlur: () -> Unit = {},
@@ -68,6 +69,7 @@ fun AppTextField(
       cursorBrush = SolidColor(TH_SKY_80),
 
       keyboardOptions = keyboardOptions,
+      visualTransformation = visualTransformation,
 
       modifier = Modifier
         .fillMaxWidth()
