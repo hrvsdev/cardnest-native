@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,29 +24,27 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hrvs.cardnest.data.CardTheme
+import com.hrvs.cardnest.ui.theme.AppText
 import com.hrvs.cardnest.ui.theme.TH_WHITE_00
 import com.hrvs.cardnest.ui.theme.TH_WHITE_80
 import com.hrvs.cardnest.ui.theme.getCardTheme
 
-@Preview(showBackground = true, showSystemUi = true, backgroundColor = 0xFF000000)
 @Composable
-fun CardThemeSelector() {
-  val (selectedTheme, setSelectedTheme) = remember { mutableStateOf(CardTheme.entries.random()) }
-
-  LazyVerticalGrid(
-    columns = GridCells.Fixed(3),
-    verticalArrangement = Arrangement.spacedBy(8.dp),
-    horizontalArrangement = Arrangement.spacedBy(8.dp),
-    modifier = Modifier
-      .padding(16.dp)
-      .fillMaxHeight()
-  ) {
-    items(CardTheme.entries.size) {
-      GridItem(
-        CardTheme.entries[it],
-        onPress = { theme -> setSelectedTheme(theme) },
-        isSelected = selectedTheme == CardTheme.entries[it]
-      )
+fun CardThemeSelector(selectedTheme: CardTheme, setSelectedTheme: (CardTheme) -> Unit) {
+  Column {
+    AppText("Card theme", Modifier.padding(start = 8.dp, bottom = 8.dp))
+    LazyVerticalGrid(
+      columns = GridCells.Fixed(3),
+      verticalArrangement = Arrangement.spacedBy(8.dp),
+      horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+      items(CardTheme.entries.size) {
+        GridItem(
+          CardTheme.entries[it],
+          onClick = setSelectedTheme,
+          isSelected = selectedTheme == CardTheme.entries[it]
+        )
+      }
     }
   }
 }
@@ -53,7 +52,7 @@ fun CardThemeSelector() {
 @Composable
 fun GridItem(
   theme: CardTheme,
-  onPress: (theme: CardTheme) -> Unit,
+  onClick: (CardTheme) -> Unit,
   isSelected: Boolean = false
 ) {
   val transition = updateTransition(isSelected, "Card theme state")
@@ -67,15 +66,21 @@ fun GridItem(
   }
 
   val radius by transition.animateDp(label = "Card theme radius") {
-    if (it) 10.dp else 8.dp
+    if (it) 8.dp else 10.dp
   }
 
   Box(
-   Modifier
+    Modifier
       .height(48.dp)
       .border(1.dp, borderColor, RoundedCornerShape(10.dp))
-      .clickable { onPress(theme) }
+      .clickable { onClick(theme) }
       .padding(padding)
-      .background(Brush.linearGradient(getCardTheme(theme)), RoundedCornerShape(radius))
-  )
+      .background(Brush.linearGradient(getCardTheme(theme)), RoundedCornerShape(radius)))
+}
+
+@Preview(showBackground = true, showSystemUi = true, backgroundColor = 0xFF000000)
+@Composable
+private fun CardThemeSelectorPreview() {
+  val (selectedTheme, setSelectedTheme) = remember { mutableStateOf(CardTheme.RED) }
+  CardThemeSelector(selectedTheme, setSelectedTheme)
 }
