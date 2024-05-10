@@ -9,8 +9,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,22 +29,26 @@ import com.hrvs.cardnest.ui.theme.TH_WHITE_00
 import com.hrvs.cardnest.ui.theme.TH_WHITE_80
 import com.hrvs.cardnest.ui.theme.getCardTheme
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CardThemeSelector(selectedTheme: CardTheme, setSelectedTheme: (CardTheme) -> Unit) {
   Column {
     AppText("Card theme", Modifier.padding(start = 8.dp, bottom = 8.dp))
-    NonLazyGrid(3, CardTheme.entries.size) {
-      GridItem(
-        CardTheme.entries[it],
-        setSelectedTheme,
-        selectedTheme == CardTheme.entries[it]
-      )
+    FlowRow(
+      maxItemsInEachRow = 3,
+      verticalArrangement = Arrangement.spacedBy(8.dp),
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+      CardTheme.entries.forEach {
+        ThemeButton(it, setSelectedTheme, selectedTheme == it)
+      }
     }
   }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun GridItem(
+fun FlowRowScope.ThemeButton(
   theme: CardTheme,
   onClick: (CardTheme) -> Unit,
   isSelected: Boolean = false
@@ -64,43 +69,12 @@ fun GridItem(
 
   Box(
     Modifier
-      .fillMaxWidth()
+      .weight(1f)
       .height(48.dp)
       .border(1.dp, borderColor, RoundedCornerShape(10.dp))
       .clickable { onClick(theme) }
       .padding(padding)
       .background(Brush.linearGradient(getCardTheme(theme)), RoundedCornerShape(radius)))
-}
-
-@Composable
-fun NonLazyGrid(
-  columns: Int,
-  itemCount: Int,
-  content: @Composable (Int) -> Unit
-) {
-  Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-    var rows = (itemCount / columns)
-    if (itemCount.mod(columns) > 0) { rows += 1 }
-
-    for (rowId in 0 until rows) {
-      val firstIndex = rowId * columns
-
-      Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        for (columnId in 0 until columns) {
-          val index = firstIndex + columnId
-          Box(
-            modifier = Modifier
-              .fillMaxWidth()
-              .weight(1f)
-          ) {
-            if (index < itemCount) {
-              content(index)
-            }
-          }
-        }
-      }
-    }
-  }
 }
 
 @Preview(showBackground = true, showSystemUi = true, backgroundColor = 0xFF000000)
