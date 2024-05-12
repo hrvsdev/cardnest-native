@@ -1,7 +1,10 @@
-package com.hrvs.cardnest.utils
+package com.hrvs.cardnest.utils.card
 
 import com.hrvs.cardnest.data.CardFullProfile
 import com.hrvs.cardnest.data.DisplayCardDetails
+
+fun addCardNumberSpaces(number: String) = number.chunked(4).joinToString(" ")
+fun removeCardNumberSpaces(number: String) = number.replace(" ", "")
 
 fun formatCardViewDetails(card: CardFullProfile, usePlaceholders: Boolean = false): DisplayCardDetails {
   val cardNumber = card.number.let {
