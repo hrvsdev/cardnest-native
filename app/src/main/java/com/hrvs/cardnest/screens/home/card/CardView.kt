@@ -20,12 +20,13 @@ import com.hrvs.cardnest.components.header.SubScreenHeader
 import com.hrvs.cardnest.data.CardFullProfile
 import com.hrvs.cardnest.ui.theme.ScreenContainer
 import com.hrvs.cardnest.ui.theme.TabScreenRoot
+import com.hrvs.cardnest.utils.card.addCardNumberSpaces
 
 data class CardViewScreen(val card: CardFullProfile) : Screen {
   @OptIn(ExperimentalFoundationApi::class)
   @Composable
   override fun Content() {
-    val number = rememberTextFieldState(card.number.chunked(4).joinToString(" "))
+    val number = rememberTextFieldState(addCardNumberSpaces(card.number))
     val expiry = rememberTextFieldState(card.expiry)
     val cardholder = rememberTextFieldState(card.cardholder)
     val issuer = rememberTextFieldState(card.issuer)
@@ -83,15 +84,13 @@ data class CardViewScreen(val card: CardFullProfile) : Screen {
 @OptIn(ExperimentalFoundationApi::class)
 val CardNumberTransformation = InputTransformation.byValue { _, proposed ->
   val filteredValue = proposed.filter { c -> c.isDigit() }.take(16)
-  val formattedValue = filteredValue.chunked(4).joinToString(" ")
+  val formattedValue = addCardNumberSpaces(filteredValue.toString())
 
   formattedValue
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 val ExpiryTransformation = InputTransformation.byValue { current, proposed ->
-  println()
-
   var filteredValue = proposed.filter { c -> c.isDigit() }.take(4)
 
   if (filteredValue.isNotEmpty() && filteredValue[0].toString().toInt() > 1) {

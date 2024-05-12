@@ -28,7 +28,7 @@ import com.hrvs.cardnest.ui.theme.AppTextSize
 import com.hrvs.cardnest.ui.theme.TH_WHITE
 import com.hrvs.cardnest.ui.theme.TH_WHITE_70
 import com.hrvs.cardnest.ui.theme.getCardTheme
-import com.hrvs.cardnest.utils.formatCardViewDetails
+import com.hrvs.cardnest.utils.card.formatCardViewDetails
 
 @Composable
 fun CardPreview(

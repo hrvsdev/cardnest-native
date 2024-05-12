@@ -12,11 +12,12 @@ fun formatCardViewDetails(card: CardFullProfile, usePlaceholders: Boolean = fals
 
     if (usePlaceholders) number = number.padEnd(16, '•')
 
-    number.chunked(4).joinToString(" ")
+    addCardNumberSpaces(number)
   }
 
   val cardExpiry = card.expiry.let {
-    val (month, year) = Pair(it.substringBefore('/'), it.substringAfter('/', ""))
+    val month = it.substringBefore('/')
+    val year = it.substringAfter('/', "")
 
     if (usePlaceholders) {
       val paddedMonth = month.padEnd(2, '•')
