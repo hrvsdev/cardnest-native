@@ -1,5 +1,7 @@
 package com.hrvs.cardnest.components.card
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -42,8 +45,15 @@ fun CardPreview(
   val navigator = LocalNavigator.currentOrThrow
   val formattedCard = formatCardViewDetails(card, usePlaceholders)
 
-  fun modifierWithOpacity(field: CardFocusableField): Modifier {
-    return Modifier.alpha(if (usePlaceholders) if (focused == field) 1f else 0.6f else 1f)
+  @Composable
+  fun modifierWithAlpha(field: CardFocusableField): Modifier {
+    if (!usePlaceholders) return Modifier
+
+    val alphaValue by animateFloatAsState(
+      if (focused == field) 1f else 0.6f, tween(300), label = "Field alpha value"
+    )
+
+    return Modifier.alpha(alpha = alphaValue)
   }
 
   Column(
@@ -56,7 +66,7 @@ fun CardPreview(
     verticalArrangement = Arrangement.SpaceBetween
   ) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-      Column(modifierWithOpacity(CardFocusableField.CARDHOLDER)) {
+      Column(modifierWithAlpha(CardFocusableField.CARDHOLDER)) {
         AppText(
           text = "CARDHOLDER",
           size = AppTextSize.XXS,
@@ -72,7 +82,7 @@ fun CardPreview(
         )
       }
 
-      Column(modifierWithOpacity(CardFocusableField.ISSUER), horizontalAlignment = Alignment.End) {
+      Column(modifierWithAlpha(CardFocusableField.ISSUER), horizontalAlignment = Alignment.End) {
         AppText(
           text = "ISSUER", size = AppTextSize.XXS, color = TH_WHITE_70, letterSpacing = (10 / 10).sp
         )
@@ -86,7 +96,7 @@ fun CardPreview(
       }
     }
 
-    Row(modifierWithOpacity(CardFocusableField.NUMBER)) {
+    Row(modifierWithAlpha(CardFocusableField.NUMBER)) {
       for (char in formattedCard.number) {
         AppText(
           text = char.toString(),
@@ -99,7 +109,7 @@ fun CardPreview(
       }
     }
 
-    Row(modifierWithOpacity(CardFocusableField.EXPIRY).fillMaxWidth(), Arrangement.SpaceBetween) {
+    Row(modifierWithAlpha(CardFocusableField.EXPIRY).fillMaxWidth(), Arrangement.SpaceBetween) {
       Column {
         AppText(
           text = "VALID THRU",
