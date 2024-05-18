@@ -54,6 +54,13 @@ enum class PaymentNetwork {
   OTHER
 }
 
+enum class CardFocusableField {
+  NUMBER,
+  EXPIRY,
+  CARDHOLDER,
+  ISSUER
+}
+
 enum class CardTheme {
   RED,
   ORANGE,

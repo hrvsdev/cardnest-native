@@ -8,7 +8,7 @@ fun removeCardNumberSpaces(number: String) = number.replace(" ", "")
 
 fun formatCardViewDetails(card: CardFullProfile, usePlaceholders: Boolean = false): DisplayCardDetails {
   val cardNumber = card.number.let {
-    var number = it
+    var number = removeCardNumberSpaces(it)
 
     if (usePlaceholders) number = number.padEnd(16, '•')
 
