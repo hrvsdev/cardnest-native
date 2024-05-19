@@ -69,9 +69,9 @@ fun AppTextField(
 ) {
   val isFocused = remember { mutableStateOf(false) }
 
-  val boxPadding = PaddingValues(
-    start = if (leftIcon == null) 8.dp else 0.dp,
-    end = if (rightIcon == null) 8.dp else 0.dp
+  val paddingValues = PaddingValues(
+    start = if (leftIcon == null) 16.dp else 0.dp,
+    end = if (rightIcon == null) 16.dp else 0.dp
   )
 
   Column(Modifier.fillMaxWidth(), Arrangement.spacedBy(8.dp)) {
@@ -94,7 +94,7 @@ fun AppTextField(
       keyboardOptions = keyboardOptions,
 
       modifier = Modifier
-        .fillMaxWidth()
+        .height(48.dp)
         .background(if (isFocused.value) TH_WHITE_10 else TH_WHITE_07, RoundedCornerShape(14.dp))
         .onFocusChanged {
           isFocused.value = it.isFocused
@@ -102,29 +102,20 @@ fun AppTextField(
         },
 
       decorator = { innerTextField ->
-        Box(Modifier.padding(boxPadding)) {
-          Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            if (leftIcon != null) {
-              Box(contentAlignment = Alignment.CenterStart) {
-                leftIcon()
-              }
-            }
+        Row(Modifier.padding(paddingValues), verticalAlignment = Alignment.CenterVertically) {
+          if (leftIcon != null) leftIcon()
 
-            Box(Modifier.height(48.dp), contentAlignment = Alignment.CenterStart) {
-              if (state.text.isEmpty() && placeholder != null) {
-                AppText(text = placeholder, color = TH_WHITE_60)
-              }
-              innerTextField()
+          Box(Modifier.weight(1f), Alignment.CenterStart) {
+            if (state.text.isEmpty() && placeholder != null) {
+              AppText(text = placeholder, color = TH_WHITE_60)
             }
-
-            if (rightIcon != null) {
-              Box(contentAlignment = Alignment.CenterEnd) {
-                rightIcon()
-              }
-            }
+            innerTextField()
           }
+
+          if (rightIcon != null) rightIcon()
         }
-      })
+      }
+    )
 
     if (error != null) AppText(
       error, Modifier.padding(start = 8.dp), AppTextSize.SM, color = TH_RED
