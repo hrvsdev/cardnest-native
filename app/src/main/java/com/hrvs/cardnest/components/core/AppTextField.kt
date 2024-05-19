@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.hrvs.cardnest.R
 import com.hrvs.cardnest.ui.theme.AppText
 import com.hrvs.cardnest.ui.theme.AppTextSize
+import com.hrvs.cardnest.ui.theme.LatoFamily
 import com.hrvs.cardnest.ui.theme.TH_RED
 import com.hrvs.cardnest.ui.theme.TH_SKY_80
 import com.hrvs.cardnest.ui.theme.TH_WHITE
@@ -59,6 +61,7 @@ fun AppTextField(
   inputTransformation: InputTransformation? = null,
   keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
 
+  leftIcon: @Composable (() -> Unit)? = null,
   rightIcon: @Composable (() -> Unit)? = null,
 
   onFocus: () -> Unit = {},
@@ -66,13 +69,23 @@ fun AppTextField(
 ) {
   val isFocused = remember { mutableStateOf(false) }
 
+  val boxPadding = PaddingValues(
+    start = if (leftIcon == null) 8.dp else 0.dp,
+    end = if (rightIcon == null) 8.dp else 0.dp
+  )
+
   Column(Modifier.fillMaxWidth(), Arrangement.spacedBy(8.dp)) {
     if (label != null) AppText(label, Modifier.padding(start = 8.dp))
 
     BasicTextField(
       state = state,
-      textStyle = TextStyle(if (error.isNullOrEmpty()) TH_WHITE else TH_RED, fontSize = 16.sp),
       cursorBrush = SolidColor(TH_SKY_80),
+
+      textStyle = TextStyle(
+        color = if (error.isNullOrEmpty()) TH_WHITE else TH_RED,
+        fontSize = 16.sp,
+        fontFamily = LatoFamily
+      ),
 
       lineLimits = TextFieldLineLimits.SingleLine,
       readOnly = readOnly,
@@ -89,8 +102,14 @@ fun AppTextField(
         },
 
       decorator = { innerTextField ->
-        Box(Modifier.padding(start = 16.dp, end = if (rightIcon == null) 16.dp else 0.dp)) {
-          Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+        Box(Modifier.padding(boxPadding)) {
+          Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            if (leftIcon != null) {
+              Box(contentAlignment = Alignment.CenterStart) {
+                leftIcon()
+              }
+            }
+
             Box(Modifier.height(48.dp), contentAlignment = Alignment.CenterStart) {
               if (state.text.isEmpty() && placeholder != null) {
                 AppText(text = placeholder, color = TH_WHITE_60)
@@ -98,7 +117,11 @@ fun AppTextField(
               innerTextField()
             }
 
-            if (rightIcon != null) rightIcon()
+            if (rightIcon != null) {
+              Box(contentAlignment = Alignment.CenterEnd) {
+                rightIcon()
+              }
+            }
           }
         }
       })
