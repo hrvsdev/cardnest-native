@@ -1,10 +1,10 @@
 package com.hrvs.cardnest.components.card
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text2.input.InputTransformation
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.byValue
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -14,7 +14,6 @@ import com.hrvs.cardnest.data.CardFocusableField
 import com.hrvs.cardnest.state.card.CardEditorViewModel
 import com.hrvs.cardnest.utils.card.addCardNumberSpaces
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CardEditor(viewModel: CardEditorViewModel) {
   CardPreview(viewModel.card, usePlaceholders = true, focused = viewModel.focused.value)
@@ -68,7 +67,6 @@ fun CardEditor(viewModel: CardEditorViewModel) {
   }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 val CardNumberTransformation = InputTransformation.byValue { _, proposed ->
   val filteredValue = proposed.filter { c -> c.isDigit() }.take(16)
   val formattedValue = addCardNumberSpaces(filteredValue.toString())
@@ -76,7 +74,6 @@ val CardNumberTransformation = InputTransformation.byValue { _, proposed ->
   formattedValue
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 val ExpiryTransformation = InputTransformation.byValue { current, proposed ->
   var filteredValue = proposed.filter { c -> c.isDigit() }.take(4)
 

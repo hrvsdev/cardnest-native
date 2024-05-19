@@ -1,7 +1,6 @@
 package com.hrvs.cardnest.state.card
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.hrvs.cardnest.data.CardFocusableField
@@ -10,7 +9,6 @@ import com.hrvs.cardnest.data.CardTheme
 import com.hrvs.cardnest.data.PaymentNetwork
 import com.hrvs.cardnest.utils.card.addCardNumberSpaces
 
-@OptIn(ExperimentalFoundationApi::class)
 class CardEditorViewModel(card: CardFullProfile) : ViewModel() {
   val number = TextFieldState(addCardNumberSpaces(card.number))
   val expiry = TextFieldState(card.expiry)
