@@ -24,6 +24,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,6 +36,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hrvs.cardnest.R
@@ -134,7 +136,7 @@ fun CopyableTextField(
   val textState = rememberTextFieldState(text)
 
   var hasCopied by remember { mutableStateOf(false) }
-  var offsetY by remember { mutableStateOf(0.dp) }
+  var offsetY by remember { mutableIntStateOf(0) }
 
   fun copyText() {
     hasCopied = true
@@ -143,9 +145,9 @@ fun CopyableTextField(
 
   LaunchedEffect(hasCopied) {
     if (hasCopied) {
-      offsetY = 1.dp
+      offsetY = 1
       delay(200)
-      offsetY = 0.dp
+      offsetY = 0
       delay(1500)
       hasCopied = false
     }
@@ -156,7 +158,7 @@ fun CopyableTextField(
     label = label,
     readOnly = true,
     rightIcon = {
-      IconButton(::copyText, Modifier.offset(y = offsetY), !hasCopied) {
+      IconButton(::copyText, Modifier.offset { IntOffset(0, y = offsetY) }, !hasCopied) {
         if (hasCopied) {
           Icon(Icons.Default.Check, "Text copied", tint = TH_WHITE)
         } else {
