@@ -28,7 +28,7 @@ fun HeaderSearch() {
     Box(Modifier.size(48.dp), Alignment.Center) {
       Icon(
         imageVector = Icons.Outlined.Search,
-        contentDescription = "Search",
+        contentDescription = "",
         modifier = Modifier.size(28.dp),
         tint = TH_WHITE_60
       )
@@ -40,7 +40,7 @@ fun HeaderSearch() {
     if (search.text.isNotEmpty()) {
       IconButton(onClick = { search.clearText() }) {
         Icon(
-          imageVector = Icons.Outlined.Clear, contentDescription = "Clear", tint = TH_WHITE_60
+          imageVector = Icons.Outlined.Clear, contentDescription = "Clear text", tint = TH_WHITE_60
         )
       }
     }
@@ -49,7 +49,7 @@ fun HeaderSearch() {
   Box(Modifier.padding(16.dp)) {
     AppTextField(
       state = search,
-      placeholder = "Search",
+      placeholder = "Enter card number, bank or network",
       leftIcon = { SearchIcon() },
       rightIcon = { ClearButton() },
     )
