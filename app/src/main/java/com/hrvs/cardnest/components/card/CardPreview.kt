@@ -71,27 +71,34 @@ fun CardPreview(
           text = "CARDHOLDER",
           size = AppTextSize.XXS,
           color = TH_WHITE_70,
-          letterSpacing = (10 / 10).sp
+          letterSpacing = (10 / 10).sp,
+          useCardFontFamily = true
         )
         AppText(
           text = formattedCard.cardholder,
           size = AppTextSize.LG,
           weight = FontWeight.Medium,
           color = TH_WHITE,
-          letterSpacing = (18 / 20).sp
+          letterSpacing = (18 / 20).sp,
+          useCardFontFamily = true
         )
       }
 
       Column(modifierWithAlpha(CardFocusableField.ISSUER), horizontalAlignment = Alignment.End) {
         AppText(
-          text = "ISSUER", size = AppTextSize.XXS, color = TH_WHITE_70, letterSpacing = (10 / 10).sp
+          text = "ISSUER",
+          size = AppTextSize.XXS,
+          color = TH_WHITE_70,
+          letterSpacing = (10 / 10).sp,
+          useCardFontFamily = true,
         )
         AppText(
           text = formattedCard.issuer,
           size = AppTextSize.LG,
           weight = FontWeight.Medium,
           color = TH_WHITE,
-          letterSpacing = (18 / 20).sp
+          letterSpacing = (18 / 20).sp,
+          useCardFontFamily = true,
         )
       }
     }
@@ -100,11 +107,12 @@ fun CardPreview(
       for (char in formattedCard.number) {
         AppText(
           text = char.toString(),
-          modifier = Modifier.width(if (char.toString().trim() == "") 8.dp else 16.dp),
+          modifier = Modifier.width(if (char.isWhitespace()) 8.dp else 16.dp),
           size = AppTextSize.XXL,
           weight = FontWeight.Bold,
           align = TextAlign.Center,
-          color = TH_WHITE
+          color = TH_WHITE,
+          useCardFontFamily = true,
         )
       }
     }
@@ -115,7 +123,8 @@ fun CardPreview(
           text = "VALID THRU",
           size = AppTextSize.XXS,
           color = TH_WHITE_70,
-          letterSpacing = (10 / 10).sp
+          letterSpacing = (10 / 10).sp,
+          useCardFontFamily = true
         )
         Row {
           for (char in formattedCard.expiry) {
@@ -125,7 +134,8 @@ fun CardPreview(
               weight = FontWeight.Bold,
               lineHeight = 28.sp,
               align = TextAlign.Center,
-              color = TH_WHITE
+              color = TH_WHITE,
+              useCardFontFamily = true,
             )
           }
         }
