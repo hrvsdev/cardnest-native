@@ -58,10 +58,12 @@ dependencies {
 	implementation("androidx.compose.ui:ui-tooling-preview")
 	implementation("androidx.compose.material3:material3")
 
+  implementation("androidx.core:core-splashscreen:1.0.1")
+
 	debugImplementation("androidx.compose.ui:ui-tooling")
 	debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-	implementation("androidx.compose.ui:ui-text-google-fonts:1.7.2")
+	implementation("androidx.compose.ui:ui-text-google-fonts:1.7.3")
 
 	implementation("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
 	implementation("cafe.adriel.voyager:voyager-screenmodel:$voyagerVersion")
