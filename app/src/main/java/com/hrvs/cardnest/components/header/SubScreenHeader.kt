@@ -1,5 +1,6 @@
 package com.hrvs.cardnest.components.header
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.hrvs.cardnest.ui.theme.AppText
+import com.hrvs.cardnest.ui.theme.TH_BLACK
 import com.hrvs.cardnest.ui.theme.TH_SKY
 import com.hrvs.cardnest.ui.theme.TH_WHITE
 import com.hrvs.cardnest.ui.theme.TH_WHITE_10
@@ -39,7 +41,7 @@ fun SubScreenHeader(
 
   val navigator = LocalNavigator.currentOrThrow
 
-  Column {
+  Column(Modifier.background(TH_BLACK)) {
     Box(Modifier.fillMaxWidth(), Alignment.Center) {
       AppText(
         text = title,

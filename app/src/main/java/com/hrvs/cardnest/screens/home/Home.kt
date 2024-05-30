@@ -5,13 +5,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import com.hrvs.cardnest.components.card.CardPreview
+import com.hrvs.cardnest.components.containers.ScreenContainer
+import com.hrvs.cardnest.components.containers.TabScreenRoot
 import com.hrvs.cardnest.components.header.HeaderSearch
 import com.hrvs.cardnest.components.header.HeaderTitle
 import com.hrvs.cardnest.data.CardFullProfile
 import com.hrvs.cardnest.data.CardTheme
 import com.hrvs.cardnest.data.PaymentNetwork
-import com.hrvs.cardnest.ui.theme.ScreenContainer
-import com.hrvs.cardnest.ui.theme.TabScreenRoot
 
 val cards = listOf(
   CardFullProfile(
