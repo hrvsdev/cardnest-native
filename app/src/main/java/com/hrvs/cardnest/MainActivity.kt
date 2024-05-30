@@ -7,13 +7,16 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.hrvs.cardnest.ui.theme.CardNestTheme
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     installSplashScreen()
     setContent {
-      App()
+      CardNestTheme {
+        App()
+      }
     }
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
   }
