@@ -63,8 +63,6 @@ dependencies {
 	debugImplementation("androidx.compose.ui:ui-tooling")
 	debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-	implementation("androidx.compose.ui:ui-text-google-fonts:1.7.3")
-
 	implementation("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
 	implementation("cafe.adriel.voyager:voyager-screenmodel:$voyagerVersion")
 	implementation("cafe.adriel.voyager:voyager-bottom-sheet-navigator:$voyagerVersion")
