@@ -1,20 +1,19 @@
 package com.hrvs.cardnest.components.containers
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hrvs.cardnest.components.header.SubScreenHeader
+import com.hrvs.cardnest.components.tabs.TabBar
 import com.hrvs.cardnest.ui.theme.TH_BLACK
 
 val ScreenModifier = Modifier
@@ -23,8 +22,11 @@ val ScreenModifier = Modifier
 
 @Composable
 fun TabScreenRoot(content: @Composable () -> Unit) {
-  Column(ScreenModifier.verticalScroll(ScrollState(0), true)) {
-    content()
+  Column(ScreenModifier) {
+    Column(Modifier.weight(1f)) {
+      content()
+    }
+    TabBar()
   }
 }
 
