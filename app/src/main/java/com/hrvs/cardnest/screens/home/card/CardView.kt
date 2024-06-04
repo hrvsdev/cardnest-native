@@ -2,13 +2,13 @@ package com.hrvs.cardnest.screens.home.card
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.hrvs.cardnest.R
 import com.hrvs.cardnest.components.button.AppButton
 import com.hrvs.cardnest.components.button.ButtonTheme
 import com.hrvs.cardnest.components.card.CardPreview
@@ -26,7 +26,7 @@ data class CardViewScreen(val card: CardFullProfile) : Screen {
     SubScreenRoot(
       title = "Card",
       rightButtonLabel = "Edit",
-      rightButtonIcon = Icons.Outlined.Edit,
+      rightButtonIcon = painterResource(R.drawable.tabler__pencil),
       onRightButtonClick = { navigator.push(UpdateCardEditorScreen(card)) },
       spacedBy = 32.dp,
     ) {

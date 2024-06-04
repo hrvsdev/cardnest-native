@@ -10,18 +10,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.hrvs.cardnest.R
 import com.hrvs.cardnest.ui.theme.AppText
 import com.hrvs.cardnest.ui.theme.TH_BLACK
 import com.hrvs.cardnest.ui.theme.TH_SKY
@@ -35,7 +35,7 @@ fun SubScreenHeader(
   leftIconLabel: String? = null,
 
   rightButtonLabel: String? = null,
-  rightButtonIcon: ImageVector? = null,
+  rightButtonIcon: Painter? = null,
   onRightButtonClick: () -> Unit = {},
 ) {
 
@@ -63,10 +63,10 @@ fun SubScreenHeader(
             .padding(horizontal = 16.dp)
         ) {
           Icon(
-            imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
+            painter = painterResource(R.drawable.tabler__chevron_left),
             contentDescription = null,
             tint = TH_SKY,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(20.dp)
           )
           AppText(
             text = leftIconLabel ?: "Back",
@@ -85,7 +85,7 @@ fun SubScreenHeader(
 
           if (rightButtonIcon != null) {
             Icon(
-              imageVector = rightButtonIcon,
+              painter = rightButtonIcon,
               contentDescription = null,
               tint = TH_SKY,
               modifier = Modifier.size(18.dp)

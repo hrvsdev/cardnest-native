@@ -1,6 +1,5 @@
 package com.hrvs.cardnest.components.containers
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,7 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hrvs.cardnest.components.header.SubScreenHeader
@@ -32,7 +31,6 @@ fun TabScreenRoot(content: @Composable () -> Unit) {
   }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SubScreenRoot(
   title: String,
@@ -40,7 +38,7 @@ fun SubScreenRoot(
   leftIconLabel: String? = null,
 
   rightButtonLabel: String? = null,
-  rightButtonIcon: ImageVector? = null,
+  rightButtonIcon: Painter? = null,
   onRightButtonClick: () -> Unit = {},
 
   spacedBy: Dp? = null,

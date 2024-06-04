@@ -5,16 +5,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.hrvs.cardnest.R
 import com.hrvs.cardnest.components.core.AppTextField
 import com.hrvs.cardnest.ui.theme.TH_WHITE_60
 
@@ -27,9 +26,8 @@ fun HeaderSearch() {
   fun SearchIcon() {
     Box(Modifier.size(48.dp), Alignment.Center) {
       Icon(
-        imageVector = Icons.Outlined.Search,
+        painter = painterResource(R.drawable.tabler__search),
         contentDescription = "",
-        modifier = Modifier.size(28.dp),
         tint = TH_WHITE_60
       )
     }
@@ -40,7 +38,9 @@ fun HeaderSearch() {
     if (search.text.isNotEmpty()) {
       IconButton(onClick = { search.clearText() }) {
         Icon(
-          imageVector = Icons.Outlined.Clear, contentDescription = "Clear text", tint = TH_WHITE_60
+          painter = painterResource(R.drawable.tabler__circle_x),
+          contentDescription = "Clear text",
+          tint = TH_WHITE_60
         )
       }
     }

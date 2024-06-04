@@ -17,8 +17,6 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -145,7 +143,7 @@ fun CopyableTextField(
 
   LaunchedEffect(hasCopied) {
     if (hasCopied) {
-      offsetY = 1
+      offsetY = 2
       delay(200)
       offsetY = 0
       delay(1500)
@@ -160,9 +158,9 @@ fun CopyableTextField(
     rightIcon = {
       IconButton(::copyText, Modifier.offset { IntOffset(0, y = offsetY) }, !hasCopied) {
         if (hasCopied) {
-          Icon(Icons.Default.Check, "Text copied", tint = TH_WHITE)
+          Icon(painterResource(R.drawable.tabler__check), "Text copied", tint = TH_WHITE)
         } else {
-          Icon(painterResource(R.drawable.outline_content_copy_24), "Copy text", tint = TH_WHITE)
+          Icon(painterResource(R.drawable.tabler__copy), "Copy text", tint = TH_WHITE)
         }
       }
     }
