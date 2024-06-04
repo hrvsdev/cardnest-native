@@ -25,7 +25,7 @@ val ScreenModifier = Modifier
 @Composable
 fun TabScreenRoot(content: @Composable () -> Unit) {
   Column(ScreenModifier) {
-    Box(Modifier.weight(1f)) {
+    Column(Modifier.weight(1f)) {
       content()
     }
     TabBar()
