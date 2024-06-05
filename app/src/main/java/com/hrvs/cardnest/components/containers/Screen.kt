@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hrvs.cardnest.components.header.SubScreenHeader
-import com.hrvs.cardnest.components.tabs.TabBar
 import com.hrvs.cardnest.ui.theme.TH_BLACK
 
 val ScreenModifier = Modifier
@@ -24,10 +23,7 @@ val ScreenModifier = Modifier
 @Composable
 fun TabScreenRoot(content: @Composable () -> Unit) {
   Column(ScreenModifier) {
-    Column(Modifier.weight(1f)) {
-      content()
-    }
-    TabBar()
+    content()
   }
 }
 
