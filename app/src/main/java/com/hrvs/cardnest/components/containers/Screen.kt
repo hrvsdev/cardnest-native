@@ -10,19 +10,28 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hrvs.cardnest.components.header.SubScreenHeader
 import com.hrvs.cardnest.ui.theme.TH_BLACK
+import com.hrvs.cardnest.ui.theme.TH_DARKER_BLUE
 
 val ScreenModifier = Modifier
   .fillMaxHeight()
-  .background(TH_BLACK)
+  .background(
+    Brush.linearGradient(
+      listOf(TH_BLACK, TH_DARKER_BLUE),
+      start = Offset(Float.POSITIVE_INFINITY, 0f),
+      end = Offset(0f, Float.POSITIVE_INFINITY)
+    )
+  )
 
 @Composable
 fun TabScreenRoot(content: @Composable () -> Unit) {
-  Column(ScreenModifier) {
+  Column(Modifier.fillMaxHeight()) {
     content()
   }
 }
@@ -41,7 +50,7 @@ fun SubScreenRoot(
 
   content: @Composable () -> Unit
 ) {
-  Column(ScreenModifier) {
+  Column(Modifier.fillMaxHeight()) {
     SubScreenHeader(title, leftIconLabel, rightButtonLabel, rightButtonIcon, onRightButtonClick)
     Box(Modifier.verticalScroll(rememberScrollState())) {
       ScreenContainer(spacedBy, content)
