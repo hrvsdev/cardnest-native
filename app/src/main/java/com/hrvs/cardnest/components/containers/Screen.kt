@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -31,7 +32,11 @@ val ScreenModifier = Modifier
 
 @Composable
 fun TabScreenRoot(content: @Composable () -> Unit) {
-  Column(Modifier.fillMaxHeight()) {
+  Column(
+    Modifier
+      .padding(bottom = 56.dp)
+      .fillMaxHeight()
+  ) {
     content()
   }
 }
@@ -48,7 +53,7 @@ fun SubScreenRoot(
 
   spacedBy: Dp? = null,
 
-  content: @Composable () -> Unit
+  content: @Composable ColumnScope.() -> Unit
 ) {
   Column(Modifier.fillMaxHeight()) {
     SubScreenHeader(title, leftIconLabel, rightButtonLabel, rightButtonIcon, onRightButtonClick)
@@ -60,7 +65,7 @@ fun SubScreenRoot(
 
 
 @Composable
-fun ScreenContainer(spacedBy: Dp? = null, content: @Composable () -> Unit) {
+fun ScreenContainer(spacedBy: Dp? = null, content: @Composable ColumnScope.() -> Unit) {
   Column(
     modifier = Modifier.padding(16.dp),
     verticalArrangement = if (spacedBy != null) Arrangement.spacedBy(spacedBy) else Arrangement.Top
