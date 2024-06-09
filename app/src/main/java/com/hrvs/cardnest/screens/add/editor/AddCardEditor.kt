@@ -26,13 +26,9 @@ class AddCardEditorScreen : Screen {
 
     val viewModel = remember { CardEditorViewModel(defaultCard) }
 
-    SubScreenRoot(
-      title = "Card",
-      rightButtonLabel = "Edit",
-      spacedBy = 32.dp
-    ) {
+    SubScreenRoot(title = "New Card", rightButtonLabel = "Done", spacedBy = 32.dp) {
       CardEditor(viewModel)
-      AppButton(title = "Update", onClick = { /*TODO*/ })
+      AppButton(title = "Save", onClick = { /*TODO*/ })
     }
   }
 }

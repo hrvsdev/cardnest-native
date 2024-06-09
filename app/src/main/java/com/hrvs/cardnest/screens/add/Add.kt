@@ -13,17 +13,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.hrvs.cardnest.R
 import com.hrvs.cardnest.components.button.AppButton
 import com.hrvs.cardnest.components.containers.ScreenContainer
 import com.hrvs.cardnest.components.containers.TabScreenRoot
 import com.hrvs.cardnest.components.header.HeaderTitle
+import com.hrvs.cardnest.screens.add.editor.AddCardEditorScreen
 import com.hrvs.cardnest.ui.theme.AppText
 import com.hrvs.cardnest.ui.theme.TH_WHITE_70
 
 class AddCardScreen : Screen {
   @Composable
   override fun Content() {
+    val navigator = LocalNavigator.currentOrThrow
+
     TabScreenRoot {
       HeaderTitle("Add Card")
       ScreenContainer {
@@ -43,7 +48,7 @@ class AddCardScreen : Screen {
             align = TextAlign.Center
           )
         }
-        AppButton(title = "Add Card", onClick = { /*TODO*/ })
+        AppButton(title = "Add Card", onClick = { navigator.push(AddCardEditorScreen()) })
       }
     }
   }
