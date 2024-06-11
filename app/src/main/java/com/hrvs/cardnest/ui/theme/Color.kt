@@ -9,6 +9,7 @@ val TH_BLACK = Color(0xFF00060C)
 val TH_BLACK_00 = Color(0x0000060C)
 val TH_BLACK_20 = Color(0x3300060C)
 val TH_BLACK_40 = Color(0x6600060C)
+val TH_BLACK_60 = Color(0x9900060C)
 val TH_BLACK_80 = Color(0xCC00060C)
 
 val TH_DARKER_BLUE = Color(0xFF001528)

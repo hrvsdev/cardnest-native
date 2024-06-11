@@ -1,5 +1,6 @@
 package com.hrvs.cardnest
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -11,17 +12,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import cafe.adriel.voyager.transitions.SlideTransition
-import com.hrvs.cardnest.components.containers.ScreenModifier
+import com.hrvs.cardnest.components.containers.appGradient
 import com.hrvs.cardnest.components.tabs.TabBar
 import com.hrvs.cardnest.components.tabs.TabButton
 import com.hrvs.cardnest.screens.add.AddCardScreen
 import com.hrvs.cardnest.screens.home.HomeScreen
 import com.hrvs.cardnest.screens.user.UserScreen
+import com.hrvs.cardnest.ui.theme.TH_BLACK_00
+import com.hrvs.cardnest.ui.theme.TH_BLACK_40
+import com.hrvs.cardnest.ui.theme.TH_BLACK_60
 
 @Composable
 fun App() {
@@ -32,8 +37,9 @@ fun App() {
   val userTab = remember { UserTab(onNavigator = { isVisible = it }) }
 
   TabNavigator(homeTab) {
-    Box(ScreenModifier) {
-      CurrentTab()
+    Box(Modifier.background(appGradient)) {
+      AppBottomSheetNavigator()
+
       Box(Modifier.align(Alignment.BottomCenter)) {
         TabBar(isVisible) {
           TabButton(homeTab, painterResource(R.drawable.heroicons__home_solid))
@@ -42,6 +48,16 @@ fun App() {
         }
       }
     }
+  }
+}
+
+@Composable
+fun AppBottomSheetNavigator() {
+  BottomSheetNavigator(
+    scrimColor = TH_BLACK_60,
+    sheetBackgroundColor = TH_BLACK_00,
+  ) {
+    CurrentTab()
   }
 }
 

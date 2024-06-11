@@ -1,6 +1,5 @@
 package com.hrvs.cardnest.components.containers
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,15 +19,11 @@ import com.hrvs.cardnest.components.header.SubScreenHeader
 import com.hrvs.cardnest.ui.theme.TH_BLACK
 import com.hrvs.cardnest.ui.theme.TH_DARKER_BLUE
 
-val ScreenModifier = Modifier
-  .fillMaxHeight()
-  .background(
-    Brush.linearGradient(
-      listOf(TH_BLACK, TH_DARKER_BLUE),
-      start = Offset(Float.POSITIVE_INFINITY, 0f),
-      end = Offset(0f, Float.POSITIVE_INFINITY)
-    )
-  )
+val appGradient = Brush.linearGradient(
+  listOf(TH_BLACK, TH_DARKER_BLUE),
+  start = Offset(Float.POSITIVE_INFINITY, 0f),
+  end = Offset(0f, Float.POSITIVE_INFINITY)
+)
 
 @Composable
 fun TabScreenRoot(content: @Composable () -> Unit) {
