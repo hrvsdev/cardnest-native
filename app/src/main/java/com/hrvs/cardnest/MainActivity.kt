@@ -1,5 +1,6 @@
 package com.hrvs.cardnest
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.WindowManager
@@ -10,7 +11,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.datastore.dataStore
+import com.hrvs.cardnest.state.CardsDataSerializer
 import com.hrvs.cardnest.ui.theme.CardNestTheme
+
+val Context.cardsDataStore by dataStore("cards_data.json", CardsDataSerializer)
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
