@@ -1,7 +1,8 @@
 plugins {
   id("com.android.application")
   id("org.jetbrains.kotlin.android")
-  id("org.jetbrains.kotlin.plugin.serialization") version "1.6.10"
+
+  kotlin("plugin.serialization") version "1.9.0"
 }
 
 android {
@@ -67,7 +68,7 @@ dependencies {
   // Data
   implementation("androidx.datastore:datastore:1.1.1")
   implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
   // Id
   implementation("io.viascom.nanoid:nanoid:1.0.1")
