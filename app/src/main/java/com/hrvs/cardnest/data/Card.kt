@@ -1,39 +1,14 @@
 package com.hrvs.cardnest.data
 
-data class CardData(
-  val id: String,
-  val data: CardFullProfile
-)
+import kotlinx.serialization.Serializable
 
-data class CardRecord(
-  val id: String,
-  val encryptedData: EncryptedData?,
-  val plainData: CardFullProfile?
-)
-
-data class EncryptedData(
-  val iv: String,
-  val dataString: String
-)
-
+@Serializable
 data class CardFullProfile(
   val number: String,
   val expiry: String,
   val cardholder: String,
   val issuer: String,
   val network: PaymentNetwork,
-  val theme: CardTheme
-)
-
-data class CardInfo(
-  val number: String,
-  val expiry: String,
-  val cardholder: String,
-  val issuer: String,
-  val network: PaymentNetwork
-)
-
-data class CardPreferences(
   val theme: CardTheme
 )
 
