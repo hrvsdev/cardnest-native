@@ -3,7 +3,6 @@ package com.hrvs.cardnest.components.card
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,11 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.hrvs.cardnest.data.CardFocusableField
 import com.hrvs.cardnest.data.CardFullProfile
-import com.hrvs.cardnest.screens.home.card.CardViewScreen
 import com.hrvs.cardnest.ui.theme.AppText
 import com.hrvs.cardnest.ui.theme.AppTextSize
 import com.hrvs.cardnest.ui.theme.TH_WHITE
@@ -38,11 +34,9 @@ import com.hrvs.cardnest.utils.card.formatCardViewDetails
 @Composable
 fun CardPreview(
   card: CardFullProfile,
-  clickable: Boolean = false,
   usePlaceholders: Boolean = false,
   focused: CardFocusableField? = null,
 ) {
-  val navigator = LocalNavigator.currentOrThrow
   val formattedCard = formatCardViewDetails(card, usePlaceholders)
 
   @Composable
@@ -61,7 +55,6 @@ fun CardPreview(
       .aspectRatio(1.586f)
       .clip(RoundedCornerShape(16.dp))
       .background(Brush.linearGradient(getCardTheme(card.theme)))
-      .clickable(enabled = clickable) { navigator.push(CardViewScreen(card)) }
       .padding(16.dp),
     verticalArrangement = Arrangement.SpaceBetween
   ) {
