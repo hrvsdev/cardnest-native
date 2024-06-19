@@ -5,22 +5,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import com.hrvs.cardnest.cardsDataStore
 import com.hrvs.cardnest.data.serializables.CardRecord
-import com.hrvs.cardnest.data.serializables.CardRecords
-import kotlinx.collections.immutable.PersistentMap
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 @Composable
-fun getCardsAsMap(ctx: Context): PersistentMap<String, CardRecord> {
-  return ctx.cardsDataStore.data.collectAsState(CardRecords()).value.cards
+fun getCardsMapFlow(ctx: Context): Flow<Map<String, CardRecord>> {
+  return ctx.cardsDataStore.data.map { it.cards }
 }
 
 @Composable
 fun getCards(ctx: Context): List<CardRecord> {
-  return getCardsAsMap(ctx).values.toList()
+  return getCardsMapFlow(ctx).collectAsState(emptyMap()).value.values.toList()
 }
 
 @Composable
 fun getCard(ctx: Context, id: String): CardRecord? {
-  return getCardsAsMap(ctx)[id]
+  return getCardsMapFlow(ctx).map { it[id] }.collectAsState(null).value
 }
 
 suspend fun addCard(ctx: Context, card: CardRecord) {
