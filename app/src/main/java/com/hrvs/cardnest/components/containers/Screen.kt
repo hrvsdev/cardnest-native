@@ -1,11 +1,13 @@
 package com.hrvs.cardnest.components.containers
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -26,11 +28,13 @@ val appGradient = Brush.linearGradient(
 )
 
 @Composable
-fun TabScreenRoot(content: @Composable () -> Unit) {
+fun TabScreenRoot(content: @Composable ColumnScope.() -> Unit) {
   Column(
     Modifier
+      .statusBarsPadding()
       .padding(bottom = 56.dp)
       .fillMaxHeight()
+      .verticalScroll(ScrollState(0))
   ) {
     content()
   }
@@ -53,16 +57,20 @@ fun SubScreenRoot(
   Column(Modifier.fillMaxHeight()) {
     SubScreenHeader(title, leftIconLabel, rightButtonLabel, rightButtonIcon, onRightButtonClick)
     Box(Modifier.verticalScroll(rememberScrollState())) {
-      ScreenContainer(spacedBy, content)
+      ScreenContainer(spacedBy, content = content)
     }
   }
 }
 
 
 @Composable
-fun ScreenContainer(spacedBy: Dp? = null, content: @Composable ColumnScope.() -> Unit) {
+fun ScreenContainer(
+  spacedBy: Dp? = null,
+  modifier: Modifier = Modifier,
+  content: @Composable ColumnScope.() -> Unit
+) {
   Column(
-    modifier = Modifier.padding(16.dp),
+    modifier = modifier.padding(16.dp),
     verticalArrangement = if (spacedBy != null) Arrangement.spacedBy(spacedBy) else Arrangement.Top
   ) {
     content()
