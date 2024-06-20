@@ -70,7 +70,7 @@ fun AppText(
       textAlign = align,
       fontSize = fontSize,
       lineHeight = actualLineHeight,
-      lineHeightStyle = LineHeightStyle(Alignment.Proportional, Trim.None),
+      lineHeightStyle = LineHeightStyle(Alignment.Center, Trim.None),
       fontFamily = if (useCardFontFamily) ManropeFamily else LatoFamily
     )
   )
