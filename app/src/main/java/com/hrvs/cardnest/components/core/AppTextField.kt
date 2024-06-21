@@ -1,11 +1,12 @@
 package com.hrvs.cardnest.components.core
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -55,7 +56,7 @@ fun AppTextField(
 
   label: String? = null,
   placeholder: String? = null,
-  error: String? = null,
+  error: AppTextFieldError = AppTextFieldError(),
   readOnly: Boolean = false,
 
   inputTransformation: InputTransformation? = null,
@@ -74,15 +75,15 @@ fun AppTextField(
     end = if (rightIcon == null) 16.dp else 0.dp
   )
 
-  Column(Modifier.fillMaxWidth(), Arrangement.spacedBy(8.dp)) {
-    if (label != null) AppText(label, Modifier.padding(start = 8.dp))
+  Column(Modifier.fillMaxWidth()) {
+    if (label != null) AppText(label, Modifier.padding(start = 8.dp, bottom = 8.dp))
 
     BasicTextField(
       state = state,
       cursorBrush = SolidColor(TH_SKY_80),
 
       textStyle = TextStyle(
-        color = if (error.isNullOrEmpty()) TH_WHITE else TH_RED,
+        color = if (!error.hasError) TH_WHITE else TH_RED,
         fontSize = 16.sp,
         fontFamily = LatoFamily
       ),
@@ -117,9 +118,15 @@ fun AppTextField(
       }
     )
 
-    if (error != null) AppText(
-      error, Modifier.padding(start = 8.dp), AppTextSize.SM, color = TH_RED
-    )
+    AnimatedVisibility(error.hasError) {
+      Spacer(modifier = Modifier.height(8.dp))
+    }
+
+    AnimatedVisibility(error.hasError) {
+      AppText(
+        error.message, Modifier.padding(start = 8.dp), AppTextSize.SM, color = TH_RED
+      )
+    }
   }
 }
 
@@ -166,3 +173,8 @@ fun CopyableTextField(
     }
   )
 }
+
+open class AppTextFieldError(
+  open val message: String = "Please enter a valid value",
+  open val hasError: Boolean = false,
+)
