@@ -23,6 +23,7 @@ fun CardEditor(viewModel: CardEditorViewModel) {
       label = "Card number",
       placeholder = "Enter card number",
       state = viewModel.number,
+      error = viewModel.errors.number,
       inputTransformation = CardNumberTransformation,
       onFocus = { viewModel.onFocusedChange(CardFocusableField.NUMBER) },
       onBlur = { viewModel.onFocusedChange(null) },
@@ -37,6 +38,7 @@ fun CardEditor(viewModel: CardEditorViewModel) {
       placeholder = "Enter expiry date",
       state = viewModel.expiry,
       inputTransformation = ExpiryTransformation,
+      error = viewModel.errors.expiry,
       onFocus = { viewModel.onFocusedChange(CardFocusableField.EXPIRY) },
       onBlur = { viewModel.onFocusedChange(null) },
       keyboardOptions = KeyboardOptions.Default.copy(
@@ -49,6 +51,7 @@ fun CardEditor(viewModel: CardEditorViewModel) {
       label = "Cardholder name",
       placeholder = "Enter cardholder name",
       state = viewModel.cardholder,
+      error = viewModel.errors.cardholder,
       onFocus = { viewModel.onFocusedChange(CardFocusableField.CARDHOLDER) },
       onBlur = { viewModel.onFocusedChange(null) },
       keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
@@ -60,7 +63,7 @@ fun CardEditor(viewModel: CardEditorViewModel) {
       state = viewModel.issuer,
       onFocus = { viewModel.onFocusedChange(CardFocusableField.ISSUER) },
       onBlur = { viewModel.onFocusedChange(null) },
-      keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
+      keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done)
     )
 
     CardThemeSelector(viewModel.theme.value, viewModel::onThemeChange)
