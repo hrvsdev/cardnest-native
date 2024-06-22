@@ -20,13 +20,13 @@ data class CardErrorsState(
 )
 
 data class CardNumberError(override val hasError: Boolean) :
-  AppTextFieldError("Please enter a 16-digit card number")
+  AppTextFieldError("Card number must be exact 16 digits long")
 
 data class CardExpiryError(override val hasError: Boolean) :
-  AppTextFieldError("Please enter a valid expiry date in MM/YY format")
+  AppTextFieldError("Expiry date must be a valid date in MM/YY format")
 
 data class CardholderError(override val hasError: Boolean) :
-  AppTextFieldError("Please enter the cardholder name with at least 2 chars")
+  AppTextFieldError("Cardholder name must be at least 2 characters long")
 
 data class DisplayCardDetails(
   val number: String,
