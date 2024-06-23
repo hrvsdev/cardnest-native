@@ -77,7 +77,7 @@ fun CardPreview(
         )
       }
 
-      if (usePlaceholders || card.number.isNotBlank()) {
+      if (usePlaceholders || card.issuer.isNotBlank()) {
         Column(modifierWithAlpha(CardFocusableField.ISSUER), horizontalAlignment = Alignment.End) {
           AppText(
             text = "ISSUER",
