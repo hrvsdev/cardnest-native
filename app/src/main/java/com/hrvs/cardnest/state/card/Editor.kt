@@ -14,6 +14,7 @@ import com.hrvs.cardnest.data.CardNumberError
 import com.hrvs.cardnest.data.CardTheme
 import com.hrvs.cardnest.data.PaymentNetwork
 import com.hrvs.cardnest.utils.card.addCardNumberSpaces
+import com.hrvs.cardnest.utils.card.removeCardNumberSpaces
 
 class CardEditorViewModel(card: CardFullProfile) : ViewModel() {
   val number = TextFieldState(addCardNumberSpaces(card.number))
@@ -39,7 +40,7 @@ class CardEditorViewModel(card: CardFullProfile) : ViewModel() {
 
   val card
     get() = CardFullProfile(
-      number = number.text.toString(),
+      number = removeCardNumberSpaces(number.text.toString()),
       expiry = expiry.text.toString(),
       cardholder = cardholder.text.toString(),
       issuer = issuer.text.toString(),
