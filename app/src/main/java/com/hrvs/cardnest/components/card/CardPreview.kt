@@ -77,22 +77,24 @@ fun CardPreview(
         )
       }
 
-      Column(modifierWithAlpha(CardFocusableField.ISSUER), horizontalAlignment = Alignment.End) {
-        AppText(
-          text = "ISSUER",
-          size = AppTextSize.XXS,
-          color = TH_WHITE_70,
-          letterSpacing = (10 / 10).sp,
-          useCardFontFamily = true,
-        )
-        AppText(
-          text = formattedCard.issuer,
-          size = AppTextSize.LG,
-          weight = FontWeight.Medium,
-          color = TH_WHITE,
-          letterSpacing = (18 / 20).sp,
-          useCardFontFamily = true,
-        )
+      if (usePlaceholders || card.number.isNotBlank()) {
+        Column(modifierWithAlpha(CardFocusableField.ISSUER), horizontalAlignment = Alignment.End) {
+          AppText(
+            text = "ISSUER",
+            size = AppTextSize.XXS,
+            color = TH_WHITE_70,
+            letterSpacing = (10 / 10).sp,
+            useCardFontFamily = true,
+          )
+          AppText(
+            text = formattedCard.issuer,
+            size = AppTextSize.LG,
+            weight = FontWeight.Medium,
+            color = TH_WHITE,
+            letterSpacing = (18 / 20).sp,
+            useCardFontFamily = true,
+          )
+        }
       }
     }
 
