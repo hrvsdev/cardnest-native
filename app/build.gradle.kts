@@ -49,6 +49,7 @@ android {
 }
 
 dependencies {
+  val composeNavigationVersion = "2.8.2"
   val voyagerVersion = "1.0.0"
 
   implementation("androidx.core:core-ktx:1.13.1")
@@ -64,6 +65,9 @@ dependencies {
 
   debugImplementation("androidx.compose.ui:ui-tooling")
   debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+  // Compose navigation
+  implementation("androidx.navigation:navigation-compose:$composeNavigationVersion")
 
   // Data
   implementation("androidx.datastore:datastore:1.1.1")
