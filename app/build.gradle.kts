@@ -48,7 +48,7 @@ android {
 
 dependencies {
   val composeNavigationVersion = "2.8.2"
-  val voyagerVersion = "1.0.0"
+  val voyagerVersion = "1.1.0-beta03"
 
   implementation("androidx.core:core-ktx:1.13.1")
   implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
