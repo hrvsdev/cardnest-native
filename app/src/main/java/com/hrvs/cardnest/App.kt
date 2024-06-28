@@ -8,15 +8,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cafe.adriel.voyager.navigator.tab.TabOptions
-import cafe.adriel.voyager.transitions.SlideTransition
 import com.hrvs.cardnest.components.containers.appGradient
 import com.hrvs.cardnest.components.tabs.TabBar
 import com.hrvs.cardnest.screens.add.AddCardScreen
@@ -53,7 +52,7 @@ object HomeTab : Tab {
         showTabBar.value = it.lastItem is HomeScreen
       }
 
-      SlideTransition(it)
+      CurrentScreen()
     }
   }
 
@@ -76,7 +75,8 @@ object AddCardTab : Tab {
       LaunchedEffect(it.lastItem) {
         showTabBar.value = it.lastItem is AddCardScreen
       }
-      SlideTransition(it)
+
+      CurrentScreen()
     }
   }
 
@@ -99,7 +99,8 @@ object UserTab : Tab {
       LaunchedEffect(it.lastItem) {
         showTabBar.value = it.lastItem is UserScreen
       }
-      SlideTransition(it)
+
+      CurrentScreen()
     }
   }
 
