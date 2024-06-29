@@ -16,7 +16,16 @@ import com.hrvs.cardnest.data.PaymentNetwork
 import com.hrvs.cardnest.utils.card.addCardNumberSpaces
 import com.hrvs.cardnest.utils.card.removeCardNumberSpaces
 
-class CardEditorViewModel(card: CardFullProfile) : ViewModel() {
+fun defaultCard() = CardFullProfile(
+  number = "",
+  expiry = "",
+  cardholder = "",
+  issuer = "",
+  network = PaymentNetwork.VISA,
+  theme = CardTheme.entries.random(),
+)
+
+class CardEditorViewModel(card: CardFullProfile = defaultCard()) : ViewModel() {
   val number = TextFieldState(addCardNumberSpaces(card.number))
   val expiry = TextFieldState(card.expiry)
   val cardholder = TextFieldState(card.cardholder)
