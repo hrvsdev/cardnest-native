@@ -2,7 +2,7 @@ package com.hrvs.cardnest.state.card
 
 import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hrvs.cardnest.cardsDataStore
 import com.hrvs.cardnest.data.serializables.CardRecord
 import kotlinx.coroutines.flow.Flow
@@ -15,12 +15,12 @@ fun getCardsMapFlow(ctx: Context): Flow<Map<String, CardRecord>> {
 
 @Composable
 fun getCards(ctx: Context): List<CardRecord> {
-  return getCardsMapFlow(ctx).collectAsState(emptyMap()).value.values.toList()
+  return getCardsMapFlow(ctx).collectAsStateWithLifecycle(emptyMap()).value.values.toList()
 }
 
 @Composable
 fun getCard(ctx: Context, id: String): CardRecord? {
-  return getCardsMapFlow(ctx).map { it[id] }.collectAsState(null).value
+  return getCardsMapFlow(ctx).map { it[id] }.collectAsStateWithLifecycle(null).value
 }
 
 suspend fun addCard(ctx: Context, card: CardRecord) {
