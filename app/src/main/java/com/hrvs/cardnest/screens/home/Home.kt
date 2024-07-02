@@ -7,18 +7,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.hrvs.cardnest.LocalCardsDataVM
 import com.hrvs.cardnest.components.card.CardPreview
 import com.hrvs.cardnest.components.containers.ScreenContainer
 import com.hrvs.cardnest.components.containers.TabScreenRoot
 import com.hrvs.cardnest.components.header.HeaderSearch
 import com.hrvs.cardnest.components.header.HeaderTitle
 import com.hrvs.cardnest.screens.home.card.CardViewScreen
-import com.hrvs.cardnest.state.card.getCards
 import com.hrvs.cardnest.ui.theme.AppText
 import com.hrvs.cardnest.ui.theme.TH_WHITE_60
 
@@ -26,8 +26,7 @@ class HomeScreen : Screen {
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
-
-    val cards = getCards(LocalContext.current)
+    val cards = LocalCardsDataVM.current.state.collectAsStateWithLifecycle().value
 
     TabScreenRoot {
       HeaderTitle("Home")
