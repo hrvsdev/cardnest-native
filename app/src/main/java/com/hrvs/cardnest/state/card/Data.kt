@@ -1,37 +1,48 @@
 package com.hrvs.cardnest.state.card
 
-import android.content.Context
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hrvs.cardnest.cardsDataStore
+import androidx.datastore.core.DataStore
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.hrvs.cardnest.data.serializables.CardRecord
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import com.hrvs.cardnest.data.serializables.CardRecords
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-@Composable
-fun getCardsMapFlow(ctx: Context): Flow<Map<String, CardRecord>> {
-  return ctx.cardsDataStore.data.map { it.cards }
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class CardsDataViewModel(private val ds: DataStore<CardRecords>) : ViewModel() {
+  private val _state = ds.data.mapLatest { it }
+
+  val stateAsMap = _state.stateIn(
+    scope = viewModelScope,
+    started = SharingStarted.WhileSubscribed(5000),
+    initialValue = CardRecords(),
+  )
+
+  val state = _state.mapLatest { it.cards.values.toList() }.stateIn(
+    scope = viewModelScope,
+    started = SharingStarted.WhileSubscribed(5000),
+    initialValue = emptyList(),
+  )
+
+  fun addCard(card: CardRecord) {
+    viewModelScope.launch {
+      ds.updateData { it.copy(cards = it.cards.put(card.id, card)) }
+    }
+  }
+
+  fun updateCard(card: CardRecord) {
+    viewModelScope.launch {
+      ds.updateData { it.copy(cards = it.cards.put(card.id, card)) }
+    }
+  }
+
+  fun deleteCard(id: String) {
+    viewModelScope.launch {
+      ds.updateData { it.copy(cards = it.cards.remove(id)) }
+    }
+  }
 }
-
-@Composable
-fun getCards(ctx: Context): List<CardRecord> {
-  return getCardsMapFlow(ctx).collectAsStateWithLifecycle(emptyMap()).value.values.toList()
-}
-
-@Composable
-fun getCard(ctx: Context, id: String): CardRecord? {
-  return getCardsMapFlow(ctx).map { it[id] }.collectAsStateWithLifecycle(null).value
-}
-
-suspend fun addCard(ctx: Context, card: CardRecord) {
-  ctx.cardsDataStore.updateData { it.copy(cards = it.cards.put(card.id, card)) }
-}
-
-suspend fun updateCard(ctx: Context, card: CardRecord) {
-  ctx.cardsDataStore.updateData { it.copy(cards = it.cards.put(card.id, card)) }
-}
-
-suspend fun deleteCard(ctx: Context, id: String) {
-  ctx.cardsDataStore.updateData { it.copy(cards = it.cards.remove(id)) }
-}
-
