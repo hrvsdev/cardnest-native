@@ -1,5 +1,6 @@
 package com.hrvs.cardnest
 
+import android.app.Application
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
@@ -8,10 +9,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
+import com.hrvs.cardnest.data.serializables.CardRecords
 import com.hrvs.cardnest.state.CardsDataSerializer
 import com.hrvs.cardnest.ui.theme.CardNestTheme
 
@@ -31,8 +32,17 @@ class MainActivity : ComponentActivity() {
   }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun GreetingPreview() {
-  App()
+class CardNestApp : Application() {
+  companion object {
+    lateinit var dataStores: AppDataStoresModule
+  }
+
+  override fun onCreate() {
+    super.onCreate()
+    dataStores = AppDataStoresModule(this.cardsDataStore)
+  }
+}
+
+class AppDataStoresModule(private val dataStore: DataStore<CardRecords>) {
+  val cardsDataStore by lazy { dataStore }
 }
