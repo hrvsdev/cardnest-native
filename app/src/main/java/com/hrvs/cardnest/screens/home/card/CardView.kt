@@ -44,7 +44,7 @@ data class CardViewScreen(val cardRecord: CardRecord) : Screen {
     }
 
     fun onEditClick() {
-      navigator.push(UpdateCardEditorScreen(card))
+      navigator.push(UpdateCardEditorScreen(cardRecord))
     }
 
     fun onDeleteClick() {
