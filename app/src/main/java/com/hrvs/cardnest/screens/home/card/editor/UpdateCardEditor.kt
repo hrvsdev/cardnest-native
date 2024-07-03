@@ -1,8 +1,8 @@
 package com.hrvs.cardnest.screens.home.card.editor
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -13,6 +13,7 @@ import com.hrvs.cardnest.components.containers.SubScreenRoot
 import com.hrvs.cardnest.data.serializables.CardRecord
 import com.hrvs.cardnest.screens.home.HomeScreen
 import com.hrvs.cardnest.screens.home.card.CardViewScreen
+import com.hrvs.cardnest.state.appViewModelFactory
 import com.hrvs.cardnest.state.card.CardEditorViewModel
 
 data class UpdateCardEditorScreen(val cardRecord: CardRecord) : Screen {
@@ -21,10 +22,12 @@ data class UpdateCardEditorScreen(val cardRecord: CardRecord) : Screen {
     val navigator = LocalNavigator.currentOrThrow
     val cardsDataVM = LocalCardsDataVM.current
 
-    val viewModel = remember { CardEditorViewModel(cardRecord.plainData) }
+    val editorVM = viewModel<CardEditorViewModel>(
+      factory = appViewModelFactory { CardEditorViewModel(cardRecord.plainData) }
+    )
 
     fun update() {
-      viewModel.onSubmit {
+      editorVM.onSubmit {
         val updatedCard = CardRecord(cardRecord.id, it)
 
         if (updatedCard == cardRecord) {
@@ -43,7 +46,7 @@ data class UpdateCardEditorScreen(val cardRecord: CardRecord) : Screen {
       onRightButtonClick = ::update,
       spacedBy = 32.dp
     ) {
-      CardEditor(viewModel)
+      CardEditor(editorVM)
       AppButton(title = "Update", onClick = ::update)
     }
   }
