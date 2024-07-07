@@ -34,10 +34,11 @@ data class CardViewScreen(val cardRecord: CardRecord) : Screen {
     val card = cardRecord.plainData
 
     fun del() {
+      bottomSheetNavigator.hide()
+      cardsDataVM.deleteCard(cardRecord.id)
+
       scope.launch {
-        bottomSheetNavigator.hide()
         delay(200)
-        cardsDataVM.deleteCard(cardRecord.id)
         navigator.pop()
       }
     }

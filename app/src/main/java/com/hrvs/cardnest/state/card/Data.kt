@@ -1,5 +1,6 @@
 package com.hrvs.cardnest.state.card
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,9 +25,13 @@ class CardsDataViewModel(private val ds: DataStore<CardRecords>) : ViewModel() {
 
   val state = _state.mapLatest { it.cards.values.toList() }.stateIn(
     scope = viewModelScope,
-    started = SharingStarted.WhileSubscribed(5000),
+    started = SharingStarted.Eagerly,
     initialValue = emptyList(),
   )
+
+  init {
+    Log.i("CardsDataViewModel", "Initializing ...")
+  }
 
   fun addCard(card: CardRecord) {
     viewModelScope.launch {
