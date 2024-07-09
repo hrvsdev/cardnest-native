@@ -13,6 +13,7 @@ import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import cafe.adriel.voyager.transitions.SlideTransition
 import com.hrvs.cardnest.components.containers.appGradient
 import com.hrvs.cardnest.components.tabs.TabBar
 import com.hrvs.cardnest.screens.add.AddCardScreen
@@ -47,7 +48,7 @@ object HomeTab : Tab {
         showTabBar.value = it.lastItem is HomeScreen
       }
 
-      CurrentScreen()
+      SlideTransition(it)
     }
   }
 
@@ -72,7 +73,7 @@ object AddCardTab : Tab {
         showTabBar.value = it.lastItem is AddCardScreen
       }
 
-      CurrentScreen()
+      SlideTransition(it)
     }
   }
 
@@ -97,7 +98,7 @@ object UserTab : Tab {
         showTabBar.value = it.lastItem is UserScreen
       }
 
-      CurrentScreen()
+      SlideTransition(it)
     }
   }
 
