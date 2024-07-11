@@ -1,9 +1,8 @@
 plugins {
-  id("com.android.application")
-  id("org.jetbrains.kotlin.android")
-  id("org.jetbrains.kotlin.plugin.compose")
-
-  kotlin("plugin.serialization") version "2.0.20"
+  alias(libs.plugins.android.application)
+  alias(libs.plugins.kotlin.android)
+  alias(libs.plugins.kotlin.compose)
+  alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -16,68 +15,46 @@ android {
     targetSdk = 34
     versionCode = 1
     versionName = "1.0"
-
-    vectorDrawables {
-      useSupportLibrary = true
-    }
   }
 
   buildTypes {
-    release {
-      isMinifyEnabled = false
-      proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-    }
+    release { isMinifyEnabled = false }
   }
+
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
   }
+
   kotlinOptions {
     jvmTarget = "1.8"
   }
+
   buildFeatures {
     compose = true
-  }
-  packaging {
-    resources {
-      excludes += "/META-INF/{AL2.0,LGPL2.1}"
-    }
   }
 }
 
 dependencies {
-  val composeNavigationVersion = "2.8.2"
-  val voyagerVersion = "1.1.0-beta02"
+  implementation(libs.androidx.core.ktx)
+  implementation(libs.androidx.lifecycle.runtime.ktx)
+  implementation(libs.androidx.activity.compose)
+  implementation(platform(libs.androidx.compose.bom))
+  implementation(libs.androidx.ui)
+  implementation(libs.androidx.ui.graphics)
+  implementation(libs.androidx.ui.tooling.preview)
+  implementation(libs.androidx.material3)
+  implementation(libs.androidx.navigation.compose)
+  implementation(libs.androidx.core.splashscreen)
+  implementation(libs.androidx.datastore)
+  implementation(libs.kotlinx.immutable)
+  implementation(libs.kotlinx.serialization)
+  implementation(libs.nanoid)
+  implementation(libs.voyager.navigation)
+  implementation(libs.voyager.tab.navigator)
+  implementation(libs.voyager.bottom.sheet.navigation)
+  implementation(libs.voyager.transitions)
+  implementation(libs.voyager.screenmodel)
 
-  implementation("androidx.core:core-ktx:1.13.1")
-  implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
-  implementation("androidx.activity:activity-compose:1.9.2")
-  implementation(platform("androidx.compose:compose-bom:2024.09.03"))
-  implementation("androidx.compose.ui:ui")
-  implementation("androidx.compose.ui:ui-graphics")
-  implementation("androidx.compose.ui:ui-tooling-preview")
-  implementation("androidx.compose.material3:material3")
-
-  implementation("androidx.core:core-splashscreen:1.0.1")
-
-  debugImplementation("androidx.compose.ui:ui-tooling")
-  debugImplementation("androidx.compose.ui:ui-test-manifest")
-
-  // Compose navigation
-  implementation("androidx.navigation:navigation-compose:$composeNavigationVersion")
-
-  // Data
-  implementation("androidx.datastore:datastore:1.1.1")
-  implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-
-  // Id
-  implementation("io.viascom.nanoid:nanoid:1.0.1")
-
-  // Voyager
-  implementation("cafe.adriel.voyager:voyager-navigator:$voyagerVersion")
-  implementation("cafe.adriel.voyager:voyager-screenmodel:$voyagerVersion")
-  implementation("cafe.adriel.voyager:voyager-bottom-sheet-navigator:$voyagerVersion")
-  implementation("cafe.adriel.voyager:voyager-tab-navigator:$voyagerVersion")
-  implementation("cafe.adriel.voyager:voyager-transitions:$voyagerVersion")
+  runtimeOnly(libs.androidx.material)
 }
