@@ -55,6 +55,7 @@ dependencies {
   implementation(libs.voyager.bottom.sheet.navigation)
   implementation(libs.voyager.transitions)
   implementation(libs.voyager.screenmodel)
+  implementation(libs.koin.androidx.compose)
 
   runtimeOnly(libs.androidx.material)
 }
