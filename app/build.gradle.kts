@@ -56,6 +56,7 @@ dependencies {
   implementation(libs.voyager.transitions)
   implementation(libs.voyager.screenmodel)
   implementation(libs.koin.androidx.compose)
+  implementation(libs.koin.androidx.startup)
 
   runtimeOnly(libs.androidx.material)
 }

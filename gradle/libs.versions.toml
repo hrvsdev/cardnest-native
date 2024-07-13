@@ -35,6 +35,7 @@ androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", versi
 
 # Koin dependency injection
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+koin-androidx-startup = { module = "io.insert-koin:koin-androidx-startup", version.ref = "koin" }
 
 # Data storage and serialization
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
