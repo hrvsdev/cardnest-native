@@ -10,11 +10,13 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
-import app.cardnest.data.serializables.CardRecords
+import app.cardnest.di.appModule
 import app.cardnest.state.CardsDataSerializer
 import app.cardnest.ui.theme.CardNestTheme
+import org.koin.android.ext.koin.androidContext
+import org.koin.androix.startup.KoinStartup.onKoinStartup
+import org.koin.core.annotation.KoinExperimentalAPI
 
 val Context.cardsDataStore by dataStore("cards_data.json", CardsDataSerializer)
 
@@ -32,17 +34,16 @@ class MainActivity : ComponentActivity() {
   }
 }
 
+@OptIn(KoinExperimentalAPI::class)
 class CardNestApp : Application() {
-  companion object {
-    lateinit var dataStores: AppDataStoresModule
+  init {
+    onKoinStartup {
+      androidContext(this@CardNestApp)
+      modules(appModule)
+    }
   }
 
   override fun onCreate() {
     super.onCreate()
-    dataStores = AppDataStoresModule(this.cardsDataStore)
   }
-}
-
-class AppDataStoresModule(private val dataStore: DataStore<CardRecords>) {
-  val cardsDataStore by lazy { dataStore }
 }
