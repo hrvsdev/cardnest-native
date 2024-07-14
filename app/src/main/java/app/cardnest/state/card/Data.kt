@@ -1,11 +1,11 @@
 package app.cardnest.state.card
 
 import android.util.Log
-import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.serializables.CardRecord
 import app.cardnest.data.serializables.CardRecords
+import app.cardnest.db.CardRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.mapLatest
@@ -14,8 +14,8 @@ import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class CardsDataViewModel(private val ds: DataStore<CardRecords>) : ViewModel() {
-  private val _state = ds.data.mapLatest { it }
+class CardsDataViewModel(private val repository: CardRepository) : ViewModel() {
+  private val _state = repository.getCards()
 
   val stateAsMap = _state.stateIn(
     scope = viewModelScope,
@@ -34,20 +34,14 @@ class CardsDataViewModel(private val ds: DataStore<CardRecords>) : ViewModel() {
   }
 
   fun addCard(card: CardRecord) {
-    viewModelScope.launch {
-      ds.updateData { it.copy(cards = it.cards.put(card.id, card)) }
-    }
+    viewModelScope.launch { repository.addCard(card) }
   }
 
   fun updateCard(card: CardRecord) {
-    viewModelScope.launch {
-      ds.updateData { it.copy(cards = it.cards.put(card.id, card)) }
-    }
+    viewModelScope.launch { repository.updateCard(card) }
   }
 
   fun deleteCard(id: String) {
-    viewModelScope.launch {
-      ds.updateData { it.copy(cards = it.cards.remove(id)) }
-    }
+    viewModelScope.launch { repository.deleteCard(id) }
   }
 }
