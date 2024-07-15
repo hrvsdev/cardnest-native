@@ -9,24 +9,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
-import app.cardnest.LocalCardsDataVM
 import app.cardnest.components.card.CardPreview
 import app.cardnest.components.containers.ScreenContainer
 import app.cardnest.components.containers.TabScreenRoot
 import app.cardnest.components.header.HeaderSearch
 import app.cardnest.components.header.HeaderTitle
 import app.cardnest.screens.home.card.CardViewScreen
+import app.cardnest.state.card.CardsDataViewModel
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_WHITE_60
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import org.koin.androidx.compose.koinViewModel
 
 class HomeScreen : Screen {
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
-    val cards = LocalCardsDataVM.current.state.collectAsStateWithLifecycle().value
+    val cards = koinViewModel<CardsDataViewModel>().state.collectAsStateWithLifecycle().value
 
     TabScreenRoot {
       HeaderTitle("Home")

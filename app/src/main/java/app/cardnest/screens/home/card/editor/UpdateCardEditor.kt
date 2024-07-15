@@ -2,29 +2,27 @@ package app.cardnest.screens.home.card.editor
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
-import app.cardnest.LocalCardsDataVM
 import app.cardnest.components.button.AppButton
 import app.cardnest.components.card.CardEditor
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.data.serializables.CardRecord
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.home.card.CardViewScreen
-import app.cardnest.state.appViewModelFactory
 import app.cardnest.state.card.CardEditorViewModel
+import app.cardnest.state.card.CardsDataViewModel
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 data class UpdateCardEditorScreen(val cardRecord: CardRecord) : Screen {
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
-    val cardsDataVM = LocalCardsDataVM.current
 
-    val editorVM = viewModel<CardEditorViewModel>(
-      factory = appViewModelFactory { CardEditorViewModel(cardRecord.plainData) }
-    )
+    val cardsDataVM = koinViewModel<CardsDataViewModel>()
+    val editorVM = koinViewModel<CardEditorViewModel> { parametersOf(cardRecord.plainData) }
 
     fun update() {
       editorVM.onSubmit {

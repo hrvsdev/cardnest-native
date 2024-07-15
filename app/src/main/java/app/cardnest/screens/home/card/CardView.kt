@@ -6,11 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
-import app.cardnest.LocalCardsDataVM
 import app.cardnest.R
 import app.cardnest.components.button.AppButton
 import app.cardnest.components.button.ButtonTheme
@@ -19,16 +14,22 @@ import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.core.CopyableTextField
 import app.cardnest.data.serializables.CardRecord
 import app.cardnest.screens.home.card.editor.UpdateCardEditorScreen
+import app.cardnest.state.card.CardsDataViewModel
 import app.cardnest.utils.card.addCardNumberSpaces
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 data class CardViewScreen(val cardRecord: CardRecord) : Screen {
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
     val bottomSheetNavigator = LocalBottomSheetNavigator.current
-    val cardsDataVM = LocalCardsDataVM.current
+    val cardsDataVM = koinViewModel<CardsDataViewModel>()
 
     val scope = rememberCoroutineScope()
     val card = cardRecord.plainData
