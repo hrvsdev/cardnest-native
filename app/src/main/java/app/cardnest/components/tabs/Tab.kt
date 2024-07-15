@@ -20,32 +20,65 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
-import cafe.adriel.voyager.navigator.tab.Tab
-import app.cardnest.AddCardTab
-import app.cardnest.HomeTab
-import app.cardnest.LocalTabBarVisibility
 import app.cardnest.R
-import app.cardnest.UserTab
+import app.cardnest.screens.add.AddCardScreen
+import app.cardnest.screens.home.HomeScreen
+import app.cardnest.screens.user.UserScreen
 import app.cardnest.ui.theme.TH_BLACK
 import app.cardnest.ui.theme.TH_SKY
 import app.cardnest.ui.theme.TH_WHITE_10
 import app.cardnest.ui.theme.TH_WHITE_70
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+
+data class TabData(
+  val index: Int,
+  val title: String,
+  val icon: Int,
+  val screen: Screen,
+)
+
+val tabs = listOf(
+  TabData(0, "Home", R.drawable.heroicons__home_solid, HomeScreen),
+  TabData(1, "Add Card", R.drawable.heroicons__credit_card_solid, AddCardScreen),
+  TabData(2, "User", R.drawable.heroicons__user_circle_solid, UserScreen),
+)
 
 @Composable
-fun BoxScope.TabBar() {
+fun BoxScope.TabBar(show: Boolean) {
+  val navigator = LocalNavigator.currentOrThrow
+  val selectedIndex = tabs.indexOfLast { it.screen in navigator.items }
+
+  fun onTabClick(screen: Screen, index: Int) {
+    when {
+      // Push the screen if the target tab index is higher
+      selectedIndex < index -> navigator.push(screen)
+
+      // Pop until the target tab if it's already in the stack
+      selectedIndex > index && screen in navigator.items -> {
+        navigator.popUntil { it == screen }
+      }
+
+      // Replace the current screen if the target tab is not in the stack
+      selectedIndex > index -> navigator.replace(screen)
+    }
+  }
+
   Box(Modifier.align(Alignment.BottomCenter)) {
-    AnimatedVisibility(
-      LocalTabBarVisibility.current.value,
-      enter = slideInVertically { it },
-      exit = slideOutVertically { it },
-    ) {
+    AnimatedVisibility(show, enter = slideInVertically { it }, exit = slideOutVertically { it }) {
       Column(Modifier.background(TH_BLACK)) {
         HorizontalDivider(thickness = 0.5.dp, color = TH_WHITE_10)
+
         Row {
-          TabButton(HomeTab, painterResource(R.drawable.heroicons__home_solid))
-          TabButton(AddCardTab, painterResource(R.drawable.heroicons__credit_card_solid))
-          TabButton(UserTab, painterResource(R.drawable.heroicons__user_circle_solid))
+          tabs.forEach {
+            TabButton(
+              title = it.title,
+              icon = painterResource(it.icon),
+              onClick = { onTabClick(it.screen, it.index) },
+              isSelected = it.index == selectedIndex,
+            )
+          }
         }
       }
     }
@@ -54,23 +87,23 @@ fun BoxScope.TabBar() {
 
 @Composable
 fun RowScope.TabButton(
-  tab: Tab,
+  title: String,
   icon: Painter,
+  onClick: () -> Unit,
+  isSelected: Boolean,
 ) {
-  val tabNavigator = LocalTabNavigator.current
-
   Box(
     modifier = Modifier
       .weight(1f)
-      .clickable(onClick = { tabNavigator.current = tab })
+      .clickable(onClick = onClick)
       .padding(vertical = 16.dp),
     contentAlignment = Alignment.Center,
   ) {
     Icon(
       painter = icon,
-      contentDescription = tab.options.title,
+      contentDescription = title,
       modifier = Modifier.size(24.dp),
-      tint = if (tabNavigator.current.key == tab.key) TH_SKY else TH_WHITE_70,
+      tint = if (isSelected) TH_SKY else TH_WHITE_70,
     )
   }
 }
