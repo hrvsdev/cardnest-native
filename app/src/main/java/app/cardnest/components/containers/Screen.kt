@@ -34,7 +34,7 @@ fun TabScreenRoot(content: @Composable ColumnScope.() -> Unit) {
       .statusBarsPadding()
       .padding(bottom = 56.dp)
       .fillMaxHeight()
-      .verticalScroll(ScrollState(0))
+      .verticalScroll(rememberScrollState(0))
   ) {
     content()
   }
