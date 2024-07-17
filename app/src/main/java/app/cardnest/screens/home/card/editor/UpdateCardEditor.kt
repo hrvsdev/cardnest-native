@@ -34,7 +34,7 @@ data class UpdateCardEditorScreen(val cardRecord: CardRecord) : Screen {
         }
 
         cardsDataVM.updateCard(updatedCard)
-        navigator.replaceAll(listOf(HomeScreen(), CardViewScreen(updatedCard)))
+        navigator.replaceAll(listOf(HomeScreen, CardViewScreen(updatedCard)))
       }
     }
 

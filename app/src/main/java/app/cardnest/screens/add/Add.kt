@@ -12,19 +12,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import app.cardnest.R
 import app.cardnest.components.button.AppButton
 import app.cardnest.components.containers.ScreenContainer
 import app.cardnest.components.containers.TabScreenRoot
 import app.cardnest.components.header.HeaderTitle
+import app.cardnest.screens.NoTransition
 import app.cardnest.screens.add.editor.AddCardEditorScreen
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_WHITE_70
+import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import cafe.adriel.voyager.transitions.ScreenTransition
 
-class AddCardScreen : Screen {
+@Suppress("JavaIoSerializableObjectMustHaveReadResolve")
+@OptIn(ExperimentalVoyagerApi::class)
+object AddCardScreen : Screen, ScreenTransition by NoTransition() {
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
