@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.cardnest.components.containers.appGradient
 import app.cardnest.ui.theme.AppText
@@ -44,7 +45,7 @@ fun BottomSheetHeading(title: String) {
 
 @Composable
 fun BottomSheetDescription(description: String) {
-  AppText(text = description)
+  AppText(text = description, align = TextAlign.Center)
 }
 
 @Composable
