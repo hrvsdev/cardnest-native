@@ -7,23 +7,34 @@ import app.cardnest.data.serializables.CardRecord
 import app.cardnest.db.CardRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+sealed interface State<out T> {
+  object Loading : State<Nothing>
+  data class Success<T>(val data: T) : State<T>
+  data class Error(val error: Exception) : State<Nothing>
+}
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardsDataViewModel(private val repository: CardRepository) : ViewModel() {
-  private val _state = repository.getCards()
-  val state = _state.mapLatest { it.cards.values.toList() }.stateIn(
-    scope = viewModelScope,
-    started = SharingStarted.WhileSubscribed(5000),
-    initialValue = emptyList(),
-  )
+  private val _state = MutableStateFlow<State<List<CardRecord>>>(State.Loading)
+  val state = _state.asStateFlow()
 
   init {
     Log.i("CardsDataViewModel", "Initializing ...")
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        repository.getCards().collectLatest { d ->
+          _state.update { State.Success(d.cards.values.toList()) }
+        }
+      } catch (e: Exception) {
+        _state.update { State.Error(e) }
+      }
+    }
   }
 
   fun addCard(card: CardRecord) {

@@ -17,6 +17,7 @@ import app.cardnest.components.header.HeaderTitle
 import app.cardnest.screens.NoTransition
 import app.cardnest.screens.home.card.CardViewScreen
 import app.cardnest.state.card.CardsDataViewModel
+import app.cardnest.state.card.State
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_WHITE_60
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
@@ -32,22 +33,23 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
-
-    val cards = koinViewModel<CardsDataViewModel>().state.collectAsStateWithLifecycle().value
+    val state = koinViewModel<CardsDataViewModel>().state.collectAsStateWithLifecycle().value
 
     TabScreenRoot {
       HeaderTitle("Home")
       HeaderSearch()
       ScreenContainer(16.dp) {
-        cards.forEach {
-          Box(Modifier.clickable { navigator.push(CardViewScreen(it)) }) {
-            CardPreview(it.plainData)
+        if (state is State.Success) {
+          state.data.forEach {
+            Box(Modifier.clickable { navigator.push(CardViewScreen(it)) }) {
+              CardPreview(it.plainData)
+            }
           }
-        }
 
-        if (cards.isEmpty()) {
-          Box(Modifier.fillMaxWidth(), Alignment.Center) {
-            AppText("No cards found", Modifier.padding(top = 32.dp), color = TH_WHITE_60)
+          if (state.data.isEmpty()) {
+            Box(Modifier.fillMaxWidth(), Alignment.Center) {
+              AppText("No cards found", Modifier.padding(top = 32.dp), color = TH_WHITE_60)
+            }
           }
         }
       }
