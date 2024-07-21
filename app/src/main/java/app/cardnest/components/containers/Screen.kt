@@ -1,11 +1,12 @@
 package app.cardnest.components.containers
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -56,9 +57,14 @@ fun SubScreenRoot(
 ) {
   Column(Modifier.fillMaxHeight()) {
     SubScreenHeader(title, leftIconLabel, rightButtonLabel, rightButtonIcon, onRightButtonClick)
-    Box(Modifier.verticalScroll(rememberScrollState())) {
-      ScreenContainer(spacedBy, content = content)
-    }
+    ScreenContainer(
+      spacedBy,
+      content = content,
+      modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState())
+        .height(IntrinsicSize.Max),
+    )
   }
 }
 
