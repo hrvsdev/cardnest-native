@@ -13,10 +13,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import app.cardnest.components.settings.SettingsButton
 import app.cardnest.R
+import app.cardnest.screens.pin.create.CreatePinScreen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 
 class SecurityScreen : Screen {
   @Composable
   override fun Content() {
+    val navigator = LocalNavigator.currentOrThrow
+
     var hasCreatedPin by remember { mutableStateOf(false) }
 
     SubScreenRoot("Security", leftIconLabel = "Settings", spacedBy = 24.dp) {
@@ -24,7 +29,7 @@ class SecurityScreen : Screen {
         SettingsButton(
           title = if (hasCreatedPin) "Change password" else "Create password",
           icon = painterResource(R.drawable.tabler__password_mobile_phone),
-          onClick = {},
+          onClick = { navigator.push(CreatePinScreen()) },
           isFirst = true,
           isLast = true,
         )
