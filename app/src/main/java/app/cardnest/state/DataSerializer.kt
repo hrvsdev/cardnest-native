@@ -2,6 +2,7 @@ package app.cardnest.state
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
+import app.cardnest.data.serializables.AuthData
 import app.cardnest.data.serializables.CardRecords
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
@@ -30,4 +31,8 @@ abstract class DataSerializer<T>(private val serializer: KSerializer<T>) : Seria
 
 object CardsDataSerializer : DataSerializer<CardRecords>(CardRecords.serializer()) {
   override val defaultInstance: CardRecords = CardRecords()
+}
+
+object AuthDataSerializer : DataSerializer<AuthData>(AuthData.serializer()) {
+  override val defaultInstance: AuthData = AuthData()
 }
