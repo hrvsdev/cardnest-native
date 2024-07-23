@@ -23,6 +23,7 @@ import app.cardnest.ui.theme.TH_RED
 import app.cardnest.ui.theme.TH_WHITE
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -31,7 +32,7 @@ const val PIN_LENGTH = 6
 class CreatePinScreen : Screen {
   @Composable
   override fun Content() {
-    val navigator = LocalNavigator.current
+    val navigator = LocalNavigator.currentOrThrow
 
     val scope = rememberCoroutineScope()
 
@@ -60,6 +61,7 @@ class CreatePinScreen : Screen {
         }
 
         delay(500)
+        navigator.push(ConfirmPinScreen(pin))
       }
     }
 
