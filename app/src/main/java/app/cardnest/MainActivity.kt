@@ -38,7 +38,9 @@ class MainActivity : ComponentActivity() {
 
         splashScreen.setKeepOnScreenCondition { isLoading }
 
-        App()
+        if (!isLoading) {
+          App()
+        }
       }
     }
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
