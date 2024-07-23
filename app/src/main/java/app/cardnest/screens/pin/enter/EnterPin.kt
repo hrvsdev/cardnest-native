@@ -19,6 +19,7 @@ import app.cardnest.components.pin.Keypad
 import app.cardnest.components.pin.PinInput
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.pin.create.PIN_LENGTH
+import app.cardnest.state.auth.AuthDataViewModel
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_RED
@@ -28,13 +29,14 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-const val APP_PIN = "147147"
+import org.koin.androidx.compose.koinViewModel
 
 class EnterPinScreen : Screen {
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
+
+    val authVM = koinViewModel<AuthDataViewModel>()
 
     val scope = rememberCoroutineScope()
 
@@ -51,7 +53,9 @@ class EnterPinScreen : Screen {
 
     fun onPinSubmit() {
       scope.launch {
-        if (pin != APP_PIN) {
+        val isPinCorrect = authVM.verifyAndSetAppPin(pin)
+
+        if (!isPinCorrect) {
           hasError = true
           showErrorMessage = true
 
