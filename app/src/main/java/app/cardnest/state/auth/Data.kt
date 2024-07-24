@@ -9,12 +9,9 @@ import app.cardnest.state.card.State
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,23 +28,19 @@ class AuthDataViewModel(private val repository: AuthRepository) : ViewModel() {
   private val _uiState = MutableStateFlow(UiState())
 
   val data = _data.asStateFlow()
-  val uiState = combine(_uiState, _data) { ui, data ->
-    ui.copy(hasCreatedPin = if (data is State.Success) data.data.hasCreatedPin else false)
-  }.stateIn(
-    viewModelScope,
-    SharingStarted.WhileSubscribed(5000),
-    UiState()
-  )
+  val uiState = _uiState.asStateFlow()
 
   init {
     Log.i("AuthDataViewModel", "Initializing ...")
     viewModelScope.launch(Dispatchers.IO) {
       try {
         repository.getAuthData().collectLatest { d ->
-          _data.update { State.Success(d) }
+          _data.value = State.Success(d)
+          _uiState.update { it.copy(hasCreatedPin = d.hasCreatedPin) }
         }
       } catch (e: Exception) {
-        _data.update { State.Error(e) }
+        Log.e("AuthDataViewModel", e.toString())
+        _data.value = State.Error(e)
       }
     }
   }
