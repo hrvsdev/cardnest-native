@@ -6,6 +6,7 @@ import app.cardnest.db.AuthDataOperations
 import app.cardnest.db.AuthRepository
 import app.cardnest.db.CardDataOperations
 import app.cardnest.db.CardRepository
+import app.cardnest.state.actions.ActionsViewModel
 import app.cardnest.state.auth.AuthDataViewModel
 import app.cardnest.state.card.CardEditorViewModel
 import app.cardnest.state.card.CardsDataViewModel
@@ -26,5 +27,6 @@ val appModule = module {
   viewModel { CardEditorViewModel(it.getOrNull() ?: get()) }
   viewModel { CardsDataViewModel(get()) }
 
-  viewModel { AuthDataViewModel(get()) }
+  single { AuthDataViewModel(get()) }
+  single { ActionsViewModel() }
 }
