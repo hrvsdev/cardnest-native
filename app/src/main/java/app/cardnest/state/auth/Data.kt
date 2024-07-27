@@ -12,45 +12,42 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val randomString = "SomethingRandom"
+data class UiState(val pin: String? = null, val hasCreatedPin: Boolean = false)
 
-data class UiState(val pin: String? = null, val hasCreatedPin: Boolean = false) {
-  val isAuthenticated get() = pin != null && pin.isNotEmpty()
-}
+private val authStateData = MutableStateFlow<State<AuthData>>(State.Loading)
+private val uiStateData = MutableStateFlow(UiState())
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AuthDataViewModel(private val repository: AuthRepository) : ViewModel() {
-  private val _data = MutableStateFlow<State<AuthData>>(State.Loading)
-  private val _uiState = MutableStateFlow(UiState())
-
-  val data = _data.asStateFlow()
-  val uiState = _uiState.asStateFlow()
+  val data = authStateData.asStateFlow()
+  val uiState = uiStateData.asStateFlow()
 
   init {
     Log.i("AuthDataViewModel", "Initializing ...")
     viewModelScope.launch(Dispatchers.IO) {
       try {
         repository.getAuthData().collectLatest { d ->
-          _data.value = State.Success(d)
-          _uiState.update { it.copy(hasCreatedPin = d.hasCreatedPin) }
+          authStateData.value = State.Success(d)
+          uiStateData.update { it.copy(hasCreatedPin = d.hasCreatedPin) }
         }
       } catch (e: Exception) {
         Log.e("AuthDataViewModel", e.toString())
-        _data.value = State.Error(e)
+        authStateData.value = State.Error(e)
       }
     }
   }
 
   fun setPin(pin: String) {
     viewModelScope.launch(Dispatchers.IO) {
-      val toCheck = "${randomString}+${pin}"
+      val toCheck = hashPin(pin)
 
       repository.setAuthData(AuthData(hasCreatedPin = true, toCheck = toCheck))
-      _uiState.update { it.copy(pin = pin) }
+      uiStateData.update { it.copy(pin = pin) }
     }
   }
 
@@ -61,8 +58,12 @@ class AuthDataViewModel(private val repository: AuthRepository) : ViewModel() {
   suspend fun verifyAndSetAppPin(pin: String): Boolean {
     return withContext(Dispatchers.IO) {
       val toCheck = repository.getAuthData().first().toCheck
-      val isPinCorrect = "${randomString}+${pin}" == toCheck
-      if (isPinCorrect) _uiState.update { it.copy(pin = pin) }
+      val isPinCorrect = toCheck == hashPin(pin)
+
+      if (isPinCorrect) {
+        uiStateData.update { it.copy(pin = pin) }
+      }
+
       return@withContext isPinCorrect
     }
   }
@@ -70,7 +71,11 @@ class AuthDataViewModel(private val repository: AuthRepository) : ViewModel() {
   fun removePin() {
     viewModelScope.launch(Dispatchers.IO) {
       repository.setAuthData(AuthData())
-      _uiState.update { it.copy(pin = null) }
+      uiStateData.update { it.copy(pin = null) }
     }
   }
+}
+
+private fun hashPin(pin: String): String {
+  return "SomethingRandom+$pin"
 }

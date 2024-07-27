@@ -27,6 +27,6 @@ val appModule = module {
   viewModel { CardEditorViewModel(it.getOrNull() ?: get()) }
   viewModel { CardsDataViewModel(get()) }
 
-  single { AuthDataViewModel(get()) }
+  viewModel { AuthDataViewModel(get()) }
   single { ActionsViewModel() }
 }

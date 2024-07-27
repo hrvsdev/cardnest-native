@@ -47,7 +47,7 @@ class SecurityScreen : Screen {
 
     fun onCreatePinClick() {
       if (hasCreatedPin) {
-//        actionsVM.setAfterPinVerified(::navigateToCreatePin)
+        actionsVM.setAfterPinVerified(::navigateToCreatePin)
         navigator.push(VerifyPinBeforeActionScreen(::navigateToCreatePin))
       } else {
         navigateToCreatePin()
@@ -55,7 +55,7 @@ class SecurityScreen : Screen {
     }
 
     fun onRemovePinConfirmClick() {
-//      actionsVM.setAfterPinVerified(::removePin)
+      actionsVM.setAfterPinVerified(::removePin)
       scope.launch {
         bottomSheetNavigator.hide()
         delay(200)
