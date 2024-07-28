@@ -34,32 +34,29 @@ class SecurityScreen : Screen {
 
     val hasCreatedPin = authVM.uiState.collectAsStateWithLifecycle().value.hasCreatedPin
 
-    fun navigateToCreatePin() {
-      navigator.push(CreatePinScreen())
-    }
-
-    fun removePin() {
-      authVM.removePin()
-
-      navigator.pop()
-      navigator.pop()
-    }
-
     fun onCreatePinClick() {
-      if (hasCreatedPin) {
-        actionsVM.setAfterPinVerified(::navigateToCreatePin)
-        navigator.push(VerifyPinBeforeActionScreen(::navigateToCreatePin))
-      } else {
-        navigateToCreatePin()
+      navigator.push(CreatePinScreen())
+      actionsVM.setAfterPinCreated {
+        navigator.popUntilRoot()
+      }
+    }
+
+    fun onChangePinClick() {
+      navigator.push(VerifyPinBeforeActionScreen())
+      actionsVM.setAfterPinVerified {
+        onCreatePinClick()
       }
     }
 
     fun onRemovePinConfirmClick() {
-      actionsVM.setAfterPinVerified(::removePin)
       scope.launch {
         bottomSheetNavigator.hide()
         delay(200)
-        navigator.push(VerifyPinBeforeActionScreen(::removePin))
+        navigator.push(VerifyPinBeforeActionScreen())
+      }
+      actionsVM.setAfterPinVerified {
+        authVM.removePin()
+        navigator.popUntilRoot()
       }
     }
 
@@ -77,7 +74,7 @@ class SecurityScreen : Screen {
         SettingsButton(
           title = if (hasCreatedPin) "Change PIN" else "Create PIN",
           icon = painterResource(R.drawable.tabler__password_mobile_phone),
-          onClick = ::onCreatePinClick,
+          onClick = if (hasCreatedPin) ::onChangePinClick else ::onCreatePinClick,
           isFirst = true,
           isLast = true,
         )
