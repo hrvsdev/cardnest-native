@@ -31,11 +31,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
-data class VerifyPinBeforeActionScreen(val onVerification: () -> Unit) : Screen {
+class VerifyPinBeforeActionScreen : Screen {
   @Composable
   override fun Content() {
-    val navigator = LocalNavigator.currentOrThrow
-
     val authVM = koinViewModel<AuthDataViewModel>()
     val actionsVM = koinViewModel<ActionsViewModel>()
 
@@ -68,10 +66,7 @@ data class VerifyPinBeforeActionScreen(val onVerification: () -> Unit) : Screen 
         }
 
         delay(500)
-        if (actionsVM.afterPinVerified != null) {
-          actionsVM.afterPinVerified?.invoke()
-          actionsVM.setAfterPinVerified(null)
-        }
+        actionsVM.afterPinVerified()
       }
     }
 

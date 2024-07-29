@@ -17,14 +17,13 @@ import androidx.compose.ui.unit.dp
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.pin.Keypad
 import app.cardnest.components.pin.PinInput
+import app.cardnest.state.actions.ActionsViewModel
 import app.cardnest.state.auth.AuthDataViewModel
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_RED
 import app.cardnest.ui.theme.TH_WHITE
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -32,17 +31,16 @@ import org.koin.androidx.compose.koinViewModel
 data class ConfirmPinScreen(val enteredPin: String) : Screen {
   @Composable
   override fun Content() {
-    val navigator = LocalNavigator.currentOrThrow
-
     val authVM = koinViewModel<AuthDataViewModel>()
+    val actionsVM = koinViewModel<ActionsViewModel>()
 
     val scope = rememberCoroutineScope()
 
     val pinState = remember { mutableStateOf("") }
-
-    var pin by pinState
     var hasError by remember { mutableStateOf(false) }
     var showErrorMessage by remember { mutableStateOf(false) }
+
+    var pin by pinState
 
     fun onPinChange(newPin: String) {
       showErrorMessage = false
@@ -62,9 +60,10 @@ data class ConfirmPinScreen(val enteredPin: String) : Screen {
           return@launch
         }
 
-        delay(500)
         authVM.setPin(enteredPin)
-        repeat(3) { navigator.pop() }
+
+        delay(500)
+        actionsVM.afterPinCreated()
       }
     }
 
