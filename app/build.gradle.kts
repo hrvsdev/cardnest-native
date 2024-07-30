@@ -7,7 +7,7 @@ plugins {
 
 android {
   namespace = "app.cardnest"
-  compileSdk = 34
+  compileSdk = 35
 
   defaultConfig {
     applicationId = "app.cardnest"
@@ -57,6 +57,7 @@ dependencies {
   implementation(libs.voyager.screenmodel)
   implementation(libs.koin.androidx.compose)
   implementation(libs.koin.androidx.startup)
+  implementation(libs.androidx.biometric)
 
   runtimeOnly(libs.androidx.material)
 }
