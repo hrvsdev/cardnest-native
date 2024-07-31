@@ -5,10 +5,10 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.WindowManager
-import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.datastore.dataStore
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,7 +26,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 val Context.cardsDataStore by dataStore("cards_data.json", CardsDataSerializer)
 val Context.authDataStore by dataStore("auth_data.json", AuthDataSerializer)
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     val splashScreen = installSplashScreen()
