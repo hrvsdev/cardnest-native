@@ -1,6 +1,7 @@
 package app.cardnest.utils.crypto
 
 import android.security.keystore.KeyProperties
+import app.cardnest.data.serializables.EncryptedData
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -10,16 +11,14 @@ import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.PBEKeySpec
 
 private const val KEY_SIZE = 256
-private const val KEY_ITERATION_COUNT = 600_000
-private const val KEY_ALGORITHM = "PBKDF2WithHmacSHA256"
+private const val KEY_ITERATION_COUNT = 210_000
+private const val KEY_ALGORITHM = "PBKDF2WithHmacSHA512"
 
 private const val ENCRYPTION_ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
 private const val ENCRYPTION_BLOCK_MODE = KeyProperties.BLOCK_MODE_GCM
 private const val ENCRYPTION_PADDING = KeyProperties.ENCRYPTION_PADDING_NONE
 
-data class EncryptedData(val ciphertext: ByteArray, val iv: ByteArray)
-
-class CryptoManager {
+object CryptoManager {
   fun deriveKey(password: CharArray, salt: ByteArray): SecretKey {
     val spec = PBEKeySpec(password, salt, KEY_ITERATION_COUNT, KEY_SIZE)
     return SecretKeyFactory.getInstance(KEY_ALGORITHM).generateSecret(spec)
@@ -47,10 +46,14 @@ class CryptoManager {
   }
 
   fun decryptData(encryptedData: EncryptedData, key: SecretKey): String {
-    val cipher = getCipher()
-    cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, encryptedData.iv))
+    try {
+      val cipher = getCipher()
+      cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, encryptedData.iv))
 
-    return String(cipher.doFinal(encryptedData.ciphertext))
+      return String(cipher.doFinal(encryptedData.ciphertext))
+    } catch (e: Exception) {
+      return ""
+    }
   }
 
   private fun getCipher(): Cipher {
