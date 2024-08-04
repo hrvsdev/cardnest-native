@@ -60,9 +60,7 @@ data class ConfirmPinScreen(val enteredPin: String) : Screen {
           return@launch
         }
 
-        authVM.setPin(enteredPin)
-
-        delay(500)
+        authVM.setPin(enteredPin).join()
         actionsVM.afterPinCreated()
       }
     }
