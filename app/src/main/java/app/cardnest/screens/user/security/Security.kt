@@ -2,13 +2,16 @@ package app.cardnest.screens.user.security
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.R
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
+import app.cardnest.components.settings.SettingsSwitch
 import app.cardnest.screens.pin.create.CreatePinScreen
 import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
 import app.cardnest.state.actions.ActionsViewModel
@@ -24,6 +27,8 @@ import org.koin.androidx.compose.koinViewModel
 class SecurityScreen : Screen {
   @Composable
   override fun Content() {
+    val ctx = LocalContext.current as FragmentActivity
+
     val navigator = LocalNavigator.currentOrThrow
     val bottomSheetNavigator = LocalBottomSheetNavigator.current
 
@@ -33,6 +38,7 @@ class SecurityScreen : Screen {
     val scope = rememberCoroutineScope()
 
     val hasCreatedPin = authVM.uiState.collectAsStateWithLifecycle().value.hasCreatedPin
+    val hasBiometricEnabled = authVM.uiState.collectAsStateWithLifecycle().value.hasBiometricEnabled
 
     fun onCreatePinClick() {
       navigator.push(CreatePinScreen())
@@ -69,8 +75,16 @@ class SecurityScreen : Screen {
       )
     }
 
+    fun onBiometricsSwitchChange(checked: Boolean) {
+      if (checked) {
+        authVM.enableBiometric(ctx)
+      } else {
+        authVM.disableBiometric()
+      }
+    }
+
     SubScreenRoot("Security", leftIconLabel = "Settings", spacedBy = 24.dp) {
-      SettingsGroup("PIN & Biometrics", if (hasCreatedPin) null else CREATE_PASSWORD_DESC) {
+      SettingsGroup("PIN", if (hasCreatedPin) null else CREATE_PASSWORD_DESC) {
         SettingsButton(
           title = if (hasCreatedPin) "Change PIN" else "Create PIN",
           icon = painterResource(R.drawable.tabler__password_mobile_phone),
@@ -78,6 +92,19 @@ class SecurityScreen : Screen {
           isFirst = true,
           isLast = true,
         )
+      }
+
+      if (hasCreatedPin) {
+        SettingsGroup("Biometric", BIOMETRIC_DESC) {
+          SettingsSwitch(
+            title = "Enable biometric",
+            icon = painterResource(R.drawable.tabler__fingerprint_scan),
+            checked = hasBiometricEnabled,
+            onCheckedChange = ::onBiometricsSwitchChange,
+            isFirst = true,
+            isLast = true,
+          )
+        }
       }
 
       if (hasCreatedPin) {
@@ -98,6 +125,9 @@ class SecurityScreen : Screen {
 
 const val CREATE_PASSWORD_DESC =
   "Creating a PIN will make your data private and secure. You will need to enter the PIN every time you open the app.";
+
+const val BIOMETRIC_DESC =
+  "Use your fingerprint, face or iris to unlock the app.";
 
 const val REMOVE_PASSWORD_DESC =
   "Removing your app PIN will make all your data accessible to anyone who has access to your device.";

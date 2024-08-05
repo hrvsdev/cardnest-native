@@ -114,10 +114,12 @@ class AuthDataViewModel(
       val cipher = cryptoManager.getInitializedCipherForEncryption(androidKey)
 
       biometricManager.authenticate(ctx, cipher, biometricManager.enableBiometricPromptInfo) {
-        launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
           val data = repository.getAuthData().first()
           val encryptedPin = cryptoManager.encryptDataWithCipher(pin, cipher)
           val authData = data.copy(encryptedPin = encryptedPin, hasBiometricsEnabled = true)
+
+          Log.i("AuthDataViewModel", "Enabling biometric ...")
 
           repository.setAuthData(authData)
         }
@@ -134,13 +136,22 @@ class AuthDataViewModel(
       val cipher = cryptoManager.getInitializedCipherForDecryption(androidKey, encryptedPin.iv)
 
       biometricManager.authenticate(ctx, cipher, biometricManager.unlockWithBiometricPromptInfo) {
-        launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
           val decryptedPin = cryptoManager.decryptDataWithCipher(encryptedPin.ciphertext, cipher)
 
           uiStateData.update { it.copy(pin = decryptedPin) }
           onSuccess()
         }
       }
+    }
+  }
+
+  fun disableBiometric() {
+    viewModelScope.launch(Dispatchers.IO) {
+      val data = repository.getAuthData().first()
+      val authData = data.copy(encryptedPin = null, hasBiometricsEnabled = false)
+
+      repository.setAuthData(authData)
     }
   }
 }
