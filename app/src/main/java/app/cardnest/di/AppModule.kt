@@ -8,6 +8,7 @@ import app.cardnest.db.CardDataOperations
 import app.cardnest.db.CardRepository
 import app.cardnest.state.actions.ActionsViewModel
 import app.cardnest.state.auth.AuthDataViewModel
+import app.cardnest.state.auth.BiometricManager
 import app.cardnest.state.card.CardEditorViewModel
 import app.cardnest.state.card.CardsDataViewModel
 import app.cardnest.state.card.defaultCard
@@ -18,6 +19,7 @@ import org.koin.dsl.module
 
 val appModule = module {
   single { CryptoManager }
+  single { BiometricManager() }
 
   single { CardDataOperations(androidContext().cardsDataStore) }
   single { CardRepository(get()) }
@@ -30,6 +32,6 @@ val appModule = module {
   viewModel { CardEditorViewModel(it.getOrNull() ?: get()) }
   viewModel { CardsDataViewModel(get()) }
 
-  viewModel { AuthDataViewModel(get(), get()) }
+  viewModel { AuthDataViewModel(get(), get(), get()) }
   single { ActionsViewModel() }
 }
