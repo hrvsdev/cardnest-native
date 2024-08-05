@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class AuthData(
   val salt: ByteArray? = null,
   val encryptedRandomKey: EncryptedData? = null,
+  val encryptedPin: EncryptedData? = null,
   val hasCreatedPin: Boolean = false,
   val hasBiometricsEnabled: Boolean = false
 )
