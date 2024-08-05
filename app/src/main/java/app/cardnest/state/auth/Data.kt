@@ -6,13 +6,14 @@ import androidx.lifecycle.viewModelScope
 import app.cardnest.data.serializables.AuthData
 import app.cardnest.db.AuthRepository
 import app.cardnest.state.card.State
+import app.cardnest.utils.crypto.CryptoManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,7 +24,10 @@ private val authStateData = MutableStateFlow<State<AuthData>>(State.Loading)
 private val uiStateData = MutableStateFlow(UiState())
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class AuthDataViewModel(private val repository: AuthRepository) : ViewModel() {
+class AuthDataViewModel(
+  val repository: AuthRepository,
+  val cryptoManager: CryptoManager
+) : ViewModel() {
   val data = authStateData.asStateFlow()
   val uiState = uiStateData.asStateFlow()
 
@@ -32,33 +36,40 @@ class AuthDataViewModel(private val repository: AuthRepository) : ViewModel() {
     viewModelScope.launch(Dispatchers.IO) {
       try {
         repository.getAuthData().collectLatest { d ->
-          authStateData.value = State.Success(d)
+          authStateData.update { State.Success(d) }
           uiStateData.update { it.copy(hasCreatedPin = d.hasCreatedPin) }
         }
       } catch (e: Exception) {
         Log.e("AuthDataViewModel", e.toString())
-        authStateData.value = State.Error(e)
+        authStateData.update { State.Error(e) }
       }
     }
   }
 
-  fun setPin(pin: String) {
-    viewModelScope.launch(Dispatchers.IO) {
-      val toCheck = hashPin(pin)
+  fun setPin(pin: String): Job {
+    return viewModelScope.launch(Dispatchers.IO) {
+      val salt = cryptoManager.generateSalt()
+      val derivedPinKey = cryptoManager.deriveKey(pin.toCharArray(), salt)
 
-      repository.setAuthData(AuthData(hasCreatedPin = true, toCheck = toCheck))
+      val randomKeyString = cryptoManager.generateKey().encoded.toString()
+      val encryptedRandomKey = cryptoManager.encryptData(randomKeyString, derivedPinKey)
+
+      repository.setAuthData(AuthData(salt, encryptedRandomKey, true, false))
       uiStateData.update { it.copy(pin = pin) }
     }
   }
 
-  fun verifyPin(pin: String): Boolean {
-    return uiState.value.pin == pin
-  }
-
   suspend fun verifyAndSetAppPin(pin: String): Boolean {
     return withContext(Dispatchers.IO) {
-      val toCheck = repository.getAuthData().first().toCheck
-      val isPinCorrect = toCheck == hashPin(pin)
+      val data = repository.getAuthData().first()
+
+      val salt = data.salt ?: return@withContext false
+      val encryptedRandomKey = data.encryptedRandomKey ?: return@withContext false
+
+      val derivedPinKey = cryptoManager.deriveKey(pin.toCharArray(), salt)
+      val randomKeyString = cryptoManager.decryptData(encryptedRandomKey, derivedPinKey)
+
+      val isPinCorrect = randomKeyString.isNotEmpty()
 
       if (isPinCorrect) {
         uiStateData.update { it.copy(pin = pin) }
@@ -68,14 +79,14 @@ class AuthDataViewModel(private val repository: AuthRepository) : ViewModel() {
     }
   }
 
+  fun verifyPin(pin: String): Boolean {
+    return uiState.value.pin == pin
+  }
+
   fun removePin() {
     viewModelScope.launch(Dispatchers.IO) {
       repository.setAuthData(AuthData())
       uiStateData.update { it.copy(pin = null) }
     }
   }
-}
-
-private fun hashPin(pin: String): String {
-  return "SomethingRandom+$pin"
 }
