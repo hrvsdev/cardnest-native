@@ -65,6 +65,7 @@ class VerifyPinBeforeActionScreen : Screen {
           return@launch
         }
 
+        delay(500)
         actionsVM.afterPinVerified()
       }
     }

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,7 +40,13 @@ import app.cardnest.ui.theme.TH_WHITE_20
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun Keypad(pin: MutableState<String>, onPinChange: (String) -> Unit, onPinSubmit: () -> Unit) {
+fun Keypad(
+  pin: MutableState<String>,
+  onPinChange: (String) -> Unit,
+  onPinSubmit: () -> Unit,
+  showBiometricIcon: Boolean = false,
+  onBiometricIconClick: () -> Unit = {},
+) {
   val isDisabled = pin.value.length == PIN_LENGTH
 
   fun onPinButtonClick(number: Int) {
@@ -64,12 +69,20 @@ fun Keypad(pin: MutableState<String>, onPinChange: (String) -> Unit, onPinSubmit
         KeypadNumberButton(num, { onPinButtonClick(num) }, isDisabled)
       }
 
-      Spacer(Modifier.size(72.dp))
+      if (showBiometricIcon) {
+        KeypadIconButton(
+          icon = painterResource(R.drawable.heroicons__finger_print),
+          onClick = onBiometricIconClick,
+          disabled = isDisabled
+        )
+      } else {
+        Spacer(Modifier.size(72.dp))
+      }
 
       KeypadNumberButton(0, { onPinButtonClick(0) }, isDisabled)
       KeypadIconButton(
         icon = painterResource(R.drawable.heroicons__backspace),
-        onClick = { onBackspaceButtonClick() },
+        onClick = ::onBackspaceButtonClick,
         disabled = isDisabled
       )
     }

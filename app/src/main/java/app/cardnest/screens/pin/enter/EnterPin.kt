@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -12,8 +13,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.components.containers.ScreenContainer
 import app.cardnest.components.pin.Keypad
 import app.cardnest.components.pin.PinInput
@@ -34,17 +38,20 @@ import org.koin.androidx.compose.koinViewModel
 class EnterPinScreen : Screen {
   @Composable
   override fun Content() {
+    val ctx = LocalContext.current as FragmentActivity
+
     val navigator = LocalNavigator.currentOrThrow
 
     val authVM = koinViewModel<AuthDataViewModel>()
+    val hasBiometricEnabled = authVM.uiState.collectAsStateWithLifecycle().value.hasBiometricEnabled
 
     val scope = rememberCoroutineScope()
 
     val pinState = remember { mutableStateOf("") }
-
-    var pin by pinState
     var hasError by remember { mutableStateOf(false) }
     var showErrorMessage by remember { mutableStateOf(false) }
+
+    var pin by pinState
 
     fun onPinChange(newPin: String) {
       showErrorMessage = false
@@ -66,9 +73,18 @@ class EnterPinScreen : Screen {
           return@launch
         }
 
-        delay(500)
         navigator.replaceAll(HomeScreen)
       }
+    }
+
+    fun onUnlockWithBiometricClick() {
+      authVM.unlockWithBiometric(ctx) {
+        navigator.replaceAll(HomeScreen)
+      }
+    }
+
+    LaunchedEffect(Unit) {
+      onUnlockWithBiometricClick()
     }
 
     ScreenContainer {
@@ -95,7 +111,15 @@ class EnterPinScreen : Screen {
       }
 
       Spacer(Modifier.weight(2f))
-      Keypad(pinState, ::onPinChange, ::onPinSubmit)
+
+      Keypad(
+        pin = pinState,
+        onPinChange = ::onPinChange,
+        onPinSubmit = ::onPinSubmit,
+        showBiometricIcon = hasBiometricEnabled,
+        onBiometricIconClick = ::onUnlockWithBiometricClick
+      )
+
       Spacer(Modifier.weight(1f))
     }
   }
