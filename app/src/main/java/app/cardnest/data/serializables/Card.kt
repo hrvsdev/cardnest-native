@@ -9,7 +9,29 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CardRecords(
   @Serializable(with = AppPersistentMapSerializer::class)
-  val cards: PersistentMap<String, CardRecord> = persistentMapOf()
+  val cards: PersistentMap<String, CardDataWithId> = persistentMapOf()
+)
+
+@Serializable
+data class CardDataWithId(
+  val id: String,
+  val data: CardData
+)
+
+@Serializable
+sealed class CardData {
+  @Serializable
+  data class Encrypted(val card: CardEncrypted) : CardData()
+
+  @Serializable
+  data class Unencrypted(val card: CardFullProfile) : CardData()
+}
+
+@Serializable
+data class CardEncrypted(
+  val cipherText: ByteArray,
+  val iv: ByteArray,
+  val salt: ByteArray
 )
 
 @Serializable
