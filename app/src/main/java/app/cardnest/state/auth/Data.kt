@@ -25,8 +25,8 @@ data class UiState(
   val hasBiometricEnabled: Boolean = false
 )
 
-private val authStateData = MutableStateFlow<State<AuthData>>(State.Loading)
-private val uiStateData = MutableStateFlow(UiState())
+val authStateData = MutableStateFlow<State<AuthData>>(State.Loading)
+val uiStateData = MutableStateFlow(UiState())
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AuthDataViewModel(
