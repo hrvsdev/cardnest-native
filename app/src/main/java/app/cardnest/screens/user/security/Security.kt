@@ -16,6 +16,7 @@ import app.cardnest.screens.pin.create.CreatePinScreen
 import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
 import app.cardnest.state.actions.ActionsViewModel
 import app.cardnest.state.auth.AuthDataViewModel
+import app.cardnest.state.card.CardsDataViewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
@@ -33,6 +34,7 @@ class SecurityScreen : Screen {
     val bottomSheetNavigator = LocalBottomSheetNavigator.current
 
     val authVM = koinViewModel<AuthDataViewModel>()
+    val cardsDataVM = koinViewModel<CardsDataViewModel>()
     val actionsVM = koinViewModel<ActionsViewModel>()
 
     val scope = rememberCoroutineScope()
@@ -60,7 +62,9 @@ class SecurityScreen : Screen {
         delay(200)
         navigator.push(VerifyPinBeforeActionScreen())
       }
+
       actionsVM.setAfterPinVerified {
+        cardsDataVM.decryptCards().join()
         authVM.removePin()
         navigator.popUntilRoot()
       }

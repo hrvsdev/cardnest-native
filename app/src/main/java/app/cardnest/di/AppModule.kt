@@ -30,7 +30,7 @@ val appModule = module {
   factory { defaultCard() }
 
   viewModel { CardEditorViewModel(it.getOrNull() ?: get()) }
-  viewModel { CardsDataViewModel(get()) }
+  viewModel { CardsDataViewModel(get(), get()) }
 
   viewModel { AuthDataViewModel(get(), get(), get()) }
   single { ActionsViewModel() }

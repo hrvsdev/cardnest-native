@@ -19,6 +19,7 @@ import app.cardnest.components.pin.Keypad
 import app.cardnest.components.pin.PinInput
 import app.cardnest.state.actions.ActionsViewModel
 import app.cardnest.state.auth.AuthDataViewModel
+import app.cardnest.state.card.CardsDataViewModel
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_RED
@@ -32,6 +33,7 @@ data class ConfirmPinScreen(val enteredPin: String) : Screen {
   @Composable
   override fun Content() {
     val authVM = koinViewModel<AuthDataViewModel>()
+    val cardsDataVM = koinViewModel<CardsDataViewModel>()
     val actionsVM = koinViewModel<ActionsViewModel>()
 
     val scope = rememberCoroutineScope()
@@ -61,6 +63,7 @@ data class ConfirmPinScreen(val enteredPin: String) : Screen {
         }
 
         authVM.setPin(enteredPin).join()
+        cardsDataVM.encryptCards().join()
         actionsVM.afterPinCreated()
       }
     }

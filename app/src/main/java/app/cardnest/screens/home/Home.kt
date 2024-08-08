@@ -39,19 +39,19 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
       HeaderTitle("Home")
       HeaderSearch()
       ScreenContainer(16.dp) {
-        if (state is State.Success) {
-          state.data.forEach {
-            Box(Modifier.clickable { navigator.push(CardViewScreen(it)) }) {
-              CardPreview(it.plainData)
-            }
-          }
-
-          if (state.data.isEmpty()) {
-            Box(Modifier.fillMaxWidth(), Alignment.Center) {
-              AppText("No cards found", Modifier.padding(top = 32.dp), color = TH_WHITE_60)
-            }
+//        if (state is State.Success) {
+        state.forEach {
+          Box(Modifier.clickable { navigator.push(CardViewScreen(it)) }) {
+            CardPreview(it.plainData)
           }
         }
+
+        if (state.isEmpty()) {
+          Box(Modifier.fillMaxWidth(), Alignment.Center) {
+            AppText("No cards found", Modifier.padding(top = 32.dp), color = TH_WHITE_60)
+          }
+        }
+//        }
       }
     }
   }
