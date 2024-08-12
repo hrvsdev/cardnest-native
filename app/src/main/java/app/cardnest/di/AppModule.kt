@@ -1,5 +1,6 @@
 package app.cardnest.di
 
+import app.cardnest.AppViewModel
 import app.cardnest.authDataStore
 import app.cardnest.cardsDataStore
 import app.cardnest.db.AuthDataOperations
@@ -9,6 +10,7 @@ import app.cardnest.db.CardRepository
 import app.cardnest.state.actions.ActionsViewModel
 import app.cardnest.state.auth.AuthDataViewModel
 import app.cardnest.state.auth.BiometricManager
+import app.cardnest.state.card.CardCryptoManager
 import app.cardnest.state.card.CardEditorViewModel
 import app.cardnest.state.card.CardsDataViewModel
 import app.cardnest.state.card.defaultCard
@@ -23,6 +25,7 @@ val appModule = module {
 
   single { CardDataOperations(androidContext().cardsDataStore) }
   single { CardRepository(get()) }
+  single { CardCryptoManager(get(), get()) }
 
   single { AuthDataOperations(androidContext().authDataStore) }
   single { AuthRepository(get()) }
@@ -31,6 +34,7 @@ val appModule = module {
 
   viewModel { CardEditorViewModel(it.getOrNull() ?: get()) }
   viewModel { CardsDataViewModel(get(), get()) }
+  viewModel { AppViewModel(get()) }
 
   viewModel { AuthDataViewModel(get(), get(), get()) }
   single { ActionsViewModel() }
