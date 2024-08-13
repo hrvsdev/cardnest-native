@@ -20,16 +20,7 @@ import cafe.adriel.voyager.transitions.SlideTransition
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun App() {
-  val authVM = koinViewModel<AuthDataViewModel>()
-
-  val state = authVM.uiState.collectAsStateWithLifecycle().value
-  val showPinScreen = state.hasCreatedPin
-
-  LaunchedEffect(state) {
-    println("State: $state")
-  }
-
+fun App(showPinScreen: Boolean) {
   BottomSheetNavigator(scrimColor = TH_BLACK_60, sheetBackgroundColor = TH_BLACK_00) {
     Navigator(if (showPinScreen) EnterPinScreen() else HomeScreen) {
       val showTabBar = it.lastItem in tabs.map { tab -> tab.screen }

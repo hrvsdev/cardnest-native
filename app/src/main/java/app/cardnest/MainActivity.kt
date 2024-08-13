@@ -15,8 +15,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.di.appModule
 import app.cardnest.state.AuthDataSerializer
 import app.cardnest.state.CardsDataSerializer
-import app.cardnest.state.auth.AuthDataViewModel
-import app.cardnest.state.card.State
 import app.cardnest.ui.theme.CardNestTheme
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.compose.koinViewModel
@@ -33,13 +31,15 @@ class MainActivity : AppCompatActivity() {
     enableEdgeToEdge(SystemBarStyle.dark(Color.TRANSPARENT), SystemBarStyle.dark(Color.TRANSPARENT))
     setContent {
       CardNestTheme {
-        val koinVM = koinViewModel<AuthDataViewModel>()
-        val isLoading = koinVM.data.collectAsStateWithLifecycle().value is State.Loading
+        val vm = koinViewModel<AppViewModel>()
+
+        val isLoading = vm.isLoading.value
+        val hasCreatedPin = vm.hasCreatedPin.collectAsStateWithLifecycle().value
 
         splashScreen.setKeepOnScreenCondition { isLoading }
 
         if (!isLoading) {
-          App()
+          App(hasCreatedPin)
         }
       }
     }
