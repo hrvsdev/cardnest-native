@@ -33,25 +33,25 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
-    val state = koinViewModel<CardsDataViewModel>().state.collectAsStateWithLifecycle().value
+
+    val viewModel = koinViewModel<HomeViewModel>()
+    val cardRecordList = viewModel.cardRecordList.collectAsStateWithLifecycle().value
 
     TabScreenRoot {
       HeaderTitle("Home")
       HeaderSearch()
       ScreenContainer(16.dp) {
-//        if (state is State.Success) {
-        state.forEach {
-          Box(Modifier.clickable { navigator.push(CardViewScreen(it)) }) {
+        cardRecordList.forEach {
+          Box(Modifier.clickable { navigator.push(CardViewScreen(it.id)) }) {
             CardPreview(it.plainData)
           }
         }
 
-        if (state.isEmpty()) {
+        if (cardRecordList.isEmpty()) {
           Box(Modifier.fillMaxWidth(), Alignment.Center) {
             AppText("No cards found", Modifier.padding(top = 32.dp), color = TH_WHITE_60)
           }
         }
-//        }
       }
     }
   }

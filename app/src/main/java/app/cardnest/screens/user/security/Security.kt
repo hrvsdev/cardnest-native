@@ -1,7 +1,6 @@
 package app.cardnest.screens.user.security
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -12,79 +11,36 @@ import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
 import app.cardnest.components.settings.SettingsSwitch
-import app.cardnest.screens.pin.create.CreatePinScreen
-import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
-import app.cardnest.state.actions.ActionsViewModel
-import app.cardnest.state.auth.AuthDataViewModel
-import app.cardnest.state.card.CardsDataViewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 class SecurityScreen : Screen {
   @Composable
   override fun Content() {
     val ctx = LocalContext.current as FragmentActivity
-
     val navigator = LocalNavigator.currentOrThrow
     val bottomSheetNavigator = LocalBottomSheetNavigator.current
 
-    val authVM = koinViewModel<AuthDataViewModel>()
-    val cardsDataVM = koinViewModel<CardsDataViewModel>()
-    val actionsVM = koinViewModel<ActionsViewModel>()
+    val vm = koinViewModel<SecurityViewModel> { parametersOf(navigator, bottomSheetNavigator) }
 
-    val scope = rememberCoroutineScope()
-
-    val hasCreatedPin = authVM.uiState.collectAsStateWithLifecycle().value.hasCreatedPin
-    val hasBiometricEnabled = authVM.uiState.collectAsStateWithLifecycle().value.hasBiometricEnabled
-
-    fun onCreatePinClick() {
-      navigator.push(CreatePinScreen())
-      actionsVM.setAfterPinCreated {
-        navigator.popUntilRoot()
-      }
-    }
-
-    fun onChangePinClick() {
-      navigator.push(VerifyPinBeforeActionScreen())
-      actionsVM.setAfterPinVerified {
-        onCreatePinClick()
-      }
-    }
-
-    fun onRemovePinConfirmClick() {
-      scope.launch {
-        bottomSheetNavigator.hide()
-        delay(200)
-        navigator.push(VerifyPinBeforeActionScreen())
-      }
-
-      actionsVM.setAfterPinVerified {
-        cardsDataVM.decryptCards().join()
-        authVM.removePin()
-        navigator.popUntilRoot()
-      }
-    }
+    val hasCreatedPin = vm.hasCreatedPin.collectAsStateWithLifecycle().value
+    val hasBiometricEnabled = vm.hasBiometricEnabled.collectAsStateWithLifecycle().value
 
     fun onRemovePinClick() {
       bottomSheetNavigator.show(
         RemovePinBottomSheetScreen(
-          onConfirm = ::onRemovePinConfirmClick,
+          onConfirm = vm::onRemovePin,
           onClose = { bottomSheetNavigator.hide() }
         )
       )
     }
 
-    fun onBiometricsSwitchChange(checked: Boolean) {
-      if (checked) {
-        authVM.enableBiometric(ctx)
-      } else {
-        authVM.disableBiometric()
-      }
+    fun onBiometricSwitchChange(checked: Boolean) {
+      vm.onBiometricSwitchChange(ctx)
     }
 
     SubScreenRoot("Security", leftIconLabel = "Settings", spacedBy = 24.dp) {
@@ -92,7 +48,7 @@ class SecurityScreen : Screen {
         SettingsButton(
           title = if (hasCreatedPin) "Change PIN" else "Create PIN",
           icon = painterResource(R.drawable.tabler__password_mobile_phone),
-          onClick = if (hasCreatedPin) ::onChangePinClick else ::onCreatePinClick,
+          onClick = if (hasCreatedPin) vm::onChangePin else vm::onCreatePin,
           isFirst = true,
           isLast = true,
         )
@@ -104,7 +60,7 @@ class SecurityScreen : Screen {
             title = "Enable biometric",
             icon = painterResource(R.drawable.tabler__fingerprint_scan),
             checked = hasBiometricEnabled,
-            onCheckedChange = ::onBiometricsSwitchChange,
+            onCheckedChange = ::onBiometricSwitchChange,
             isFirst = true,
             isLast = true,
           )

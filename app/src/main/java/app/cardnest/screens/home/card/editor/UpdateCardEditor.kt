@@ -6,10 +6,7 @@ import app.cardnest.components.button.AppButton
 import app.cardnest.components.card.CardEditor
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.data.serializables.CardRecord
-import app.cardnest.screens.home.HomeScreen
-import app.cardnest.screens.home.card.CardViewScreen
 import app.cardnest.state.card.CardEditorViewModel
-import app.cardnest.state.card.CardsDataViewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -21,20 +18,13 @@ data class UpdateCardEditorScreen(val cardRecord: CardRecord) : Screen {
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
 
-    val cardsDataVM = koinViewModel<CardsDataViewModel>()
+    val updateCardVM = koinViewModel<UpdateCardViewModel> { parametersOf(cardRecord.id, navigator) }
     val editorVM = koinViewModel<CardEditorViewModel> { parametersOf(cardRecord.plainData) }
 
     fun update() {
       editorVM.onSubmit {
         val updatedCard = CardRecord(cardRecord.id, it)
-
-        if (updatedCard == cardRecord) {
-          navigator.pop()
-          return@onSubmit
-        }
-
-        cardsDataVM.updateCard(updatedCard)
-        navigator.replaceAll(listOf(HomeScreen, CardViewScreen(updatedCard)))
+        updateCardVM.updateCard(updatedCard)
       }
     }
 
