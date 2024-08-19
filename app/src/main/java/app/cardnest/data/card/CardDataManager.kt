@@ -1,9 +1,10 @@
-package app.cardnest.state.card
+package app.cardnest.data.card
 
 import app.cardnest.data.CardFullProfile
 import app.cardnest.data.serializables.CardData
 import app.cardnest.data.serializables.CardDataWithId
 import app.cardnest.data.serializables.CardEncrypted
+import app.cardnest.data.serializables.CardRecord
 import app.cardnest.data.serializables.CardRecords
 import app.cardnest.data.serializables.EncryptedData
 import app.cardnest.db.CardRepository
@@ -11,30 +12,48 @@ import app.cardnest.state.authState
 import app.cardnest.state.cardsState
 import app.cardnest.utils.crypto.CryptoManager
 import kotlinx.collections.immutable.toPersistentMap
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.serialization.json.Json
 import kotlin.text.toCharArray
 
-class CardCryptoManager(
-  private val repository: CardRepository,
-  private val cryptoManager: CryptoManager
-) {
-  suspend fun encryptCards() {
+class CardDataManager(private val repo: CardRepository, private val crypto: CryptoManager) {
+  suspend fun decryptAndCollectCards() {
+    repo.getCards().collectLatest {
+      val cardRecords = it.cards.mapValues {
+        CardRecord(it.key, decryptCardData(it.value.data))
+      }
+
+      cardsState.update { cardRecords }
+    }
+  }
+
+  suspend fun encryptAndSaveCards() {
     val cardRecords = cardsState.value.mapValues {
       CardDataWithId(it.key, encryptCardFullProfile(it.value.plainData))
     }
 
-    repository.setCards(CardRecords(cardRecords.toPersistentMap()))
+    repo.setCards(CardRecords(cardRecords.toPersistentMap()))
   }
 
-  suspend fun decryptCards() {
+  suspend fun decryptAndSaveCards() {
     val cardRecords = cardsState.value.mapValues {
       CardDataWithId(it.key, CardData.Unencrypted(it.value.plainData))
     }
 
-    repository.setCards(CardRecords(cardRecords.toPersistentMap()))
+    repo.setCards(CardRecords(cardRecords.toPersistentMap()))
   }
 
-  fun encryptCardFullProfile(cardFullProfile: CardFullProfile): CardData {
+  suspend fun encryptAndAddOrUpdateCard(cardRecord: CardRecord) {
+    val encryptedCardData = encryptCardFullProfile(cardRecord.plainData)
+    repo.addCard(CardDataWithId(cardRecord.id, encryptedCardData))
+  }
+
+  suspend fun deleteCard(cardId: String) {
+    repo.deleteCard(cardId)
+  }
+
+  private fun encryptCardFullProfile(cardFullProfile: CardFullProfile): CardData {
     return when (authState.value.hasCreatedPin) {
       false -> CardData.Unencrypted(cardFullProfile)
       true -> {
@@ -46,16 +65,16 @@ class CardCryptoManager(
 
         val serialized = Json.encodeToString(CardFullProfile.serializer(), cardFullProfile)
 
-        val salt = cryptoManager.generateSalt()
-        val key = cryptoManager.deriveKey(latestPin.toCharArray(), salt)
-        val encrypted = cryptoManager.encryptData(serialized, key)
+        val salt = crypto.generateSalt()
+        val key = crypto.deriveKey(latestPin.toCharArray(), salt)
+        val encrypted = crypto.encryptData(serialized, key)
 
         CardData.Encrypted(CardEncrypted(encrypted.ciphertext, encrypted.iv, salt))
       }
     }
   }
 
-  fun decryptCardData(cardData: CardData): CardFullProfile {
+  private fun decryptCardData(cardData: CardData): CardFullProfile {
     return when (cardData) {
       is CardData.Unencrypted -> cardData.card
       is CardData.Encrypted -> {
@@ -67,12 +86,11 @@ class CardCryptoManager(
 
         val encryptedData = EncryptedData(cardData.card.cipherText, cardData.card.iv)
 
-        val key = cryptoManager.deriveKey(latestPin.toCharArray(), cardData.card.salt)
-        val decrypted = cryptoManager.decryptData(encryptedData, key)
+        val key = crypto.deriveKey(latestPin.toCharArray(), cardData.card.salt)
+        val decrypted = crypto.decryptData(encryptedData, key)
 
         Json.decodeFromString(CardFullProfile.serializer(), decrypted)
       }
     }
   }
 }
-
