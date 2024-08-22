@@ -6,12 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.serializables.AuthData
 import app.cardnest.db.AuthRepository
+import app.cardnest.data.card.CardDataManager
 import app.cardnest.screens.pin.create.CreatePinScreen
 import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
 import app.cardnest.state.actions.ActionsViewModel
 import app.cardnest.state.auth.BiometricManager
 import app.cardnest.state.authState
-import app.cardnest.state.card.CardCryptoManager
 import app.cardnest.utils.crypto.CryptoManager
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
@@ -28,7 +28,7 @@ class SecurityViewModel(
   private val repository: AuthRepository,
   private val cryptoManager: CryptoManager,
   private val biometricManager: BiometricManager,
-  private val cardCryptoManager: CardCryptoManager,
+  private val cardDataManager: CardDataManager,
   private val actions: ActionsViewModel,
   private val navigator: Navigator,
   private val bottomSheetNavigator: BottomSheetNavigator,
@@ -68,7 +68,7 @@ class SecurityViewModel(
     }
 
     actions.setAfterPinVerified {
-      cardCryptoManager.decryptCards()
+      cardDataManager.decryptAndSaveCards()
       removePin()
 
       navigator.popUntilRoot()

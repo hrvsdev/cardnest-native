@@ -3,10 +3,10 @@ package app.cardnest.screens.pin.create
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.serializables.AuthData
 import app.cardnest.db.AuthRepository
+import app.cardnest.data.card.CardDataManager
 import app.cardnest.screens.pin.PinBaseViewModel
 import app.cardnest.state.actions.ActionsViewModel
 import app.cardnest.state.authState
-import app.cardnest.state.card.CardCryptoManager
 import app.cardnest.utils.crypto.CryptoManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 class ConfirmPinViewModel(
   private val repository: AuthRepository,
   private val cryptoManager: CryptoManager,
-  private val cardCryptoManager: CardCryptoManager,
+  private val cardDataManager: CardDataManager,
   private val actions: ActionsViewModel,
   private val enteredPin: String
 ) : PinBaseViewModel() {
@@ -27,7 +27,7 @@ class ConfirmPinViewModel(
       }
 
       setPin(pin.value)
-      cardCryptoManager.encryptCards()
+      cardDataManager.encryptAndSaveCards()
       actions.afterPinCreated()
     }
   }
