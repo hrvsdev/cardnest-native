@@ -3,12 +3,14 @@ package app.cardnest.di
 import app.cardnest.AppViewModel
 import app.cardnest.authDataStore
 import app.cardnest.cardsDataStore
+import app.cardnest.data.actions.Actions
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.card.CardDataManager
-import app.cardnest.db.AuthDataOperations
-import app.cardnest.db.AuthRepository
-import app.cardnest.db.CardDataOperations
-import app.cardnest.db.CardRepository
+import app.cardnest.data.card.CardEditorViewModel
+import app.cardnest.db.auth.AuthDataOperations
+import app.cardnest.db.auth.AuthRepository
+import app.cardnest.db.card.CardDataOperations
+import app.cardnest.db.card.CardRepository
 import app.cardnest.screens.add.editor.AddCardViewModel
 import app.cardnest.screens.home.HomeViewModel
 import app.cardnest.screens.home.card.CardViewModel
@@ -18,9 +20,7 @@ import app.cardnest.screens.pin.create.CreatePinViewModel
 import app.cardnest.screens.pin.enter.EnterPinViewModel
 import app.cardnest.screens.pin.verify.VerifyPinViewModel
 import app.cardnest.screens.user.security.SecurityViewModel
-import app.cardnest.state.actions.ActionsViewModel
-import app.cardnest.state.card.CardEditorViewModel
-import app.cardnest.state.card.defaultCard
+import app.cardnest.utils.card.defaultCard
 import app.cardnest.utils.crypto.CryptoManager
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -39,7 +39,7 @@ val appModule = module {
 
   factory { defaultCard() }
 
-  single { ActionsViewModel() }
+  single { Actions() }
 
   viewModel { CardEditorViewModel(it.getOrNull() ?: get()) }
 

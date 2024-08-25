@@ -3,9 +3,9 @@ package app.cardnest
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cardnest.db.AuthRepository
-import app.cardnest.state.authData
-import app.cardnest.state.authState
+import app.cardnest.db.auth.AuthRepository
+import app.cardnest.data.authData
+import app.cardnest.data.authState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -29,7 +29,7 @@ class AppViewModel(private val authRepository: AuthRepository) : ViewModel() {
       authRepository.getAuthData().collectLatest { d ->
         authData.update { d }
         authState.update {
-          it.copy(hasCreatedPin = d.hasCreatedPin, hasBiometricEnabled = d.hasBiometricsEnabled)
+          it.copy(hasCreatedPin = d.hasCreatedPin, hasBiometricsEnabled = d.hasBiometricsEnabled)
         }
 
         isLoading.value = false

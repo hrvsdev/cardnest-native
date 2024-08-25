@@ -22,8 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.cardnest.data.CardFocusableField
-import app.cardnest.data.CardFullProfile
+import app.cardnest.data.card.Card
+import app.cardnest.data.card.CardFocusableField
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
@@ -33,7 +33,7 @@ import app.cardnest.utils.card.formatCardViewDetails
 
 @Composable
 fun CardPreview(
-  card: CardFullProfile,
+  card: Card,
   usePlaceholders: Boolean = false,
   focused: CardFocusableField? = null,
 ) {

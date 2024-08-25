@@ -19,13 +19,13 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import app.cardnest.R
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_SKY
 import app.cardnest.ui.theme.TH_WHITE
 import app.cardnest.ui.theme.TH_WHITE_10
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 
 @Composable
 fun SubScreenHeader(

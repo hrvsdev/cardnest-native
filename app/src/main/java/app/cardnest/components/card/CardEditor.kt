@@ -10,8 +10,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import app.cardnest.components.core.AppTextField
-import app.cardnest.data.CardFocusableField
-import app.cardnest.state.card.CardEditorViewModel
+import app.cardnest.data.card.CardEditorViewModel
+import app.cardnest.data.card.CardFocusableField
 import app.cardnest.utils.card.addCardNumberSpaces
 
 @Composable

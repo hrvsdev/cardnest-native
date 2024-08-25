@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import app.cardnest.data.CardTheme
+import app.cardnest.data.card.CardTheme
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_WHITE_00
 import app.cardnest.ui.theme.TH_WHITE_80

@@ -1,12 +1,12 @@
 package app.cardnest.utils.card
 
-import app.cardnest.data.CardFullProfile
-import app.cardnest.data.DisplayCardDetails
+import app.cardnest.data.card.Card
+import app.cardnest.data.card.DisplayCardDetails
 
 fun addCardNumberSpaces(number: String) = number.chunked(4).joinToString(" ")
 fun removeCardNumberSpaces(number: String) = number.replace(" ", "")
 
-fun formatCardViewDetails(card: CardFullProfile, usePlaceholders: Boolean = false): DisplayCardDetails {
+fun formatCardViewDetails(card: Card, usePlaceholders: Boolean = false): DisplayCardDetails {
   val cardNumber = card.number.let {
     var number = removeCardNumberSpaces(it)
 

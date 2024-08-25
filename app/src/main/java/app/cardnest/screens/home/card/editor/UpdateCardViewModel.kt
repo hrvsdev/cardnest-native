@@ -2,9 +2,9 @@ package app.cardnest.screens.home.card.editor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cardnest.data.serializables.CardRecord
 import app.cardnest.data.card.CardDataManager
-import app.cardnest.state.cardsState
+import app.cardnest.data.card.CardRecord
+import app.cardnest.data.cardsState
 import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted

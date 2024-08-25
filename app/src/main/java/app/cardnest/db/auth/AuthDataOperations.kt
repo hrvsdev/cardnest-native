@@ -1,7 +1,7 @@
-package app.cardnest.db
+package app.cardnest.db.auth
 
 import androidx.datastore.core.DataStore
-import app.cardnest.data.serializables.AuthData
+import app.cardnest.data.auth.AuthData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 

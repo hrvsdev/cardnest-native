@@ -1,6 +1,6 @@
-package app.cardnest.db
+package app.cardnest.db.auth
 
-import app.cardnest.data.serializables.AuthData
+import app.cardnest.data.auth.AuthData
 
 class AuthRepository(private val dataOperations: AuthDataOperations) {
   fun getAuthData() = dataOperations.getAuthData()

@@ -1,4 +1,4 @@
-package app.cardnest.data.serializables
+package app.cardnest.data.auth
 
 import kotlinx.serialization.Serializable
 

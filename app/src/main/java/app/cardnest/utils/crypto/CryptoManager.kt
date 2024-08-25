@@ -2,7 +2,8 @@ package app.cardnest.utils.crypto
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import app.cardnest.data.serializables.EncryptedData
+import android.util.Log
+import app.cardnest.data.auth.EncryptedData
 import java.security.KeyStore
 import java.security.SecureRandom
 import javax.crypto.Cipher
@@ -91,6 +92,7 @@ object CryptoManager {
       val cipher = getInitializedCipherForDecryption(key, encryptedData.iv)
       return decryptDataWithCipher(encryptedData.ciphertext, cipher)
     } catch (e: Exception) {
+      Log.e("CryptoManager", "Failed to decrypt data", e)
       return ""
     }
   }

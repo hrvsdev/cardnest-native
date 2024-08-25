@@ -1,31 +1,15 @@
-package app.cardnest.state.card
+package app.cardnest.data.card
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import app.cardnest.data.CardholderError
-import app.cardnest.data.CardErrorsState
-import app.cardnest.data.CardExpiryError
-import app.cardnest.data.CardFocusableField
-import app.cardnest.data.CardFullProfile
-import app.cardnest.data.CardNumberError
-import app.cardnest.data.CardTheme
-import app.cardnest.data.PaymentNetwork
 import app.cardnest.utils.card.addCardNumberSpaces
+import app.cardnest.utils.card.defaultCard
 import app.cardnest.utils.card.removeCardNumberSpaces
 
-fun defaultCard() = CardFullProfile(
-  number = "",
-  expiry = "",
-  cardholder = "",
-  issuer = "",
-  network = PaymentNetwork.VISA,
-  theme = CardTheme.entries.random(),
-)
-
-class CardEditorViewModel(card: CardFullProfile = defaultCard()) : ViewModel() {
+class CardEditorViewModel(card: Card = defaultCard()) : ViewModel() {
   val number = TextFieldState(addCardNumberSpaces(card.number))
   val expiry = TextFieldState(card.expiry)
   val cardholder = TextFieldState(card.cardholder)
@@ -48,7 +32,7 @@ class CardEditorViewModel(card: CardFullProfile = defaultCard()) : ViewModel() {
   }
 
   val card
-    get() = CardFullProfile(
+    get() = Card(
       number = removeCardNumberSpaces(number.text.toString()),
       expiry = expiry.text.toString(),
       cardholder = cardholder.text.toString(),
@@ -69,7 +53,7 @@ class CardEditorViewModel(card: CardFullProfile = defaultCard()) : ViewModel() {
     this.focused.value = focused
   }
 
-  fun onSubmit(next: (data: CardFullProfile) -> Unit) {
+  fun onSubmit(next: (data: Card) -> Unit) {
     hasSubmitted.value = true
     if (errors.number.hasError || errors.expiry.hasError || errors.cardholder.hasError) return
     next(card)

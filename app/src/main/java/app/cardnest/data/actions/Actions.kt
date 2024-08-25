@@ -1,11 +1,11 @@
-package app.cardnest.state.actions
+package app.cardnest.data.actions
 
 import androidx.lifecycle.ViewModel
 
 typealias Action = () -> Unit
 typealias SuspendAction = suspend () -> Unit
 
-class ActionsViewModel : ViewModel() {
+class Actions : ViewModel() {
   private var _afterPinCreated: Action = { }
   private var _afterPinVerified: SuspendAction = { }
 

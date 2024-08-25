@@ -44,8 +44,8 @@ fun Keypad(
   pin: MutableState<String>,
   onPinChange: (String) -> Unit,
   onPinSubmit: () -> Unit,
-  showBiometricIcon: Boolean = false,
-  onBiometricIconClick: () -> Unit = {},
+  showBiometricsIcon: Boolean = false,
+  onBiometricsIconClick: () -> Unit = {},
 ) {
   val isDisabled = pin.value.length == PIN_LENGTH
 
@@ -69,10 +69,10 @@ fun Keypad(
         KeypadNumberButton(num, { onPinButtonClick(num) }, isDisabled)
       }
 
-      if (showBiometricIcon) {
+      if (showBiometricsIcon) {
         KeypadIconButton(
           icon = painterResource(R.drawable.heroicons__finger_print),
-          onClick = onBiometricIconClick,
+          onClick = onBiometricsIconClick,
           disabled = isDisabled
         )
       } else {

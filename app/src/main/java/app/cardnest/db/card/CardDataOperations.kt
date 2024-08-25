@@ -1,8 +1,8 @@
-package app.cardnest.db
+package app.cardnest.db.card
 
 import androidx.datastore.core.DataStore
-import app.cardnest.data.serializables.CardDataWithId
-import app.cardnest.data.serializables.CardRecords
+import app.cardnest.data.card.CardDataWithId
+import app.cardnest.data.card.CardRecords
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapLatest

@@ -1,16 +1,53 @@
-package app.cardnest.data
+package app.cardnest.data.card
 
 import app.cardnest.components.core.AppTextFieldError
+import app.cardnest.utils.serialization.AppPersistentMapSerializer
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CardFullProfile(
+data class Card(
   val number: String,
   val expiry: String,
   val cardholder: String,
   val issuer: String,
   val network: PaymentNetwork,
   val theme: CardTheme
+)
+
+@Serializable
+data class CardRecords(
+  @Serializable(with = AppPersistentMapSerializer::class)
+  val cards: PersistentMap<String, CardDataWithId> = persistentMapOf()
+)
+
+@Serializable
+data class CardDataWithId(
+  val id: String,
+  val data: CardData
+)
+
+@Serializable
+sealed class CardData {
+  @Serializable
+  data class Encrypted(val card: CardEncrypted) : CardData()
+
+  @Serializable
+  data class Unencrypted(val card: Card) : CardData()
+}
+
+@Serializable
+data class CardEncrypted(
+  val cipherText: ByteArray,
+  val iv: ByteArray,
+  val salt: ByteArray
+)
+
+@Serializable
+data class CardRecord(
+  val id: String,
+  val plainData: Card
 )
 
 data class CardErrorsState(

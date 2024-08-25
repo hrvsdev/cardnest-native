@@ -5,8 +5,8 @@ import androidx.compose.ui.unit.dp
 import app.cardnest.components.button.AppButton
 import app.cardnest.components.card.CardEditor
 import app.cardnest.components.containers.SubScreenRoot
-import app.cardnest.data.serializables.CardRecord
-import app.cardnest.state.card.CardEditorViewModel
+import app.cardnest.data.card.CardEditorViewModel
+import app.cardnest.data.card.CardRecord
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow

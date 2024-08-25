@@ -2,8 +2,8 @@ package app.cardnest.screens.add.editor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cardnest.data.serializables.CardRecord
 import app.cardnest.data.card.CardDataManager
+import app.cardnest.data.card.CardRecord
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.home.card.CardViewScreen
 import cafe.adriel.voyager.navigator.Navigator

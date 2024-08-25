@@ -35,12 +35,12 @@ class EnterPinScreen : Screen {
 
     val vm = koinViewModel<EnterPinViewModel> { parametersOf(navigator) }
 
-    fun onUnlockWithBiometricClick() {
-      vm.unlockWithBiometric(ctx)
+    fun onUnlockWithBiometricsClick() {
+      vm.unlockWithBiometrics(ctx)
     }
 
     LaunchedEffect(Unit) {
-      onUnlockWithBiometricClick()
+      onUnlockWithBiometricsClick()
     }
 
     ScreenContainer {
@@ -76,8 +76,8 @@ class EnterPinScreen : Screen {
         pin = vm.pin,
         onPinChange = vm::onPinChange,
         onPinSubmit = vm::onPinSubmit,
-        showBiometricIcon = vm.hasBiometricEnabled.collectAsStateWithLifecycle().value,
-        onBiometricIconClick = ::onUnlockWithBiometricClick
+        showBiometricsIcon = vm.hasBiometricsEnabled.collectAsStateWithLifecycle().value,
+        onBiometricsIconClick = ::onUnlockWithBiometricsClick
       )
 
       Spacer(Modifier.weight(1f))

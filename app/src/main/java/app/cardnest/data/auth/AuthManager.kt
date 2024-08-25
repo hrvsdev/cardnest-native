@@ -3,10 +3,9 @@ package app.cardnest.data.auth
 import android.util.Log
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
-import app.cardnest.data.serializables.AuthData
-import app.cardnest.db.AuthRepository
-import app.cardnest.state.authData
-import app.cardnest.state.authState
+import app.cardnest.db.auth.AuthRepository
+import app.cardnest.data.authData
+import app.cardnest.data.authState
 import app.cardnest.utils.crypto.CryptoManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
@@ -14,13 +13,13 @@ import kotlinx.coroutines.withContext
 import javax.crypto.Cipher
 
 class AuthManager(private val repo: AuthRepository, private val crypto: CryptoManager) {
-  val enableBiometricPromptInfo = BiometricPrompt.PromptInfo.Builder()
-    .setTitle("Register your biometric")
-    .setSubtitle("To enable biometric authentication, use your fingerprint, face or iris")
+  val enableBiometricsPromptInfo = BiometricPrompt.PromptInfo.Builder()
+    .setTitle("Register your biometrics")
+    .setSubtitle("To enable biometrics authentication, use your fingerprint, face or iris")
     .setNegativeButtonText("Cancel")
     .build()
 
-  val unlockWithBiometricPromptInfo = BiometricPrompt.PromptInfo.Builder()
+  val unlockWithBiometricsPromptInfo = BiometricPrompt.PromptInfo.Builder()
     .setTitle("Unlock CardNest")
     .setSubtitle("To decrypt data, use your fingerprint, face or iris to unlock CardNest")
     .setNegativeButtonText("Use PIN")
@@ -66,13 +65,13 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     return isPinCorrect
   }
 
-  suspend fun enableBiometric(ctx: FragmentActivity) {
+  suspend fun enableBiometrics(ctx: FragmentActivity) {
     val pin = authState.value.pin ?: return
 
     val androidKey = crypto.getOrCreateAndroidSecretKey()
     val cipher = crypto.getInitializedCipherForEncryption(androidKey)
 
-    authenticate(ctx, cipher, enableBiometricPromptInfo) {
+    authenticate(ctx, cipher, enableBiometricsPromptInfo) {
       suspend {
         withContext(Dispatchers.IO) {
           val encryptedPin = crypto.encryptDataWithCipher(pin, cipher)
@@ -84,17 +83,17 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     }
   }
 
-  suspend fun disableBiometric() {
+  suspend fun disableBiometrics() {
     repo.setAuthData(authData.value.copy(encryptedPin = null, hasBiometricsEnabled = false))
   }
 
-  suspend fun unlockWithBiometric(ctx: FragmentActivity, onSuccess: () -> Unit) {
+  suspend fun unlockWithBiometrics(ctx: FragmentActivity, onSuccess: () -> Unit) {
     val encryptedPin = authData.value.encryptedPin ?: return
 
     val androidKey = crypto.getOrCreateAndroidSecretKey()
     val cipher = crypto.getInitializedCipherForDecryption(androidKey, encryptedPin.iv)
 
-    authenticate(ctx, cipher, unlockWithBiometricPromptInfo) {
+    authenticate(ctx, cipher, unlockWithBiometricsPromptInfo) {
       val decryptedPin = crypto.decryptDataWithCipher(encryptedPin.ciphertext, cipher)
       authState.update { it.copy(pin = decryptedPin) }
 

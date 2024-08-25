@@ -3,7 +3,7 @@ package app.cardnest.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.card.CardDataManager
-import app.cardnest.state.cardsState
+import app.cardnest.data.cardsState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map

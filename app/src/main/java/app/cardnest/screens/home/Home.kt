@@ -16,8 +16,6 @@ import app.cardnest.components.header.HeaderSearch
 import app.cardnest.components.header.HeaderTitle
 import app.cardnest.screens.NoTransition
 import app.cardnest.screens.home.card.CardViewScreen
-import app.cardnest.state.card.CardsDataViewModel
-import app.cardnest.state.card.State
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_WHITE_60
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi

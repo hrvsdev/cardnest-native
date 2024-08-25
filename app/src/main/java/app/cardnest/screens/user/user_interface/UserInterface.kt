@@ -33,4 +33,4 @@ class UserInterfaceScreen : Screen {
   }
 }
 
-const val MASK_CARD_DESC = "Mask the card number on the card preview on home screen page.";
+const val MASK_CARD_DESC = "Mask the card number on the card preview on home screen page."

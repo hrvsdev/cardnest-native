@@ -12,9 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.datastore.dataStore
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import app.cardnest.db.auth.AuthDataSerializer
+import app.cardnest.db.card.CardsDataSerializer
 import app.cardnest.di.appModule
-import app.cardnest.state.AuthDataSerializer
-import app.cardnest.state.CardsDataSerializer
 import app.cardnest.ui.theme.CardNestTheme
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.compose.koinViewModel

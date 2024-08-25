@@ -28,7 +28,7 @@ class SecurityScreen : Screen {
     val vm = koinViewModel<SecurityViewModel> { parametersOf(navigator, bottomSheetNavigator) }
 
     val hasCreatedPin = vm.hasCreatedPin.collectAsStateWithLifecycle().value
-    val hasBiometricEnabled = vm.hasBiometricEnabled.collectAsStateWithLifecycle().value
+    val hasBiometricsEnabled = vm.hasBiometricsEnabled.collectAsStateWithLifecycle().value
 
     fun onRemovePinClick() {
       bottomSheetNavigator.show(
@@ -39,8 +39,8 @@ class SecurityScreen : Screen {
       )
     }
 
-    fun onBiometricSwitchChange(checked: Boolean) {
-      vm.onBiometricSwitchChange(ctx)
+    fun onBiometricsSwitchChange(checked: Boolean) {
+      vm.onBiometricsSwitchChange(ctx)
     }
 
     SubScreenRoot("Security", leftIconLabel = "Settings", spacedBy = 24.dp) {
@@ -55,12 +55,12 @@ class SecurityScreen : Screen {
       }
 
       if (hasCreatedPin) {
-        SettingsGroup("Biometric", BIOMETRIC_DESC) {
+        SettingsGroup("Biometrics", BIOMETRICS_DESC) {
           SettingsSwitch(
-            title = "Enable biometric",
+            title = "Enable biometrics",
             icon = painterResource(R.drawable.tabler__fingerprint_scan),
-            checked = hasBiometricEnabled,
-            onCheckedChange = ::onBiometricSwitchChange,
+            checked = hasBiometricsEnabled,
+            onCheckedChange = ::onBiometricsSwitchChange,
             isFirst = true,
             isLast = true,
           )
@@ -84,10 +84,10 @@ class SecurityScreen : Screen {
 }
 
 const val CREATE_PASSWORD_DESC =
-  "Creating a PIN will make your data private and secure. You will need to enter the PIN every time you open the app.";
+  "Creating a PIN will make your data private and secure. You will need to enter the PIN every time you open the app."
 
-const val BIOMETRIC_DESC =
-  "Use your fingerprint, face or iris to unlock the app.";
+const val BIOMETRICS_DESC =
+  "Use your fingerprint, face or iris to unlock the app."
 
 const val REMOVE_PASSWORD_DESC =
-  "Removing your app PIN will make all your data accessible to anyone who has access to your device.";
+  "Removing your app PIN will make all your data accessible to anyone who has access to your device."

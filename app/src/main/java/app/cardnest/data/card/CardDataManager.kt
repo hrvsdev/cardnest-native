@@ -1,15 +1,9 @@
 package app.cardnest.data.card
 
-import app.cardnest.data.CardFullProfile
-import app.cardnest.data.serializables.CardData
-import app.cardnest.data.serializables.CardDataWithId
-import app.cardnest.data.serializables.CardEncrypted
-import app.cardnest.data.serializables.CardRecord
-import app.cardnest.data.serializables.CardRecords
-import app.cardnest.data.serializables.EncryptedData
-import app.cardnest.db.CardRepository
-import app.cardnest.state.authState
-import app.cardnest.state.cardsState
+import app.cardnest.data.auth.EncryptedData
+import app.cardnest.data.authState
+import app.cardnest.data.cardsState
+import app.cardnest.db.card.CardRepository
 import app.cardnest.utils.crypto.CryptoManager
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.flow.collectLatest
@@ -30,7 +24,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
 
   suspend fun encryptAndSaveCards() {
     val cardRecords = cardsState.value.mapValues {
-      CardDataWithId(it.key, encryptCardFullProfile(it.value.plainData))
+      CardDataWithId(it.key, encryptCard(it.value.plainData))
     }
 
     repo.setCards(CardRecords(cardRecords.toPersistentMap()))
@@ -45,7 +39,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun encryptAndAddOrUpdateCard(cardRecord: CardRecord) {
-    val encryptedCardData = encryptCardFullProfile(cardRecord.plainData)
+    val encryptedCardData = encryptCard(cardRecord.plainData)
     repo.addCard(CardDataWithId(cardRecord.id, encryptedCardData))
   }
 
@@ -53,9 +47,9 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     repo.deleteCard(cardId)
   }
 
-  private fun encryptCardFullProfile(cardFullProfile: CardFullProfile): CardData {
+  private fun encryptCard(card: Card): CardData {
     return when (authState.value.hasCreatedPin) {
-      false -> CardData.Unencrypted(cardFullProfile)
+      false -> CardData.Unencrypted(card)
       true -> {
         val latestPin = authState.value.pin
 
@@ -63,7 +57,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
           throw IllegalStateException("Pin is required to encrypt card data")
         }
 
-        val serialized = Json.encodeToString(CardFullProfile.serializer(), cardFullProfile)
+        val serialized = Json.encodeToString(Card.serializer(), card)
 
         val salt = crypto.generateSalt()
         val key = crypto.deriveKey(latestPin.toCharArray(), salt)
@@ -74,7 +68,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     }
   }
 
-  private fun decryptCardData(cardData: CardData): CardFullProfile {
+  private fun decryptCardData(cardData: CardData): Card {
     return when (cardData) {
       is CardData.Unencrypted -> cardData.card
       is CardData.Encrypted -> {
@@ -89,7 +83,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
         val key = crypto.deriveKey(latestPin.toCharArray(), cardData.card.salt)
         val decrypted = crypto.decryptData(encryptedData, key)
 
-        Json.decodeFromString(CardFullProfile.serializer(), decrypted)
+        Json.decodeFromString(Card.serializer(), decrypted)
       }
     }
   }

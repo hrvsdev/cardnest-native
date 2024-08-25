@@ -1,9 +1,7 @@
-package app.cardnest.state
+package app.cardnest.utils.serialization
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
-import app.cardnest.data.serializables.AuthData
-import app.cardnest.data.serializables.CardRecords
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -18,21 +16,13 @@ abstract class DataSerializer<T>(private val serializer: KSerializer<T>) : Seria
 
   override suspend fun readFrom(input: InputStream): T {
     return try {
-      Json.decodeFromString(serializer, input.readBytes().decodeToString())
+      Json.Default.decodeFromString(serializer, input.readBytes().decodeToString())
     } catch (e: SerializationException) {
       throw CorruptionException("Something went wrong while deserializing", e)
     }
   }
 
   override suspend fun writeTo(t: T, output: OutputStream) {
-    output.write(Json.encodeToString(serializer, t).toByteArray())
+    output.write(Json.Default.encodeToString(serializer, t).toByteArray())
   }
-}
-
-object CardsDataSerializer : DataSerializer<CardRecords>(CardRecords.serializer()) {
-  override val defaultInstance: CardRecords = CardRecords()
-}
-
-object AuthDataSerializer : DataSerializer<AuthData>(AuthData.serializer()) {
-  override val defaultInstance: AuthData = AuthData()
 }

@@ -1,7 +1,7 @@
-package app.cardnest.db
+package app.cardnest.db.card
 
-import app.cardnest.data.serializables.CardDataWithId
-import app.cardnest.data.serializables.CardRecords
+import app.cardnest.data.card.CardDataWithId
+import app.cardnest.data.card.CardRecords
 
 class CardRepository(private val dataOperations: CardDataOperations) {
   fun getCards() = dataOperations.getCards()

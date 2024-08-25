@@ -3,7 +3,7 @@
 package app.cardnest.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import app.cardnest.data.CardTheme
+import app.cardnest.data.card.CardTheme
 
 val TH_BLACK = Color(0xFF00060C)
 val TH_BLACK_00 = Color(0x0000060C)
