@@ -1,6 +1,7 @@
 package app.cardnest.screens.pin.create
 
 import androidx.lifecycle.viewModelScope
+import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.serializables.AuthData
 import app.cardnest.db.AuthRepository
 import app.cardnest.data.card.CardDataManager
@@ -13,8 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ConfirmPinViewModel(
-  private val repository: AuthRepository,
-  private val cryptoManager: CryptoManager,
+  private val authManager: AuthManager,
   private val cardDataManager: CardDataManager,
   private val actions: ActionsViewModel,
   private val enteredPin: String
@@ -26,28 +26,9 @@ class ConfirmPinViewModel(
         return@launch
       }
 
-      setPin(pin.value)
+      authManager.setPin(pin.value)
       cardDataManager.encryptAndSaveCards()
       actions.afterPinCreated()
     }
-  }
-
-  suspend fun setPin(pin: String) {
-    val salt = cryptoManager.generateSalt()
-    val derivedPinKey = cryptoManager.deriveKey(pin.toCharArray(), salt)
-
-    val randomKeyString = cryptoManager.generateKey().encoded.toString()
-    val encryptedRandomKey = cryptoManager.encryptData(randomKeyString, derivedPinKey)
-
-    val authData = AuthData(
-      salt = salt,
-      encryptedRandomKey = encryptedRandomKey,
-      encryptedPin = null,
-      hasCreatedPin = true,
-      hasBiometricsEnabled = false
-    )
-
-    repository.setAuthData(authData)
-    authState.update { it.copy(pin = pin) }
   }
 }

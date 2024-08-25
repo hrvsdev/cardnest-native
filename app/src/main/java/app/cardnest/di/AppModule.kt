@@ -3,6 +3,7 @@ package app.cardnest.di
 import app.cardnest.AppViewModel
 import app.cardnest.authDataStore
 import app.cardnest.cardsDataStore
+import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.db.AuthDataOperations
 import app.cardnest.db.AuthRepository
@@ -18,7 +19,6 @@ import app.cardnest.screens.pin.enter.EnterPinViewModel
 import app.cardnest.screens.pin.verify.VerifyPinViewModel
 import app.cardnest.screens.user.security.SecurityViewModel
 import app.cardnest.state.actions.ActionsViewModel
-import app.cardnest.state.auth.BiometricManager
 import app.cardnest.state.card.CardEditorViewModel
 import app.cardnest.state.card.defaultCard
 import app.cardnest.utils.crypto.CryptoManager
@@ -28,14 +28,14 @@ import org.koin.dsl.module
 
 val appModule = module {
   single { CryptoManager }
-  single { BiometricManager() }
+
+  single { AuthDataOperations(androidContext().authDataStore) }
+  single { AuthRepository(get()) }
+  single { AuthManager(get(), get()) }
 
   single { CardDataOperations(androidContext().cardsDataStore) }
   single { CardRepository(get()) }
   single { CardDataManager(get(), get()) }
-
-  single { AuthDataOperations(androidContext().authDataStore) }
-  single { AuthRepository(get()) }
 
   factory { defaultCard() }
 
@@ -51,10 +51,10 @@ val appModule = module {
 
   viewModel { AddCardViewModel(get(), it.get()) }
 
-  viewModel { SecurityViewModel(get(), get(), get(), get(), get(), it.get(), it.get()) }
+  viewModel { SecurityViewModel(get(), get(), get(), it.get(), it.get()) }
 
   viewModel { CreatePinViewModel(it.get()) }
-  viewModel { ConfirmPinViewModel(get(), get(), get(), get(), it.get()) }
-  viewModel { EnterPinViewModel(get(), get(), get(), it.get()) }
+  viewModel { ConfirmPinViewModel(get(), get(), get(), it.get()) }
+  viewModel { EnterPinViewModel(get(), it.get()) }
   viewModel { VerifyPinViewModel(get()) }
 }
