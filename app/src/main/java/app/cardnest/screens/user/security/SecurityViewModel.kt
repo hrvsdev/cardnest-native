@@ -72,7 +72,7 @@ class SecurityViewModel(
       if (hasBiometricsEnabled.value) {
         authManager.disableBiometrics()
       } else {
-        authManager.enableBiometrics(ctx)
+        authManager.enableBiometrics(ctx, viewModelScope)
       }
     }
   }

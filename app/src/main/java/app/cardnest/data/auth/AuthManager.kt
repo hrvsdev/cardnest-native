@@ -7,8 +7,10 @@ import app.cardnest.db.auth.AuthRepository
 import app.cardnest.data.authData
 import app.cardnest.data.authState
 import app.cardnest.utils.crypto.CryptoManager
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.crypto.Cipher
 
@@ -65,20 +67,18 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     return isPinCorrect
   }
 
-  suspend fun enableBiometrics(ctx: FragmentActivity) {
+  suspend fun enableBiometrics(ctx: FragmentActivity, scope: CoroutineScope) {
     val pin = authState.value.pin ?: return
 
     val androidKey = crypto.getOrCreateAndroidSecretKey()
     val cipher = crypto.getInitializedCipherForEncryption(androidKey)
 
     authenticate(ctx, cipher, enableBiometricsPromptInfo) {
-      suspend {
-        withContext(Dispatchers.IO) {
-          val encryptedPin = crypto.encryptDataWithCipher(pin, cipher)
-          val data = authData.value.copy(encryptedPin = encryptedPin, hasBiometricsEnabled = true)
+      scope.launch(Dispatchers.IO) {
+        val encryptedPin = crypto.encryptDataWithCipher(pin, cipher)
+        val data = authData.value.copy(encryptedPin = encryptedPin, hasBiometricsEnabled = true)
 
-          repo.setAuthData(data)
-        }
+        repo.setAuthData(data)
       }
     }
   }
