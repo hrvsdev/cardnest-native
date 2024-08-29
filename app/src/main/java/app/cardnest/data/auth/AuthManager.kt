@@ -1,6 +1,8 @@
 package app.cardnest.data.auth
 
 import android.util.Log
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
 import app.cardnest.data.authData
@@ -15,15 +17,19 @@ import kotlinx.coroutines.withContext
 import javax.crypto.Cipher
 
 class AuthManager(private val repo: AuthRepository, private val crypto: CryptoManager) {
-  val enableBiometricsPromptInfo = BiometricPrompt.PromptInfo.Builder()
+  private val allowedAuthenticators = BIOMETRIC_STRONG
+
+  private val enableBiometricsPromptInfo = BiometricPrompt.PromptInfo.Builder()
     .setTitle("Register your biometrics")
-    .setSubtitle("To enable biometrics authentication, use your fingerprint, face or iris")
+    .setDescription("To enable biometrics authentication, use your fingerprint, face or iris")
+    .setAllowedAuthenticators(allowedAuthenticators)
     .setNegativeButtonText("Cancel")
     .build()
 
-  val unlockWithBiometricsPromptInfo = BiometricPrompt.PromptInfo.Builder()
+  private val unlockWithBiometricsPromptInfo = BiometricPrompt.PromptInfo.Builder()
     .setTitle("Unlock CardNest")
-    .setSubtitle("To decrypt data, use your fingerprint, face or iris to unlock CardNest")
+    .setDescription("To decrypt data, use your fingerprint, face or iris to unlock CardNest")
+    .setAllowedAuthenticators(allowedAuthenticators)
     .setNegativeButtonText("Use PIN")
     .build()
 
@@ -99,12 +105,51 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     }
   }
 
+  fun getAreBiometricsAvailable(ctx: FragmentActivity): Boolean {
+    var isBiometricsAvailable = false
+
+    when (BiometricManager.from(ctx).canAuthenticate(allowedAuthenticators)) {
+      BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
+        Log.i("BiometricStatus", "No suitable biometric hardware.")
+      }
+
+      BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
+        Log.i("BiometricStatus", "The hardware is unavailable. Try again later.")
+      }
+
+      BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+        Log.i("BiometricStatus", "No biometrics are enrolled.")
+      }
+
+      BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED -> {
+        Log.i("BiometricStatus", "Sensors are unavailable until a security update for vulnerable sensors.")
+      }
+
+      BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED -> {
+        Log.i("BiometricStatus", "Secure biometrics not supported on current Android version.")
+      }
+
+      BiometricManager.BIOMETRIC_STATUS_UNKNOWN -> {
+        Log.i("BiometricStatus", "Can't authenticate. Unknown biometric status.")
+      }
+
+      BiometricManager.BIOMETRIC_SUCCESS -> {
+        Log.i("BiometricStatus", "Can authenticate using biometrics.")
+        isBiometricsAvailable = true
+      }
+    }
+
+    return isBiometricsAvailable
+  }
+
   private suspend fun authenticate(
     ctx: FragmentActivity,
     cipher: Cipher,
     promptInfo: BiometricPrompt.PromptInfo,
     onSuccess: () -> Unit
   ) {
+    if (!getAreBiometricsAvailable(ctx)) return
+
     val prompt = BiometricPrompt(ctx, object : BiometricPrompt.AuthenticationCallback() {
       override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
         onSuccess()
