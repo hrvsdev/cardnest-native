@@ -41,7 +41,6 @@ sealed class CardData {
 data class CardEncrypted(
   val cipherText: ByteArray,
   val iv: ByteArray,
-  val salt: ByteArray
 )
 
 @Serializable

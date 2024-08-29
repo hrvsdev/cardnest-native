@@ -29,7 +29,11 @@ class AppViewModel(private val authRepository: AuthRepository) : ViewModel() {
       authRepository.getAuthData().collectLatest { d ->
         authData.update { d }
         authState.update {
-          it.copy(hasCreatedPin = d.hasCreatedPin, hasBiometricsEnabled = d.hasBiometricsEnabled)
+          it.copy(
+            salt = d.salt,
+            hasCreatedPin = d.hasCreatedPin,
+            hasBiometricsEnabled = d.hasBiometricsEnabled
+          )
         }
 
         isLoading.value = false

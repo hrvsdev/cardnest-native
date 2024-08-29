@@ -9,7 +9,6 @@ import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.serialization.json.Json
-import kotlin.text.toCharArray
 
 class CardDataManager(private val repo: CardRepository, private val crypto: CryptoManager) {
   suspend fun decryptAndCollectCards() {
@@ -51,19 +50,16 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     return when (authState.value.hasCreatedPin) {
       false -> CardData.Unencrypted(card)
       true -> {
-        val latestPin = authState.value.pin
+        val dek = authState.value.dek
 
-        if (latestPin == null) {
-          throw IllegalStateException("Pin is required to encrypt card data")
+        if (dek == null) {
+          throw IllegalStateException("PIN or DEK is required to encrypt card data")
         }
 
         val serialized = Json.encodeToString(Card.serializer(), card)
+        val encrypted = crypto.encryptData(serialized, dek)
 
-        val salt = crypto.generateSalt()
-        val key = crypto.deriveKey(latestPin.toCharArray(), salt)
-        val encrypted = crypto.encryptData(serialized, key)
-
-        CardData.Encrypted(CardEncrypted(encrypted.ciphertext, encrypted.iv, salt))
+        CardData.Encrypted(CardEncrypted(encrypted.ciphertext, encrypted.iv))
       }
     }
   }
@@ -72,16 +68,18 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     return when (cardData) {
       is CardData.Unencrypted -> cardData.card
       is CardData.Encrypted -> {
-        val latestPin = authState.value.pin
+        val dek = authState.value.dek
 
-        if (latestPin == null) {
-          throw IllegalStateException("Pin is required to encrypt card data")
+        if (dek == null) {
+          throw IllegalStateException("PIN or DEK is required to encrypt card data")
         }
 
         val encryptedData = EncryptedData(cardData.card.cipherText, cardData.card.iv)
+        val decrypted = crypto.decryptData(encryptedData, dek)
 
-        val key = crypto.deriveKey(latestPin.toCharArray(), cardData.card.salt)
-        val decrypted = crypto.decryptData(encryptedData, key)
+        if (decrypted == null || decrypted.isEmpty()) {
+          throw IllegalStateException("Failed to decrypt card data")
+        }
 
         Json.decodeFromString(Card.serializer(), decrypted)
       }

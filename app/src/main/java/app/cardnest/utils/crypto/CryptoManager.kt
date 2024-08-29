@@ -1,17 +1,20 @@
 package app.cardnest.utils.crypto
 
+import android.annotation.SuppressLint
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Log
 import app.cardnest.data.auth.EncryptedData
 import java.security.KeyStore
 import java.security.SecureRandom
+import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.PBEKeySpec
+import javax.crypto.spec.SecretKeySpec
 
 private const val KEY_SIZE = 256
 private const val KEY_ITERATION_COUNT = 210_000
@@ -87,14 +90,26 @@ object CryptoManager {
     return encryptDataWithCipher(plaintext, cipher)
   }
 
-  fun decryptData(encryptedData: EncryptedData, key: SecretKey): String {
+  fun decryptData(encryptedData: EncryptedData, key: SecretKey): String? {
     try {
       val cipher = getInitializedCipherForDecryption(key, encryptedData.iv)
       return decryptDataWithCipher(encryptedData.ciphertext, cipher)
     } catch (e: Exception) {
       Log.e("CryptoManager", "Failed to decrypt data", e)
-      return ""
+      return null
     }
+  }
+
+  @SuppressLint("NewApi")
+  fun keyToString(key: SecretKey): String {
+    val encoded = key.encoded
+    return Base64.getEncoder().encodeToString(encoded)
+  }
+
+  @SuppressLint("NewApi")
+  fun stringToKey(encodedKey: String): SecretKeySpec {
+    val decoded = Base64.getDecoder().decode(encodedKey)
+    return SecretKeySpec(decoded, 0, decoded.size, ENCRYPTION_ALGORITHM)
   }
 
   private fun getCipher(): Cipher {

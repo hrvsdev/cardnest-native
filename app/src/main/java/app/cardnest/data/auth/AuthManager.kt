@@ -3,9 +3,9 @@ package app.cardnest.data.auth
 import android.util.Log
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
-import app.cardnest.db.auth.AuthRepository
 import app.cardnest.data.authData
 import app.cardnest.data.authState
+import app.cardnest.db.auth.AuthRepository
 import app.cardnest.utils.crypto.CryptoManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,54 +29,54 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
 
   suspend fun setPin(pin: String) {
     val salt = crypto.generateSalt()
-    val derivedPinKey = crypto.deriveKey(pin.toCharArray(), salt)
+    val kek = crypto.deriveKey(pin.toCharArray(), salt)
 
-    val randomKeyString = crypto.generateKey().encoded.toString()
-    val encryptedRandomKey = crypto.encryptData(randomKeyString, derivedPinKey)
+    val dek = crypto.generateKey()
+    val encryptedDek = crypto.encryptData(crypto.keyToString(dek), kek)
 
     val data = AuthData(
       salt = salt,
-      encryptedRandomKey = encryptedRandomKey,
-      encryptedPin = null,
+      encryptedDek = encryptedDek,
+      encryptedBiometricsDek = null,
       hasCreatedPin = true,
       hasBiometricsEnabled = false
     )
 
     repo.setAuthData(data)
-    authState.update { it.copy(pin = pin) }
+    authState.update { it.copy(pin = pin, dek = dek) }
   }
 
   suspend fun removePin() {
     repo.setAuthData(AuthData())
-    authState.update { it.copy(pin = null) }
+    authState.update { it.copy(pin = null, dek = null) }
   }
 
   fun verifyAndSetAppPin(pin: String): Boolean {
     val salt = authData.value.salt ?: return false
-    val encryptedRandomKey = authData.value.encryptedRandomKey ?: return false
+    val encryptedDek = authData.value.encryptedDek ?: return false
 
-    val derivedPinKey = crypto.deriveKey(pin.toCharArray(), salt)
-    val randomKeyString = crypto.decryptData(encryptedRandomKey, derivedPinKey)
+    val kek = crypto.deriveKey(pin.toCharArray(), salt)
+    val dekString = crypto.decryptData(encryptedDek, kek)
 
-    val isPinCorrect = randomKeyString.isNotEmpty()
+    val isPinCorrect = dekString != null && dekString.isNotEmpty()
 
     if (isPinCorrect) {
-      authState.update { it.copy(pin = pin) }
+      authState.update { it.copy(pin = pin, dek = crypto.stringToKey(dekString)) }
     }
 
     return isPinCorrect
   }
 
   suspend fun enableBiometrics(ctx: FragmentActivity, scope: CoroutineScope) {
-    val pin = authState.value.pin ?: return
+    val dek = authState.value.dek ?: return
 
     val androidKey = crypto.getOrCreateAndroidSecretKey()
     val cipher = crypto.getInitializedCipherForEncryption(androidKey)
 
     authenticate(ctx, cipher, enableBiometricsPromptInfo) {
       scope.launch(Dispatchers.IO) {
-        val encryptedPin = crypto.encryptDataWithCipher(pin, cipher)
-        val data = authData.value.copy(encryptedPin = encryptedPin, hasBiometricsEnabled = true)
+        val encryptedDek = crypto.encryptDataWithCipher(crypto.keyToString(dek), cipher)
+        val data = authData.value.copy(encryptedBiometricsDek = encryptedDek, hasBiometricsEnabled = true)
 
         repo.setAuthData(data)
       }
@@ -84,18 +84,19 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
   }
 
   suspend fun disableBiometrics() {
-    repo.setAuthData(authData.value.copy(encryptedPin = null, hasBiometricsEnabled = false))
+    val data = authData.value.copy(encryptedBiometricsDek = null, hasBiometricsEnabled = false)
+    repo.setAuthData(data)
   }
 
   suspend fun unlockWithBiometrics(ctx: FragmentActivity, onSuccess: () -> Unit) {
-    val encryptedPin = authData.value.encryptedPin ?: return
+    val encryptedDek = authData.value.encryptedBiometricsDek ?: return
 
     val androidKey = crypto.getOrCreateAndroidSecretKey()
-    val cipher = crypto.getInitializedCipherForDecryption(androidKey, encryptedPin.iv)
+    val cipher = crypto.getInitializedCipherForDecryption(androidKey, encryptedDek.iv)
 
     authenticate(ctx, cipher, unlockWithBiometricsPromptInfo) {
-      val decryptedPin = crypto.decryptDataWithCipher(encryptedPin.ciphertext, cipher)
-      authState.update { it.copy(pin = decryptedPin) }
+      val dekString = crypto.decryptDataWithCipher(encryptedDek.ciphertext, cipher)
+      authState.update { it.copy(dek = crypto.stringToKey(dekString)) }
 
       onSuccess()
     }
