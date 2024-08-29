@@ -31,18 +31,10 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val salt = crypto.generateSalt()
     val kek = crypto.deriveKey(pin.toCharArray(), salt)
 
-    val dek = crypto.generateKey()
+    val dek = authState.value.dek ?: crypto.generateKey()
     val encryptedDek = crypto.encryptData(crypto.keyToString(dek), kek)
 
-    val data = AuthData(
-      salt = salt,
-      encryptedDek = encryptedDek,
-      encryptedBiometricsDek = null,
-      hasCreatedPin = true,
-      hasBiometricsEnabled = false
-    )
-
-    repo.setAuthData(data)
+    repo.setAuthData(authData.value.copy(salt = salt, encryptedDek = encryptedDek, hasCreatedPin = true))
     authState.update { it.copy(pin = pin, dek = dek) }
   }
 
@@ -51,20 +43,25 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     authState.update { it.copy(pin = null, dek = null) }
   }
 
-  fun verifyAndSetAppPin(pin: String): Boolean {
-    val salt = authData.value.salt ?: return false
-    val encryptedDek = authData.value.encryptedDek ?: return false
+  fun verifyPin(pin: String): Boolean {
+    return getDekString(pin) != null
+  }
+
+  fun unlockWithPin(pin: String): Boolean {
+    val dekString = getDekString(pin) ?: return false
+    authState.update { it.copy(pin = pin, dek = crypto.stringToKey(dekString)) }
+
+    return true
+  }
+
+  private fun getDekString(pin: String): String? {
+    val salt = authData.value.salt ?: return null
+    val encryptedDek = authData.value.encryptedDek ?: return null
 
     val kek = crypto.deriveKey(pin.toCharArray(), salt)
     val dekString = crypto.decryptData(encryptedDek, kek)
 
-    val isPinCorrect = dekString != null && dekString.isNotEmpty()
-
-    if (isPinCorrect) {
-      authState.update { it.copy(pin = pin, dek = crypto.stringToKey(dekString)) }
-    }
-
-    return isPinCorrect
+    return dekString
   }
 
   suspend fun enableBiometrics(ctx: FragmentActivity, scope: CoroutineScope) {

@@ -56,5 +56,5 @@ val appModule = module {
   viewModel { CreatePinViewModel(it.get()) }
   viewModel { ConfirmPinViewModel(get(), get(), get(), it.get()) }
   viewModel { EnterPinViewModel(get(), it.get()) }
-  viewModel { VerifyPinViewModel(get()) }
+  viewModel { VerifyPinViewModel(get(), get()) }
 }

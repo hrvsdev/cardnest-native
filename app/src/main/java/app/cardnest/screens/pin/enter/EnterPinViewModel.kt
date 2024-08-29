@@ -23,7 +23,7 @@ class EnterPinViewModel(
 
   fun onPinSubmit() {
     viewModelScope.launch(Dispatchers.IO) {
-      val isPinCorrect = authManager.verifyAndSetAppPin(pin.value)
+      val isPinCorrect = authManager.unlockWithPin(pin.value)
 
       if (!isPinCorrect) {
         onError()
