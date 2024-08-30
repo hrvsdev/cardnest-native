@@ -54,7 +54,7 @@ class SecurityScreen : Screen {
         )
       }
 
-      if (hasCreatedPin) {
+      if (vm.getShowBiometricsSwitch(ctx)) {
         SettingsGroup("Biometrics", BIOMETRICS_DESC) {
           SettingsSwitch(
             title = "Enable biometrics",

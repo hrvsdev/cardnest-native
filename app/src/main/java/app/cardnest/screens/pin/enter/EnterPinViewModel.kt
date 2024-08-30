@@ -8,19 +8,12 @@ import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.pin.PinBaseViewModel
 import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class EnterPinViewModel(
   private val authManager: AuthManager,
   private val navigator: Navigator,
 ) : PinBaseViewModel() {
-  val hasBiometricsEnabled = authState.map { it.hasBiometricsEnabled }.stateIn(
-    scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = false
-  )
-
   fun onPinSubmit() {
     viewModelScope.launch(Dispatchers.IO) {
       val isPinCorrect = authManager.unlockWithPin(pin.value)
@@ -32,6 +25,10 @@ class EnterPinViewModel(
 
       navigator.replaceAll(HomeScreen)
     }
+  }
+
+  fun getShowBiometricsButton(ctx: FragmentActivity): Boolean {
+    return authState.value.hasBiometricsEnabled && authManager.getAreBiometricsAvailable(ctx)
   }
 
   fun unlockWithBiometrics(ctx: FragmentActivity) {

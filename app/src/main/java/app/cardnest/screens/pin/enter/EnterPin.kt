@@ -76,7 +76,7 @@ class EnterPinScreen : Screen {
         pin = vm.pin,
         onPinChange = vm::onPinChange,
         onPinSubmit = vm::onPinSubmit,
-        showBiometricsIcon = vm.hasBiometricsEnabled.collectAsStateWithLifecycle().value,
+        showBiometricsIcon = vm.getShowBiometricsButton(ctx),
         onBiometricsIconClick = ::onUnlockWithBiometricsClick
       )
 

@@ -67,6 +67,10 @@ class SecurityViewModel(
     }
   }
 
+  fun getShowBiometricsSwitch(ctx: FragmentActivity): Boolean {
+    return hasBiometricsEnabled.value || (hasCreatedPin.value && authManager.getAreBiometricsAvailable(ctx))
+  }
+
   fun onBiometricsSwitchChange(ctx: FragmentActivity) {
     viewModelScope.launch(Dispatchers.IO) {
       if (hasBiometricsEnabled.value) {
