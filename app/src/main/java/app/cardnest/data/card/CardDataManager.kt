@@ -5,6 +5,7 @@ import app.cardnest.data.authState
 import app.cardnest.data.cardsState
 import app.cardnest.db.card.CardRepository
 import app.cardnest.utils.crypto.CryptoManager
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
@@ -44,6 +45,10 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
 
   suspend fun deleteCard(cardId: String) {
     repo.deleteCard(cardId)
+  }
+
+  suspend fun deleteAllCards() {
+    repo.setCards(CardRecords(persistentMapOf()))
   }
 
   private fun encryptCard(card: Card): CardData {

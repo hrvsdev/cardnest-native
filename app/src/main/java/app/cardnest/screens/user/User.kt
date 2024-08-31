@@ -18,6 +18,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.ScreenTransition
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Suppress("JavaIoSerializableObjectMustHaveReadResolve")
 @OptIn(ExperimentalVoyagerApi::class)
@@ -26,6 +28,12 @@ object UserScreen : Screen, ScreenTransition by NoTransition() {
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
     val bottomSheetNavigator = LocalBottomSheetNavigator.current
+
+    val vm = koinViewModel<UserViewModel> { parametersOf(navigator, bottomSheetNavigator) }
+
+    fun onDeleteAllCardsClick() {
+      bottomSheetNavigator.show(DeleteDataBottomSheetScreen(vm::onDeleteAllCards, bottomSheetNavigator::hide))
+    }
 
     TabScreenRoot {
       HeaderTitle("You")
@@ -52,7 +60,7 @@ object UserScreen : Screen, ScreenTransition by NoTransition() {
             isDanger = true,
             isFirst = true,
             isLast = true,
-            onClick = { bottomSheetNavigator.show(DeleteDataBottomSheetScreen({}, {})) }
+            onClick = ::onDeleteAllCardsClick
           )
         }
       }
