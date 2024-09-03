@@ -11,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -20,20 +19,20 @@ class HomeViewModel(private val dataManager: CardDataManager) : ViewModel() {
   val queryState = TextFieldState()
 
   @OptIn(FlowPreview::class)
-  private val queryTextFlow = snapshotFlow { queryState.text }.debounce(150)
+  private val queryTextFlow = snapshotFlow { queryState.text }
 
-  val cardRecordList = combine(cardsState, queryTextFlow) { state, text ->
-    state.values.filter { filterCard(it.plainData, text) }
-  }.stateIn(
+  val cardRecordList = cardsState.map { it.values.toList() }.stateIn(
     scope = viewModelScope,
     started = SharingStarted.WhileSubscribed(5000),
     initialValue = emptyList()
   )
 
-  val totalNoOfCards = cardsState.map { it.size }.stateIn(
+  val filteredCardIds = combine(cardRecordList, queryTextFlow) { state, text ->
+    state.filter { filterCard(it.plainData, text) }.map { it.id }
+  }.stateIn(
     scope = viewModelScope,
     started = SharingStarted.WhileSubscribed(5000),
-    initialValue = 0
+    initialValue = emptyList()
   )
 
   init {

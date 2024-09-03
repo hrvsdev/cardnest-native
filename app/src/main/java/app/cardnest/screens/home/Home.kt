@@ -1,9 +1,13 @@
 package app.cardnest.screens.home
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,20 +36,31 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
 
-    val viewModel = koinViewModel<HomeViewModel>()
-    val cardRecordList = viewModel.cardRecordList.collectAsStateWithLifecycle().value
+    val vm = koinViewModel<HomeViewModel>()
+
+    val cardRecordList = vm.cardRecordList.collectAsStateWithLifecycle().value
+    val filteredCardIds = vm.filteredCardIds.collectAsStateWithLifecycle().value
+
+    val totalNoOfCards = cardRecordList.size
+    val noOfResults = filteredCardIds.size
 
     TabScreenRoot {
       HeaderTitle("Home")
-      HeaderSearch()
-      ScreenContainer(16.dp) {
-        cardRecordList.forEach {
-          Box(Modifier.clickable { navigator.push(CardViewScreen(it.id)) }) {
-            CardPreview(it.plainData)
+      HeaderSearch(vm.queryState, noOfResults, totalNoOfCards)
+      ScreenContainer {
+        cardRecordList.forEachIndexed { index, it ->
+          AnimatedVisibility(filteredCardIds.contains(it.id)) {
+            Column {
+              Box(Modifier.clickable { navigator.push(CardViewScreen(it.id)) }) {
+                CardPreview(it.plainData)
+              }
+
+              Spacer(Modifier.size(16.dp))
+            }
           }
         }
 
-        if (cardRecordList.isEmpty()) {
+        if (totalNoOfCards == 0) {
           Box(Modifier.fillMaxWidth(), Alignment.Center) {
             AppText("No cards found", Modifier.padding(top = 32.dp), color = TH_WHITE_60)
           }
