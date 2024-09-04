@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.data.authData
 import app.cardnest.data.authState
+import app.cardnest.data.preferencesState
+import app.cardnest.db.preferences.PreferencesRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -14,7 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class AppViewModel(private val authRepository: AuthRepository) : ViewModel() {
+class AppViewModel(private val authRepo: AuthRepository, private val prefsRepo: PreferencesRepository) : ViewModel() {
   val isLoading = mutableStateOf(true)
   val hasCreatedPin = authState.map { it.hasCreatedPin }.stateIn(
     scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = false
@@ -22,11 +24,12 @@ class AppViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
   init {
     initAuth()
+    initPreferences()
   }
 
   private fun initAuth() {
     viewModelScope.launch(Dispatchers.IO) {
-      authRepository.getAuthData().collectLatest { d ->
+      authRepo.getAuthData().collectLatest { d ->
         authData.update { d }
         authState.update {
           it.copy(
@@ -37,6 +40,14 @@ class AppViewModel(private val authRepository: AuthRepository) : ViewModel() {
         }
 
         isLoading.value = false
+      }
+    }
+  }
+
+  private fun initPreferences() {
+    viewModelScope.launch(Dispatchers.IO) {
+      prefsRepo.getPreferences().collectLatest { d ->
+        preferencesState.update { d }
       }
     }
   }

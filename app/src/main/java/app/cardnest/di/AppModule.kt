@@ -7,10 +7,14 @@ import app.cardnest.data.actions.Actions
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.card.CardEditorViewModel
+import app.cardnest.data.preferences.PreferencesManager
 import app.cardnest.db.auth.AuthDataOperations
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.db.card.CardDataOperations
 import app.cardnest.db.card.CardRepository
+import app.cardnest.db.preferences.PreferencesDataOperations
+import app.cardnest.db.preferences.PreferencesRepository
+import app.cardnest.preferencesDataStore
 import app.cardnest.screens.add.editor.AddCardViewModel
 import app.cardnest.screens.home.HomeViewModel
 import app.cardnest.screens.home.card.CardViewModel
@@ -21,6 +25,7 @@ import app.cardnest.screens.pin.enter.EnterPinViewModel
 import app.cardnest.screens.pin.verify.VerifyPinViewModel
 import app.cardnest.screens.user.UserViewModel
 import app.cardnest.screens.user.security.SecurityViewModel
+import app.cardnest.screens.user.user_interface.UserInterfaceViewModel
 import app.cardnest.utils.card.defaultCard
 import app.cardnest.utils.crypto.CryptoManager
 import org.koin.android.ext.koin.androidContext
@@ -38,13 +43,17 @@ val appModule = module {
   single { CardRepository(get()) }
   single { CardDataManager(get(), get()) }
 
+  single { PreferencesDataOperations(androidContext().preferencesDataStore) }
+  single { PreferencesRepository(get()) }
+  single { PreferencesManager(get()) }
+
   factory { defaultCard() }
 
   single { Actions() }
 
   viewModel { CardEditorViewModel(it.getOrNull() ?: get()) }
 
-  viewModel { AppViewModel(get()) }
+  viewModel { AppViewModel(get(), get()) }
 
   viewModel { HomeViewModel(get()) }
   viewModel { CardViewModel(get(), it.get(), it.get()) }
@@ -54,6 +63,8 @@ val appModule = module {
 
   viewModel { UserViewModel(get(), get(), it.get(), it.get()) }
   viewModel { SecurityViewModel(get(), get(), get(), it.get(), it.get()) }
+
+  viewModel { UserInterfaceViewModel(get()) }
 
   viewModel { CreatePinViewModel(it.get()) }
   viewModel { ConfirmPinViewModel(get(), get(), get(), it.get()) }

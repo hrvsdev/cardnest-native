@@ -14,6 +14,7 @@ import androidx.datastore.dataStore
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.db.auth.AuthDataSerializer
 import app.cardnest.db.card.CardsDataSerializer
+import app.cardnest.db.preferences.PreferencesDataSerializer
 import app.cardnest.di.appModule
 import app.cardnest.ui.theme.CardNestTheme
 import org.koin.android.ext.koin.androidContext
@@ -23,6 +24,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 
 val Context.cardsDataStore by dataStore("cards_data.json", CardsDataSerializer)
 val Context.authDataStore by dataStore("auth_data.json", AuthDataSerializer)
+val Context.preferencesDataStore by dataStore("preferences_data.json", PreferencesDataSerializer)
 
 class MainActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
