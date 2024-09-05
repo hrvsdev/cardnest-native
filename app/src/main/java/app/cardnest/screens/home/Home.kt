@@ -40,6 +40,7 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
 
     val cardRecordList = vm.cardRecordList.collectAsStateWithLifecycle().value
     val filteredCardIds = vm.filteredCardIds.collectAsStateWithLifecycle().value
+    val maskCardNumber = vm.maskCardNumber.collectAsStateWithLifecycle().value
 
     val totalNoOfCards = cardRecordList.size
     val noOfResults = filteredCardIds.size
@@ -52,7 +53,7 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
           AnimatedVisibility(filteredCardIds.contains(it.id)) {
             Column {
               Box(Modifier.clickable { navigator.push(CardViewScreen(it.id)) }) {
-                CardPreview(it.plainData)
+                CardPreview(it.plainData, maskCardNumber = maskCardNumber)
               }
 
               Spacer(Modifier.size(16.dp))

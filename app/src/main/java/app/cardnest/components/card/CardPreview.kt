@@ -35,9 +35,10 @@ import app.cardnest.utils.card.formatCardViewDetails
 fun CardPreview(
   card: Card,
   usePlaceholders: Boolean = false,
+  maskCardNumber : Boolean = false,
   focused: CardFocusableField? = null,
 ) {
-  val formattedCard = formatCardViewDetails(card, usePlaceholders)
+  val formattedCard = formatCardViewDetails(card, usePlaceholders, maskCardNumber)
 
   @Composable
   fun modifierWithAlpha(field: CardFocusableField): Modifier {

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import app.cardnest.data.card.Card
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.cardsState
+import app.cardnest.data.preferencesState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,6 +34,12 @@ class HomeViewModel(private val dataManager: CardDataManager) : ViewModel() {
     scope = viewModelScope,
     started = SharingStarted.WhileSubscribed(5000),
     initialValue = emptyList()
+  )
+
+  val maskCardNumber = preferencesState.map { it.userInterface.maskCardNumber }.stateIn(
+    scope = viewModelScope,
+    started = SharingStarted.WhileSubscribed(5000),
+    initialValue = false
   )
 
   init {
