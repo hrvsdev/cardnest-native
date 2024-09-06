@@ -9,6 +9,6 @@ fun defaultCard() = Card(
   expiry = "",
   cardholder = "",
   issuer = "",
-  network = PaymentNetwork.VISA,
+  network = PaymentNetwork.OTHER,
   theme = CardTheme.entries.random(),
 )
