@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <color name="th_black">#00060C</color>
-  <color name="th_white_85">#D9F4F7FB</color>
-  <color name="th_white_65">#A6F4F7FB</color>
+  <color name="th_white">#F4F7FB</color>
 </resources>
