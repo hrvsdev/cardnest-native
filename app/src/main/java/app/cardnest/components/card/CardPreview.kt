@@ -2,8 +2,10 @@ package app.cardnest.components.card
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -18,12 +20,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.cardnest.R
 import app.cardnest.data.card.Card
 import app.cardnest.data.card.CardFocusableField
+import app.cardnest.data.card.PaymentNetwork
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
@@ -35,7 +40,7 @@ import app.cardnest.utils.card.formatCardViewDetails
 fun CardPreview(
   card: Card,
   usePlaceholders: Boolean = false,
-  maskCardNumber : Boolean = false,
+  maskCardNumber: Boolean = false,
   focused: CardFocusableField? = null,
 ) {
   val formattedCard = formatCardViewDetails(card, usePlaceholders, maskCardNumber)
@@ -56,8 +61,9 @@ fun CardPreview(
       .aspectRatio(1.586f)
       .clip(RoundedCornerShape(16.dp))
       .background(Brush.linearGradient(getCardTheme(card.theme)))
-      .padding(16.dp),
-    verticalArrangement = Arrangement.SpaceBetween
+      .padding(
+        16.dp
+      ), verticalArrangement = Arrangement.SpaceBetween
   ) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
       Column(modifierWithAlpha(CardFocusableField.CARDHOLDER)) {
@@ -113,8 +119,8 @@ fun CardPreview(
       }
     }
 
-    Row(modifierWithAlpha(CardFocusableField.EXPIRY).fillMaxWidth(), Arrangement.SpaceBetween) {
-      Column {
+    Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
+      Column(modifierWithAlpha(CardFocusableField.EXPIRY).fillMaxWidth()) {
         AppText(
           text = "VALID THRU",
           size = AppTextSize.XXS,
@@ -136,6 +142,27 @@ fun CardPreview(
           }
         }
       }
+
+      Box(modifierWithAlpha(CardFocusableField.NETWORK).padding(bottom = 6.dp)) {
+        CardNetworkLogo(card.network)
+      }
     }
   }
+}
+
+@Composable
+fun CardNetworkLogo(network: PaymentNetwork) {
+  Image(
+    contentDescription = network.name, painter = painterResource(
+      id = when (network) {
+        PaymentNetwork.VISA -> R.drawable.visa
+        PaymentNetwork.MASTERCARD -> R.drawable.mastercard
+        PaymentNetwork.AMEX -> R.drawable.amex
+        PaymentNetwork.DISCOVER -> R.drawable.discover
+        PaymentNetwork.DINERS -> R.drawable.diners
+        PaymentNetwork.RUPAY -> R.drawable.rupay
+        PaymentNetwork.OTHER -> return
+      }
+    )
+  )
 }

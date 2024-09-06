@@ -85,7 +85,8 @@ enum class CardFocusableField {
   NUMBER,
   EXPIRY,
   CARDHOLDER,
-  ISSUER
+  ISSUER,
+  NETWORK,
 }
 
 enum class CardTheme {
