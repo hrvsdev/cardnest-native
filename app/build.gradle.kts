@@ -3,6 +3,7 @@ plugins {
   alias(libs.plugins.kotlin.android)
   alias(libs.plugins.kotlin.compose)
   alias(libs.plugins.kotlin.serialization)
+  alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -58,6 +59,8 @@ dependencies {
   implementation(libs.koin.androidx.compose)
   implementation(libs.koin.androidx.startup)
   implementation(libs.androidx.biometric)
+  implementation(libs.firebase.auth)
+  implementation(libs.firebase.database)
 
   runtimeOnly(libs.androidx.material)
 }
