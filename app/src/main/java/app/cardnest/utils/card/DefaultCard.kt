@@ -9,6 +9,7 @@ fun defaultCard() = Card(
   expiry = "",
   cardholder = "",
   issuer = "",
+  cvv = "",
   network = PaymentNetwork.OTHER,
   theme = CardTheme.entries.random(),
 )

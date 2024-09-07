@@ -14,6 +14,7 @@ class CardEditorViewModel(card: Card = defaultCard()) : ViewModel() {
   val expiry = TextFieldState(card.expiry)
   val cardholder = TextFieldState(card.cardholder)
   val issuer = TextFieldState(card.issuer)
+  val cvv = TextFieldState(card.cvv)
 
   val network = mutableStateOf(card.network)
   val theme = mutableStateOf(card.theme)
@@ -28,6 +29,7 @@ class CardEditorViewModel(card: Card = defaultCard()) : ViewModel() {
       number = CardNumberError(number.text.length != 19),
       expiry = CardExpiryError(expiry.text.length != 5),
       cardholder = CardholderError(cardholder.text.length < 2),
+      cvv = CardCvvError(if (cvv.text.isEmpty()) false else cvv.text.length != 3)
     )
   }
 
@@ -37,6 +39,7 @@ class CardEditorViewModel(card: Card = defaultCard()) : ViewModel() {
       expiry = expiry.text.toString(),
       cardholder = cardholder.text.toString(),
       issuer = issuer.text.toString(),
+      cvv = cvv.text.toString(),
       network = network.value,
       theme = theme.value,
     )
@@ -55,7 +58,8 @@ class CardEditorViewModel(card: Card = defaultCard()) : ViewModel() {
 
   fun onSubmit(next: (data: Card) -> Unit) {
     hasSubmitted.value = true
-    if (errors.number.hasError || errors.expiry.hasError || errors.cardholder.hasError) return
+    if (errors.number.hasError || errors.expiry.hasError || errors.cardholder.hasError || errors.cvv.hasError) return
+
     next(card)
   }
 }

@@ -12,6 +12,7 @@ data class Card(
   val expiry: String,
   val cardholder: String,
   val issuer: String,
+  val cvv: String,
   val network: PaymentNetwork,
   val theme: CardTheme
 )
@@ -52,7 +53,8 @@ data class CardRecord(
 data class CardErrorsState(
   val number: AppTextFieldError = CardNumberError(false),
   val expiry: AppTextFieldError = CardExpiryError(false),
-  val cardholder: AppTextFieldError = CardholderError(false)
+  val cardholder: AppTextFieldError = CardholderError(false),
+  val cvv: AppTextFieldError = CardCvvError(false)
 )
 
 data class CardNumberError(override val hasError: Boolean) :
@@ -63,6 +65,9 @@ data class CardExpiryError(override val hasError: Boolean) :
 
 data class CardholderError(override val hasError: Boolean) :
   AppTextFieldError("Cardholder name must be at least 2 characters long")
+
+data class CardCvvError(override val hasError: Boolean) :
+  AppTextFieldError("CVV must be exact 3 digits long or you can leave it empty")
 
 data class DisplayCardDetails(
   val number: String,
