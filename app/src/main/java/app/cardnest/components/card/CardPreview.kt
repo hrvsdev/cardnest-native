@@ -57,13 +57,12 @@ fun CardPreview(
   }
 
   Column(
-    Modifier
+    verticalArrangement = Arrangement.SpaceBetween,
+    modifier = Modifier
       .aspectRatio(1.586f)
       .clip(RoundedCornerShape(16.dp))
       .background(Brush.linearGradient(getCardTheme(card.theme)))
-      .padding(
-        16.dp
-      ), verticalArrangement = Arrangement.SpaceBetween
+      .padding(top = 18.dp, start = 18.dp, end = 18.dp, bottom = 14.dp)
   ) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
       Column(modifierWithAlpha(CardFocusableField.CARDHOLDER)) {
@@ -119,8 +118,8 @@ fun CardPreview(
       }
     }
 
-    Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-      Column(modifierWithAlpha(CardFocusableField.EXPIRY).fillMaxWidth()) {
+    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.Bottom) {
+      Column(modifierWithAlpha(CardFocusableField.EXPIRY)) {
         AppText(
           text = "VALID THRU",
           size = AppTextSize.XXS,
