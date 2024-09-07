@@ -66,6 +66,7 @@ fun CardEditor(viewModel: CardEditorViewModel) {
       keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done)
     )
 
+    CardNetworkSelector(viewModel.network.value, viewModel::onNetworkChange)
     CardThemeSelector(viewModel.theme.value, viewModel::onThemeChange)
   }
 }
