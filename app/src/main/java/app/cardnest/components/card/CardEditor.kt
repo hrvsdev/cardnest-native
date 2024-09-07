@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import app.cardnest.App
 import app.cardnest.components.core.AppTextField
 import app.cardnest.data.card.CardEditorViewModel
 import app.cardnest.data.card.CardFocusableField
@@ -58,6 +59,16 @@ fun CardEditor(viewModel: CardEditorViewModel) {
     )
 
     AppTextField(
+      label = "CVV",
+      placeholder = "Enter CVV",
+      state = viewModel.cvv,
+      inputTransformation = CvvTransformation,
+      error = viewModel.errors.cvv,
+      onFocus = { viewModel.onFocusedChange(null) },
+      keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+    )
+
+    AppTextField(
       label = "Issuer",
       placeholder = "Enter card issuer/bank",
       state = viewModel.issuer,
@@ -92,4 +103,8 @@ val ExpiryTransformation = InputTransformation.byValue { current, proposed ->
   }
 
   filteredValue
+}
+
+val CvvTransformation = InputTransformation.byValue { _, proposed ->
+  proposed.filter { c -> c.isDigit() }.take(3)
 }

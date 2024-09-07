@@ -69,6 +69,10 @@ data class CardViewScreen(val id: String) : Screen {
           CopyableTextField(label = "Expiry date", text = card.expiry)
           CopyableTextField(label = "Cardholder name", text = card.cardholder)
 
+          if (card.cvv.isNotBlank()) {
+            CopyableTextField(label = "CVV", text = card.cvv)
+          }
+
           if (card.issuer.isNotBlank()) {
             CopyableTextField(label = "Issuer", text = card.issuer)
           }
