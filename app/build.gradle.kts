@@ -61,6 +61,7 @@ dependencies {
   implementation(libs.androidx.biometric)
   implementation(libs.firebase.auth)
   implementation(libs.firebase.database)
+  implementation(libs.googleid)
 
   runtimeOnly(libs.androidx.material)
 }

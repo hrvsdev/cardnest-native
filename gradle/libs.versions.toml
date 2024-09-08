@@ -1,12 +1,13 @@
 [versions]
-agp = "8.7.1"
+agp = "8.7.2"
 kotlin = "2.0.20"
-coreKtx = "1.13.1"
-lifecycleRuntimeKtx = "2.8.6"
+coreKtx = "1.15.0"
+lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
-composeBom = "2024.10.00"
+composeBom = "2024.10.01"
 koin = "4.0.0"
 datastore = "1.1.1"
+navigationCompose = "2.8.3"
 coreSplashscreen = "1.0.1"
 kotlinxImmutable = "0.3.8"
 kotlinxSerialization = "1.7.3"
@@ -16,6 +17,7 @@ biometric = "1.4.0-alpha02"
 googleGmsGoogleServices = "4.4.2"
 firebaseAuth = "23.1.0"
 firebaseDatabase = "21.0.0"
+googleid = "1.1.1"
 
 [libraries]
 # Core Android
@@ -35,7 +37,7 @@ androidx-material3 = { module = "androidx.compose.material3:material3" }
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 
 # Compose navigation
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version = "2.8.2" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
 # Splash screen support
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
@@ -62,6 +64,7 @@ voyager-screenmodel = { module = "cafe.adriel.voyager:voyager-screenmodel", vers
 # Firebase
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
