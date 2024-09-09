@@ -10,6 +10,7 @@ import app.cardnest.components.header.HeaderTitle
 import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
 import app.cardnest.screens.NoTransition
+import app.cardnest.screens.user.account.AccountScreen
 import app.cardnest.screens.user.security.SecurityScreen
 import app.cardnest.screens.user.user_interface.UserInterfaceScreen
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
@@ -38,6 +39,16 @@ object UserScreen : Screen, ScreenTransition by NoTransition() {
     TabScreenRoot {
       HeaderTitle("You")
       ScreenContainer(24.dp) {
+        SettingsGroup("User Profile") {
+          SettingsButton(
+            title = "Account",
+            icon = painterResource(R.drawable.tabler__user_circle),
+            isFirst = true,
+            isLast = true,
+            onClick = { navigator.push(AccountScreen()) }
+          )
+        }
+
         SettingsGroup("App Settings") {
           SettingsButton(
             title = "Security",

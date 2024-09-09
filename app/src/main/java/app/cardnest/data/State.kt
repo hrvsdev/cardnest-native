@@ -6,6 +6,15 @@ import app.cardnest.data.preferences.Preferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.crypto.SecretKey
 
+val authData = MutableStateFlow(AuthData())
+val authState = MutableStateFlow(AuthState())
+
+val userState = MutableStateFlow<User?>(null)
+
+val cardsState = MutableStateFlow<Map<String, CardRecord>>(emptyMap())
+
+val preferencesState = MutableStateFlow(Preferences())
+
 data class AuthState(
   val pin: String? = null,
   val dek: SecretKey? = null,
@@ -14,9 +23,6 @@ data class AuthState(
   val hasBiometricsEnabled: Boolean = false
 )
 
-val authData = MutableStateFlow(AuthData())
-val authState = MutableStateFlow(AuthState())
-
-val cardsState = MutableStateFlow<Map<String, CardRecord>>(emptyMap())
-
-val preferencesState = MutableStateFlow(Preferences())
+data class User(
+  val uid: String
+)
