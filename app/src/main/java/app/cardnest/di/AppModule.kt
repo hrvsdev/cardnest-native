@@ -14,6 +14,7 @@ import app.cardnest.db.card.CardDataOperations
 import app.cardnest.db.card.CardRepository
 import app.cardnest.db.preferences.PreferencesDataOperations
 import app.cardnest.db.preferences.PreferencesRepository
+import app.cardnest.firebase.auth.FirebaseUserManager
 import app.cardnest.preferencesDataStore
 import app.cardnest.screens.add.editor.AddCardViewModel
 import app.cardnest.screens.home.HomeViewModel
@@ -35,6 +36,8 @@ import org.koin.dsl.module
 
 val appModule = module {
   single { CryptoManager }
+
+  single { FirebaseUserManager() }
 
   single { AuthDataOperations(androidContext().authDataStore) }
   single { AuthRepository(get()) }
