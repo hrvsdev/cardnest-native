@@ -66,7 +66,7 @@ val appModule = module {
   viewModel { AddCardViewModel(get(), it.get()) }
 
   viewModel { UserViewModel(get(), get(), it.get(), it.get()) }
-  viewModel { AccountViewModel() }
+  viewModel { AccountViewModel(get()) }
   viewModel { SecurityViewModel(get(), get(), get(), it.get(), it.get()) }
 
   viewModel { UserInterfaceViewModel(get()) }

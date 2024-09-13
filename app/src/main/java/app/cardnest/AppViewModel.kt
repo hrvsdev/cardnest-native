@@ -1,18 +1,13 @@
 package app.cardnest
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cardnest.data.User
-import app.cardnest.db.auth.AuthRepository
 import app.cardnest.data.authData
 import app.cardnest.data.authState
-import app.cardnest.data.userState
 import app.cardnest.data.preferencesState
+import app.cardnest.db.auth.AuthRepository
 import app.cardnest.db.preferences.PreferencesRepository
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -28,24 +23,8 @@ class AppViewModel(private val authRepo: AuthRepository, private val prefsRepo: 
   )
 
   init {
-    initUser()
     initAuth()
     initPreferences()
-  }
-
-  private fun initUser() {
-    Firebase.auth.addAuthStateListener {
-      val user = it.currentUser
-
-      if (user != null) {
-        userState.update { User(user.uid) }
-        Log.d("AccountViewModel", "Signed in as ${user.uid}")
-
-      } else {
-        userState.update { null }
-        Log.d("AccountViewModel", "Signed out")
-      }
-    }
   }
 
   private fun initAuth() {
