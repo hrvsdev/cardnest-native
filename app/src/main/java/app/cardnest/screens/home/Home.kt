@@ -38,6 +38,7 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
 
     val vm = koinViewModel<HomeViewModel>()
 
+    val userName = vm.userName.collectAsStateWithLifecycle().value
     val cardRecordList = vm.cardRecordList.collectAsStateWithLifecycle().value
     val filteredCardIds = vm.filteredCardIds.collectAsStateWithLifecycle().value
     val maskCardNumber = vm.maskCardNumber.collectAsStateWithLifecycle().value
@@ -46,7 +47,7 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
     val noOfResults = filteredCardIds.size
 
     TabScreenRoot {
-      HeaderTitle("Home")
+      HeaderTitle(if (userName != null) "Hey, $userName!" else "Home")
       HeaderSearch(vm.queryState, noOfResults, totalNoOfCards)
       ScreenContainer {
         cardRecordList.forEachIndexed { index, it ->

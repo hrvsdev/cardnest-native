@@ -24,5 +24,6 @@ data class AuthState(
 )
 
 data class User(
-  val uid: String
+  val uid: String,
+  val name: String?,
 )
