@@ -24,8 +24,10 @@ import app.cardnest.R
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_RED
 import app.cardnest.ui.theme.TH_RED_12
+import app.cardnest.ui.theme.TH_RED_60
 import app.cardnest.ui.theme.TH_WHITE
 import app.cardnest.ui.theme.TH_WHITE_07
+import app.cardnest.ui.theme.TH_WHITE_50
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +37,7 @@ fun SettingsItem(
   isDanger: Boolean = false,
   isFirst: Boolean = false,
   isLast: Boolean = false,
+  isDisabled: Boolean = false,
   rightContent: (@Composable () -> Unit)? = null,
   onClick: (() -> Unit)? = null
 ) {
@@ -48,15 +51,16 @@ fun SettingsItem(
 
   CompositionLocalProvider(LocalRippleConfiguration provides RippleConfiguration(color = color)) {
     Row(
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+      verticalAlignment = Alignment.CenterVertically,
       modifier = Modifier
         .clip(shape)
-        .clickable(enabled = onClick != null, onClick = { onClick?.invoke() })
+        .clickable(enabled = !isDisabled && onClick != null, onClick = { onClick?.invoke() })
         .height(44.dp)
         .background(if (isDanger) TH_RED_12 else TH_WHITE_07)
         .padding(horizontal = 12.dp),
-      horizontalArrangement = Arrangement.spacedBy(8.dp),
-      verticalAlignment = Alignment.CenterVertically
-    ) {
+
+      ) {
       Icon(icon, null, Modifier.size(20.dp), color)
       AppText(title, Modifier.weight(1f), color = color)
 
@@ -65,8 +69,9 @@ fun SettingsItem(
           painter = painterResource(R.drawable.tabler__chevron_right),
           contentDescription = null,
           modifier = Modifier.size(20.dp),
-          tint = color
+          tint = if (isDanger) TH_RED_60 else TH_WHITE_50
         )
+
       } else {
         rightContent()
       }

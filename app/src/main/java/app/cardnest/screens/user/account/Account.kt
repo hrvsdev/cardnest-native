@@ -18,24 +18,16 @@ class AccountScreen : Screen {
     val ctx = LocalContext.current
 
     val vm = koinViewModel<AccountViewModel>()
-    val user = vm.user.collectAsStateWithLifecycle().value
+
+    val isLoading = vm.isLoading.value
+    val isSignedIn = vm.isSignedIn.collectAsStateWithLifecycle().value
 
     fun signInWithGoogle() {
       vm.signInWithGoogle(ctx)
     }
 
     SubScreenRoot("Account", leftIconLabel = "Settings", spacedBy = 24.dp) {
-      if (user == null) {
-        SettingsGroup("Sign in", SIGN_IN_GOOGLE_DESC) {
-          SettingsButton(
-            title = "Sign in with Google",
-            icon = painterResource(R.drawable.tabler__brand_google),
-            isFirst = true,
-            isLast = true,
-            onClick = ::signInWithGoogle
-          )
-        }
-      } else {
+      if (isSignedIn) {
         SettingsGroup("Sign out", SIGN_OUT_DESC) {
           SettingsButton(
             title = "Sign out of your account",
@@ -43,6 +35,17 @@ class AccountScreen : Screen {
             isFirst = true,
             isLast = true,
             onClick = vm::signOut
+          )
+        }
+      } else {
+        SettingsGroup("Sign in", SIGN_IN_GOOGLE_DESC) {
+          SettingsButton(
+            title = "Sign in with Google",
+            icon = painterResource(R.drawable.tabler__brand_google),
+            isFirst = true,
+            isLast = true,
+            isLoading = isLoading,
+            onClick = ::signInWithGoogle
           )
         }
       }
