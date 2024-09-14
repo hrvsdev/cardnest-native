@@ -47,7 +47,7 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
     val noOfResults = filteredCardIds.size
 
     TabScreenRoot {
-      HeaderTitle(if (userName != null) "Hey, $userName!" else "Home")
+      HeaderTitle(if (userName != null) "Hey, $userName" else "Home")
       HeaderSearch(vm.queryState, noOfResults, totalNoOfCards)
       ScreenContainer {
         cardRecordList.forEachIndexed { index, it ->
