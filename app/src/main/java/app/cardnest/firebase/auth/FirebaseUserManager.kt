@@ -18,14 +18,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class FirebaseUserManager {
-  val auth = Firebase.auth
-
-  init {
-    auth.addAuthStateListener {
-      val user = it.currentUser
-      userState.update { if (user != null) User(user.uid) else null }
-    }
-  }
+  private val auth = Firebase.auth
 
   suspend fun signInWithGoogle(ctx: Context, onComplete: () -> Unit) {
     val credentialManager = CredentialManager.create(ctx)
@@ -68,6 +61,17 @@ class FirebaseUserManager {
 
   fun signOut() {
     auth.signOut()
+  }
+
+  fun addUserStateListener() {
+    auth.addAuthStateListener {
+      val user = it.currentUser
+      if (user != null) {
+        userState.update { User(user.uid, user.displayName?.split(" ")?.firstOrNull()) }
+      } else {
+        userState.update { null }
+      }
+    }
   }
 
   @OptIn(ExperimentalUuidApi::class)

@@ -8,6 +8,7 @@ import app.cardnest.data.authState
 import app.cardnest.data.preferencesState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.db.preferences.PreferencesRepository
+import app.cardnest.firebase.auth.FirebaseUserManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -16,15 +17,24 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class AppViewModel(private val authRepo: AuthRepository, private val prefsRepo: PreferencesRepository) : ViewModel() {
+class AppViewModel(
+  private val userManager: FirebaseUserManager,
+  private val authRepo: AuthRepository,
+  private val prefsRepo: PreferencesRepository
+) : ViewModel() {
   val isLoading = mutableStateOf(true)
   val hasCreatedPin = authState.map { it.hasCreatedPin }.stateIn(
     scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = false
   )
 
   init {
+    initUser()
     initAuth()
     initPreferences()
+  }
+
+  private fun initUser() {
+    userManager.addUserStateListener()
   }
 
   private fun initAuth() {
@@ -33,9 +43,7 @@ class AppViewModel(private val authRepo: AuthRepository, private val prefsRepo: 
         authData.update { d }
         authState.update {
           it.copy(
-            salt = d.salt,
-            hasCreatedPin = d.hasCreatedPin,
-            hasBiometricsEnabled = d.hasBiometricsEnabled
+            salt = d.salt, hasCreatedPin = d.hasCreatedPin, hasBiometricsEnabled = d.hasBiometricsEnabled
           )
         }
 
