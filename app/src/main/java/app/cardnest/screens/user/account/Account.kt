@@ -10,20 +10,26 @@ import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 class AccountScreen : Screen {
   @Composable
   override fun Content() {
     val ctx = LocalContext.current
+    val navigator = LocalNavigator.currentOrThrow
+    val bottomSheetNavigator = LocalBottomSheetNavigator.current
 
-    val vm = koinViewModel<AccountViewModel>()
+    val vm = koinViewModel<AccountViewModel> { parametersOf(navigator, bottomSheetNavigator) }
 
     val isLoading = vm.isLoading.value
     val isSignedIn = vm.isSignedIn.collectAsStateWithLifecycle().value
 
-    fun signInWithGoogle() {
-      vm.signInWithGoogle(ctx)
+    fun onSignInWithGoogleClick() {
+      vm.onSignInWithGoogle(ctx)
     }
 
     SubScreenRoot("Account", leftIconLabel = "Settings", spacedBy = 24.dp) {
@@ -45,7 +51,7 @@ class AccountScreen : Screen {
             isFirst = true,
             isLast = true,
             isLoading = isLoading,
-            onClick = ::signInWithGoogle
+            onClick = ::onSignInWithGoogleClick
           )
         }
       }
