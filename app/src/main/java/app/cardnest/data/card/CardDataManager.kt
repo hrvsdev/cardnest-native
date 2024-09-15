@@ -3,16 +3,35 @@ package app.cardnest.data.card
 import app.cardnest.data.auth.EncryptedData
 import app.cardnest.data.authState
 import app.cardnest.data.cardsState
+import app.cardnest.data.userState
 import app.cardnest.db.card.CardRepository
+import app.cardnest.firebase.realtime_db.RealtimeDbManager
 import app.cardnest.utils.crypto.CryptoManager
+import app.cardnest.utils.extensions.toEncoded
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.serialization.json.Json
 
-class CardDataManager(private val repo: CardRepository, private val crypto: CryptoManager) {
+class CardDataManager(
+  private val realtimeDb: RealtimeDbManager,
+  private val repo: CardRepository,
+  private val crypto: CryptoManager
+) {
   suspend fun decryptAndCollectCards() {
+    if (userState.value != null) {
+      realtimeDb.collectCards {
+        val cardRecords = it.mapValues {
+          CardRecord(it.key, decryptCardData(it.value))
+        }
+
+        cardsState.update { cardRecords }
+      }
+
+      return
+    }
+
     repo.getCards().collectLatest {
       val cardRecords = it.cards.mapValues {
         CardRecord(it.key, decryptCardData(it.value.data))
@@ -39,12 +58,26 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun encryptAndAddOrUpdateCard(cardRecord: CardRecord) {
-    val encryptedCardData = encryptCard(cardRecord.plainData)
-    repo.addCard(CardDataWithId(cardRecord.id, encryptedCardData))
+    val cardData = encryptCard(cardRecord.plainData)
+    repo.addCard(CardDataWithId(cardRecord.id, cardData))
+
+    if (userState.value != null && cardData is CardData.Encrypted) {
+      val encryptedCardForDb = CardEncryptedEncodedWithIdForDb(
+        id = cardRecord.id,
+        cipherText = cardData.card.cipherText.toEncoded(),
+        iv = cardData.card.iv.toEncoded()
+      )
+
+      realtimeDb.addOrUpdateCard(encryptedCardForDb)
+    }
   }
 
   suspend fun deleteCard(cardId: String) {
     repo.deleteCard(cardId)
+
+    if (userState.value != null) {
+      realtimeDb.deleteCard(cardId)
+    }
   }
 
   suspend fun deleteAllCards() {

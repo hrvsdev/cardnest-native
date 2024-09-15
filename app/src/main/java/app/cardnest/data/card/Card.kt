@@ -44,7 +44,18 @@ data class CardEncrypted(
   val iv: ByteArray,
 )
 
-@Serializable
+data class CardEncryptedEncodedWithIdForDb(
+  val id: String,
+  val cipherText: String,
+  val iv: String,
+)
+
+data class CardEncryptedEncodedWithIdForDbNullable(
+  val id: String? = null,
+  val cipherText: String? = null,
+  val iv: String? = null,
+)
+
 data class CardRecord(
   val id: String,
   val plainData: Card
