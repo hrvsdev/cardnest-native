@@ -14,7 +14,6 @@ import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -26,8 +25,8 @@ class AccountViewModel(
 ) : ViewModel() {
   val isLoading = mutableStateOf(false)
 
-  val isSignedIn = userState.map { it != null }.stateIn(
-    scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = false
+  val user = userState.stateIn(
+    scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = null
   )
 
   fun signOut() {

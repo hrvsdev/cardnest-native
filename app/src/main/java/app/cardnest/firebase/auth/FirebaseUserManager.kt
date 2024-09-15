@@ -6,13 +6,14 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import app.cardnest.R
 import app.cardnest.data.User
-import app.cardnest.data.userState
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import java.security.MessageDigest
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -63,15 +64,18 @@ class FirebaseUserManager {
     auth.signOut()
   }
 
-  fun addUserStateListener() {
-    auth.addAuthStateListener {
-      val user = it.currentUser
+  fun getUser(): Flow<User?> = callbackFlow {
+    val listener = auth.addAuthStateListener {
+      val user = auth.currentUser
       if (user != null) {
-        userState.update { User(user.uid, user.displayName?.split(" ")?.firstOrNull()) }
+        val fullName = user.displayName ?: "Anonymous"
+        trySend(User(user.uid, fullName.split(" ").first(), fullName))
       } else {
-        userState.update { null }
+        trySend(null)
       }
     }
+
+    awaitClose { auth.removeAuthStateListener { listener } }
   }
 
   @OptIn(ExperimentalUuidApi::class)

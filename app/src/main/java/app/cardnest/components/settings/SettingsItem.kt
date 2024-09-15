@@ -18,16 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import app.cardnest.R
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_RED
 import app.cardnest.ui.theme.TH_RED_12
-import app.cardnest.ui.theme.TH_RED_60
 import app.cardnest.ui.theme.TH_WHITE
 import app.cardnest.ui.theme.TH_WHITE_07
-import app.cardnest.ui.theme.TH_WHITE_50
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,8 +34,8 @@ fun SettingsItem(
   isFirst: Boolean = false,
   isLast: Boolean = false,
   isDisabled: Boolean = false,
-  rightContent: (@Composable () -> Unit)? = null,
-  onClick: (() -> Unit)? = null
+  onClick: (() -> Unit)? = null,
+  rightContent: (@Composable () -> Unit) = {},
 ) {
   val color = if (isDanger) TH_RED else TH_WHITE
   val shape = RoundedCornerShape(
@@ -64,17 +60,7 @@ fun SettingsItem(
       Icon(icon, null, Modifier.size(20.dp), color)
       AppText(title, Modifier.weight(1f), color = color)
 
-      if (rightContent == null) {
-        Icon(
-          painter = painterResource(R.drawable.tabler__chevron_right),
-          contentDescription = null,
-          modifier = Modifier.size(20.dp),
-          tint = if (isDanger) TH_RED_60 else TH_WHITE_50
-        )
-
-      } else {
-        rightContent()
-      }
+      rightContent()
     }
   }
 }

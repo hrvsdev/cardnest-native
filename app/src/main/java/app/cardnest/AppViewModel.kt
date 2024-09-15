@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import app.cardnest.data.authData
 import app.cardnest.data.authState
 import app.cardnest.data.preferencesState
+import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.db.preferences.PreferencesRepository
 import app.cardnest.firebase.auth.FirebaseUserManager
@@ -34,7 +35,11 @@ class AppViewModel(
   }
 
   private fun initUser() {
-    userManager.addUserStateListener()
+    viewModelScope.launch(Dispatchers.IO) {
+      userManager.getUser().collectLatest { d ->
+        userState.update { d }
+      }
+    }
   }
 
   private fun initAuth() {

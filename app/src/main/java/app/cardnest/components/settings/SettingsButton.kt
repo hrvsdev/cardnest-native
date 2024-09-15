@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import app.cardnest.R
+import app.cardnest.ui.theme.TH_RED_60
 import app.cardnest.ui.theme.TH_WHITE_50
 
 @Composable
@@ -33,9 +34,13 @@ fun SettingsButton(
     isLast = isLast,
     isDisabled = isLoading,
     onClick = onClick,
-    rightContent = if (isLoading) {
-      { LoadingIcon() }
-    } else null
+    rightContent = {
+      if (isLoading) {
+        LoadingIcon()
+      } else {
+        ChevronRightIcon(isDanger)
+      }
+    }
   )
 }
 
@@ -56,5 +61,15 @@ private fun LoadingIcon() {
     modifier = Modifier
       .size(20.dp)
       .graphicsLayer(rotationZ = angle.value),
+  )
+}
+
+@Composable
+private fun ChevronRightIcon(isDanger: Boolean) {
+  Icon(
+    painter = painterResource(R.drawable.tabler__chevron_right),
+    contentDescription = null,
+    modifier = Modifier.size(20.dp),
+    tint = if (isDanger) TH_RED_60 else TH_WHITE_50
   )
 }
