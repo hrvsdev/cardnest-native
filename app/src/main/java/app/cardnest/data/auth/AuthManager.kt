@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentActivity
 import app.cardnest.data.authData
 import app.cardnest.data.authState
 import app.cardnest.db.auth.AuthRepository
+import app.cardnest.firebase.realtime_db.AuthDbManager
 import app.cardnest.utils.crypto.CryptoManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +17,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.crypto.Cipher
 
-class AuthManager(private val repo: AuthRepository, private val crypto: CryptoManager) {
+class AuthManager(
+  private val authDb: AuthDbManager,
+  private val repo: AuthRepository,
+  private val crypto: CryptoManager
+) {
   private val allowedAuthenticators = BIOMETRIC_STRONG
 
   private val enableBiometricsPromptInfo = BiometricPrompt.PromptInfo.Builder()
@@ -40,13 +45,19 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val dek = authState.value.dek ?: crypto.generateKey()
     val encryptedDek = crypto.encryptData(crypto.keyToString(dek), kek)
 
-    repo.setAuthData(authData.value.copy(salt = salt, encryptedDek = encryptedDek, hasCreatedPin = true))
+    val data = authData.value.copy(salt = salt, encryptedDek = encryptedDek, hasCreatedPin = true)
+
     authState.update { it.copy(pin = pin, dek = dek) }
+
+    repo.setAuthData(data)
+    authDb.setAuthData(data)
   }
 
   suspend fun removePin() {
-    repo.setAuthData(AuthData())
     authState.update { it.copy(pin = null, dek = null) }
+
+    repo.setAuthData(AuthData())
+    authDb.setAuthData(AuthData())
   }
 
   fun verifyPin(pin: String): Boolean {
@@ -82,13 +93,16 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
         val data = authData.value.copy(encryptedBiometricsDek = encryptedDek, hasBiometricsEnabled = true)
 
         repo.setAuthData(data)
+        authDb.setAuthData(data)
       }
     }
   }
 
   suspend fun disableBiometrics() {
     val data = authData.value.copy(encryptedBiometricsDek = null, hasBiometricsEnabled = false)
+
     repo.setAuthData(data)
+    authDb.setAuthData(data)
   }
 
   suspend fun unlockWithBiometrics(ctx: FragmentActivity, onSuccess: () -> Unit) {
