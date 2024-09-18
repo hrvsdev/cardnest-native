@@ -9,6 +9,7 @@ import app.cardnest.data.User
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.channels.awaitClose
@@ -21,7 +22,7 @@ import kotlin.uuid.Uuid
 class FirebaseUserManager {
   private val auth = Firebase.auth
 
-  suspend fun signInWithGoogle(ctx: Context, onComplete: () -> Unit) {
+  suspend fun signInWithGoogle(ctx: Context, onError: () -> Unit, onSuccess: (User) -> Unit) {
     val credentialManager = CredentialManager.create(ctx)
 
     val googleIdOption = GetGoogleIdOption.Builder()
@@ -38,7 +39,7 @@ class FirebaseUserManager {
     val result = try {
       credentialManager.getCredential(context = ctx, request = request)
     } catch (e: Exception) {
-      onComplete()
+      onError()
 
       Log.e("AccountViewModel", "Error getting credential", e)
       return
@@ -52,9 +53,11 @@ class FirebaseUserManager {
     val googleCredential = GoogleAuthProvider.getCredential(authCredential, null)
 
     auth.signInWithCredential(googleCredential).addOnCompleteListener {
-      onComplete()
-
-      if (!it.isSuccessful) {
+      if (it.isSuccessful) {
+        val user = it.result.user
+        if (user != null) onSuccess(user.toUser()) else onError()
+      } else {
+        onError()
         Log.e("AccountViewModel", "Error signing in with Google", it.exception)
       }
     }
@@ -66,13 +69,7 @@ class FirebaseUserManager {
 
   fun getUser(): Flow<User?> = callbackFlow {
     val listener = auth.addAuthStateListener {
-      val user = auth.currentUser
-      if (user != null) {
-        val fullName = user.displayName ?: "Anonymous"
-        trySend(User(user.uid, fullName.split(" ").first(), fullName))
-      } else {
-        trySend(null)
-      }
+      trySend(auth.currentUser?.toUser())
     }
 
     awaitClose { auth.removeAuthStateListener { listener } }
@@ -83,6 +80,11 @@ class FirebaseUserManager {
     val rawNonce = Uuid.random().toByteArray()
     val digest = MessageDigest.getInstance("SHA-256").digest(rawNonce)
     return digest.joinToString("") { "%02x".format(it) }
+  }
+
+  fun FirebaseUser.toUser(): User {
+    val fullName = displayName ?: "Anonymous"
+    return User(uid = uid, name = fullName.split(" ").first(), fullName = fullName)
   }
 }
 
