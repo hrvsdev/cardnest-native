@@ -7,6 +7,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
 import app.cardnest.data.authData
 import app.cardnest.data.authState
+import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.firebase.realtime_db.AuthDbManager
 import app.cardnest.utils.crypto.CryptoManager
@@ -16,12 +17,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.crypto.Cipher
+import javax.crypto.SecretKey
 
-class AuthManager(
-  private val authDb: AuthDbManager,
-  private val repo: AuthRepository,
-  private val crypto: CryptoManager
-) {
+class AuthManager(private val db: AuthDbManager, private val repo: AuthRepository, private val crypto: CryptoManager) {
   private val allowedAuthenticators = BIOMETRIC_STRONG
 
   private val enableBiometricsPromptInfo = BiometricPrompt.PromptInfo.Builder()
@@ -50,30 +48,35 @@ class AuthManager(
     authState.update { it.copy(pin = pin, dek = dek) }
 
     repo.setAuthData(data)
-    authDb.setAuthData(data)
+    userState.value?.let { db.setAuthData(data, it.uid) }
   }
 
   suspend fun removePin() {
     authState.update { it.copy(pin = null, dek = null) }
 
     repo.setAuthData(AuthData())
-    authDb.setAuthData(AuthData())
+    userState.value?.let { db.setAuthData(AuthData(), it.uid) }
   }
 
   fun verifyPin(pin: String): Boolean {
-    return getDekString(pin) != null
+    return getDekString(pin, authData.value) != null
   }
 
   fun unlockWithPin(pin: String): Boolean {
-    val dekString = getDekString(pin) ?: return false
+    val dekString = getDekString(pin, authData.value) ?: return false
     authState.update { it.copy(pin = pin, dek = crypto.stringToKey(dekString)) }
 
     return true
   }
 
-  private fun getDekString(pin: String): String? {
-    val salt = authData.value.salt ?: return null
-    val encryptedDek = authData.value.encryptedDek ?: return null
+  fun getDbDek(dbPin: String, dbAuthData: AuthData): SecretKey? {
+    val dekString = getDekString(dbPin, dbAuthData) ?: return null
+    return crypto.stringToKey(dekString)
+  }
+
+  private fun getDekString(pin: String, authData: AuthData): String? {
+    val salt = authData.salt ?: return null
+    val encryptedDek = authData.encryptedDek ?: return null
 
     val kek = crypto.deriveKey(pin.toCharArray(), salt)
     val dekString = crypto.decryptData(encryptedDek, kek)
@@ -93,7 +96,7 @@ class AuthManager(
         val data = authData.value.copy(encryptedBiometricsDek = encryptedDek, hasBiometricsEnabled = true)
 
         repo.setAuthData(data)
-        authDb.setAuthData(data)
+        userState.value?.let { db.setAuthData(data, it.uid) }
       }
     }
   }
@@ -102,7 +105,7 @@ class AuthManager(
     val data = authData.value.copy(encryptedBiometricsDek = null, hasBiometricsEnabled = false)
 
     repo.setAuthData(data)
-    authDb.setAuthData(data)
+    userState.value?.let { db.setAuthData(data, it.uid) }
   }
 
   suspend fun unlockWithBiometrics(ctx: FragmentActivity, onSuccess: () -> Unit) {

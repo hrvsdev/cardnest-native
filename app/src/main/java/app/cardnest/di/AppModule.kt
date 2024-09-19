@@ -8,6 +8,7 @@ import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.card.CardEditorViewModel
 import app.cardnest.data.preferences.PreferencesManager
+import app.cardnest.data.user.UserManager
 import app.cardnest.db.auth.AuthDataOperations
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.db.card.CardDataOperations
@@ -16,7 +17,7 @@ import app.cardnest.db.preferences.PreferencesDataOperations
 import app.cardnest.db.preferences.PreferencesRepository
 import app.cardnest.firebase.auth.FirebaseUserManager
 import app.cardnest.firebase.realtime_db.AuthDbManager
-import app.cardnest.firebase.realtime_db.RealtimeDbManager
+import app.cardnest.firebase.realtime_db.CardDbManager
 import app.cardnest.preferencesDataStore
 import app.cardnest.screens.add.editor.AddCardViewModel
 import app.cardnest.screens.home.HomeViewModel
@@ -26,6 +27,7 @@ import app.cardnest.screens.pin.create.ConfirmPinViewModel
 import app.cardnest.screens.pin.create.CreatePinViewModel
 import app.cardnest.screens.pin.enter.EnterPinViewModel
 import app.cardnest.screens.pin.verify.VerifyPinViewModel
+import app.cardnest.screens.pin.verify_previous_pin.VerifyPreviousPinViewModel
 import app.cardnest.screens.user.UserViewModel
 import app.cardnest.screens.user.account.AccountViewModel
 import app.cardnest.screens.user.security.SecurityViewModel
@@ -39,8 +41,10 @@ import org.koin.dsl.module
 val appModule = module {
   single { CryptoManager }
 
+  single { UserManager(get(), get(), get()) }
+
   single { FirebaseUserManager() }
-  single { RealtimeDbManager() }
+  single { CardDbManager() }
   single { AuthDbManager() }
 
   single { AuthDataOperations(androidContext().authDataStore) }
@@ -70,7 +74,7 @@ val appModule = module {
   viewModel { AddCardViewModel(get(), it.get()) }
 
   viewModel { UserViewModel(get(), get(), it.get(), it.get()) }
-  viewModel { AccountViewModel(get(), get(), it.get(), it.get()) }
+  viewModel { AccountViewModel(get(), get(), get(), it.get(), it.get()) }
   viewModel { SecurityViewModel(get(), get(), get(), it.get(), it.get()) }
 
   viewModel { UserInterfaceViewModel(get()) }
@@ -79,4 +83,5 @@ val appModule = module {
   viewModel { ConfirmPinViewModel(get(), get(), get(), it.get()) }
   viewModel { EnterPinViewModel(get(), it.get()) }
   viewModel { VerifyPinViewModel(get(), get()) }
+  viewModel { VerifyPreviousPinViewModel(get(), get()) }
 }

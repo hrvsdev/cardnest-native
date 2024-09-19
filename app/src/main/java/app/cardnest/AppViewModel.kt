@@ -13,6 +13,7 @@ import app.cardnest.firebase.auth.FirebaseUserManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -36,9 +37,8 @@ class AppViewModel(
 
   private fun initUser() {
     viewModelScope.launch(Dispatchers.IO) {
-      userManager.getUser().collectLatest { d ->
-        userState.update { d }
-      }
+      val user = userManager.getUser().first()
+      userState.update { user?.copy(isSyncing = true) }
     }
   }
 

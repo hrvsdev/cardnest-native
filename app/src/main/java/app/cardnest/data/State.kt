@@ -27,4 +27,5 @@ data class User(
   val uid: String,
   val name: String,
   val fullName: String,
+  val isSyncing: Boolean = false
 )

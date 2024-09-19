@@ -5,34 +5,28 @@ import app.cardnest.data.authState
 import app.cardnest.data.cardsState
 import app.cardnest.data.userState
 import app.cardnest.db.card.CardRepository
-import app.cardnest.firebase.realtime_db.RealtimeDbManager
+import app.cardnest.firebase.realtime_db.CardDbManager
 import app.cardnest.utils.crypto.CryptoManager
 import app.cardnest.utils.extensions.toEncoded
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentMap
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.serialization.json.Json
+import javax.crypto.SecretKey
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class CardDataManager(
-  private val realtimeDb: RealtimeDbManager,
+  private val db: CardDbManager,
   private val repo: CardRepository,
   private val crypto: CryptoManager
 ) {
   suspend fun decryptAndCollectCards() {
-    if (userState.value != null) {
-      realtimeDb.collectCards {
-        val cardRecords = it.mapValues {
-          CardRecord(it.key, decryptCardData(it.value))
-        }
-
-        cardsState.update { cardRecords }
-      }
-
-      return
-    }
-
-    repo.getCards().collectLatest {
+    getDataFlow().collectLatest {
       val cardRecords = it.cards.mapValues {
         CardRecord(it.key, decryptCardData(it.value.data))
       }
@@ -61,27 +55,46 @@ class CardDataManager(
     val cardData = encryptCard(cardRecord.plainData)
     repo.addCard(CardDataWithId(cardRecord.id, cardData))
 
-    if (userState.value != null && cardData is CardData.Encrypted) {
+    val uid = userState.value?.uid ?: return
+    if (cardData is CardData.Encrypted) {
       val encryptedCardForDb = CardEncryptedEncodedWithIdForDb(
         id = cardRecord.id,
         cipherText = cardData.card.cipherText.toEncoded(),
         iv = cardData.card.iv.toEncoded()
       )
 
-      realtimeDb.addOrUpdateCard(encryptedCardForDb)
+      db.addOrUpdateCard(encryptedCardForDb, uid)
     }
   }
 
   suspend fun deleteCard(cardId: String) {
     repo.deleteCard(cardId)
 
-    if (userState.value != null) {
-      realtimeDb.deleteCard(cardId)
-    }
+    val uid = userState.value?.uid ?: return
+    db.deleteCard(cardId, uid)
   }
 
   suspend fun deleteAllCards() {
     repo.setCards(CardRecords(persistentMapOf()))
+  }
+
+  suspend fun syncCards(uid: String, dek: SecretKey) {
+    val localCards = repo.getCards().first().cards
+    val dbCards = db.getCards(uid).first().cards
+
+    val mergedCards = localCards.toMutableMap()
+
+    for (it in dbCards) {
+      val decrypted = decryptCardData(it.value.data as CardData.Encrypted, dek)
+      val encryptedWithCurrentDek = encryptCard(decrypted)
+
+      mergedCards[it.key] = CardDataWithId(it.key, encryptedWithCurrentDek)
+    }
+
+    val cardRecords = CardRecords(mergedCards.toPersistentMap())
+
+    repo.setCards(cardRecords)
+    db.setCards(cardRecords, uid)
   }
 
   private fun encryptCard(card: Card): CardData {
@@ -94,12 +107,16 @@ class CardDataManager(
           throw IllegalStateException("PIN or DEK is required to encrypt card data")
         }
 
-        val serialized = Json.encodeToString(Card.serializer(), card)
-        val encrypted = crypto.encryptData(serialized, dek)
-
-        CardData.Encrypted(CardEncrypted(encrypted.ciphertext, encrypted.iv))
+        encryptCard(card, dek)
       }
     }
+  }
+
+  private fun encryptCard(card: Card, dek: SecretKey): CardData.Encrypted {
+    val serialized = Json.encodeToString(Card.serializer(), card)
+    val encrypted = crypto.encryptData(serialized, dek)
+
+    return CardData.Encrypted(CardEncrypted(encrypted.ciphertext, encrypted.iv))
   }
 
   private fun decryptCardData(cardData: CardData): Card {
@@ -112,15 +129,25 @@ class CardDataManager(
           throw IllegalStateException("PIN or DEK is required to encrypt card data")
         }
 
-        val encryptedData = EncryptedData(cardData.card.cipherText, cardData.card.iv)
-        val decrypted = crypto.decryptData(encryptedData, dek)
-
-        if (decrypted == null || decrypted.isEmpty()) {
-          throw IllegalStateException("Failed to decrypt card data")
-        }
-
-        Json.decodeFromString(Card.serializer(), decrypted)
+        decryptCardData(cardData, dek)
       }
+    }
+  }
+
+  private fun decryptCardData(cardData: CardData.Encrypted, dek: SecretKey): Card {
+    val encryptedData = EncryptedData(cardData.card.cipherText, cardData.card.iv)
+    val decrypted = crypto.decryptData(encryptedData, dek)
+
+    if (decrypted == null || decrypted.isEmpty()) {
+      throw IllegalStateException("Failed to decrypt card data")
+    }
+
+    return Json.decodeFromString(Card.serializer(), decrypted)
+  }
+
+  private fun getDataFlow(): Flow<CardRecords> {
+    return userState.flatMapLatest {
+      if (it != null && it.isSyncing) db.getCards(it.uid) else repo.getCards()
     }
   }
 }

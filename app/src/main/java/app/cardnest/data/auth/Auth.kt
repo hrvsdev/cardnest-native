@@ -1,5 +1,6 @@
 package app.cardnest.data.auth
 
+import app.cardnest.utils.extensions.toDecoded
 import app.cardnest.utils.extensions.toEncoded
 import kotlinx.serialization.Serializable
 
@@ -15,32 +16,46 @@ data class AuthData(
 @Serializable
 data class EncryptedData(val ciphertext: ByteArray, val iv: ByteArray)
 
-data class AuthDataForDb(
+data class AuthDataForDbNullable(
   val salt: String? = null,
-  val encryptedDek: EncryptedDataForDb? = null,
-  val encryptedBiometricsDek: EncryptedDataForDb? = null,
+  val encryptedDek: EncryptedDataForDbNullable? = null,
+  val encryptedBiometricsDek: EncryptedDataForDbNullable? = null,
   val hasCreatedPin: Boolean = false,
   val hasBiometricsEnabled: Boolean = false
 )
 
-data class EncryptedDataForDb(val ciphertext: String, val iv: String)
 data class EncryptedDataForDbNullable(val ciphertext: String? = null, val iv: String? = null)
 
-fun AuthData.toEncoded() = AuthDataForDb(
+fun AuthData.toEncoded() = AuthDataForDbNullable(
   salt = salt?.toEncoded(),
-  encryptedDek = encryptedDek?.toEncoded(),
-  encryptedBiometricsDek = encryptedBiometricsDek?.toEncoded(),
+
+  encryptedDek = EncryptedDataForDbNullable(
+    ciphertext = encryptedDek?.ciphertext?.toEncoded(),
+    iv = encryptedDek?.iv?.toEncoded()
+  ),
+
+  encryptedBiometricsDek = EncryptedDataForDbNullable(
+    ciphertext = encryptedBiometricsDek?.ciphertext?.toEncoded(),
+    iv = encryptedBiometricsDek?.iv?.toEncoded()
+  ),
+
   hasCreatedPin = hasCreatedPin,
   hasBiometricsEnabled = hasBiometricsEnabled
 )
 
-fun AuthDataForDb.toDecoded() = AuthData(
-  salt = salt?.toByteArray(),
-  encryptedDek = encryptedDek?.toDecoded(),
-  encryptedBiometricsDek = encryptedBiometricsDek?.toDecoded(),
+fun AuthDataForDbNullable.toDecoded() = AuthData(
+  salt = salt?.toDecoded(),
+
+  encryptedDek = if (encryptedDek?.ciphertext != null && encryptedDek.iv != null) EncryptedData(
+    ciphertext = encryptedDek.ciphertext.toDecoded(),
+    iv = encryptedDek.iv.toDecoded()
+  ) else null,
+
+  encryptedBiometricsDek = if (encryptedBiometricsDek?.ciphertext != null && encryptedBiometricsDek.iv != null) EncryptedData(
+    ciphertext = encryptedBiometricsDek.ciphertext.toDecoded(),
+    iv = encryptedBiometricsDek.iv.toDecoded()
+  ) else null,
+
   hasCreatedPin = hasCreatedPin,
   hasBiometricsEnabled = hasBiometricsEnabled
 )
-
-fun EncryptedData.toEncoded() = EncryptedDataForDb(ciphertext = ciphertext.toEncoded(), iv = iv.toEncoded())
-fun EncryptedDataForDb.toDecoded() = EncryptedData(ciphertext = ciphertext.toByteArray(), iv = iv.toByteArray())
