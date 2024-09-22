@@ -37,8 +37,9 @@ class AppViewModel(
 
   private fun initUser() {
     viewModelScope.launch(Dispatchers.IO) {
-      val user = userManager.getUser().first()
-      userState.update { user?.copy(isSyncing = true) }
+      userManager.getUser().collectLatest { d ->
+        userState.update { d }
+      }
     }
   }
 
@@ -61,6 +62,7 @@ class AppViewModel(
     viewModelScope.launch(Dispatchers.IO) {
       prefsRepo.getPreferences().collectLatest { d ->
         preferencesState.update { d }
+        userState.update { it?.copy(isSyncing = d.sync.isSyncing) }
       }
     }
   }

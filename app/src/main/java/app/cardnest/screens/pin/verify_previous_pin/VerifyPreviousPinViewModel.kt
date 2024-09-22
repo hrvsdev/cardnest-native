@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import app.cardnest.data.actions.Actions
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.card.CardDataManager
+import app.cardnest.data.user.SyncResult
 import app.cardnest.data.user.UserManager
 import app.cardnest.data.userState
 import app.cardnest.firebase.realtime_db.AuthDbManager
@@ -18,7 +19,7 @@ class VerifyPreviousPinViewModel(
 ) : PinBaseViewModel() {
   fun onPinSubmit() {
     viewModelScope.launch(Dispatchers.IO) {
-      val isPinCorrect = userManager.continueSetupSyncWithDifferentPin(pin.value)
+      val isPinCorrect = userManager.continueSetupSyncWithDifferentPin(pin.value) == SyncResult.SUCCESS
 
       if (!isPinCorrect) {
         onError()

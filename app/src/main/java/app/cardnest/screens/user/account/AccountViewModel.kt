@@ -4,9 +4,9 @@ import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cardnest.data.User
 import app.cardnest.data.actions.Actions
-import app.cardnest.data.authState
+import app.cardnest.data.preferences.PreferencesManager
+import app.cardnest.data.user.SyncResult
 import app.cardnest.data.user.UserManager
 import app.cardnest.data.userState
 import app.cardnest.firebase.auth.FirebaseUserManager
@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 class AccountViewModel(
   private val userManager: UserManager,
   private val fbUserManager: FirebaseUserManager,
+  private val prefsManager: PreferencesManager,
   private val actions: Actions,
   private val navigator: Navigator,
   private val bottomSheetNavigator: BottomSheetNavigator
@@ -33,34 +34,51 @@ class AccountViewModel(
     scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = null
   )
 
-  fun signOut() {
-    fbUserManager.signOut()
-  }
-
-  fun onSignInWithGoogle(ctx: Context) {
-    if (authState.value.hasCreatedPin) {
-      signInWithGoogle(ctx)
-    } else {
-      bottomSheetNavigator.show(CreatePinBottomSheetScreen(
-        onConfirm = { createPinBeforeSignInWithGoogle(ctx) },
-        onCancel = { bottomSheetNavigator.hide() }
-      ))
-    }
-  }
-
-  private fun signInWithGoogle(ctx: Context) {
+  fun signInWithGoogle(ctx: Context) {
     isLoading.value = true
     viewModelScope.launch {
       fbUserManager.signInWithGoogle(ctx, { isLoading.value = false }) {
         viewModelScope.launch(Dispatchers.IO) {
-          setupSync(it)
+          setupSync(ctx)
           isLoading.value = false
         }
       }
     }
   }
 
-  private fun createPinBeforeSignInWithGoogle(ctx: Context) {
+  fun signOut() {
+    fbUserManager.signOut()
+  }
+
+  fun onSyncChange(ctx: Context, isSyncing: Boolean) {
+    viewModelScope.launch(Dispatchers.IO) {
+      if (isSyncing) {
+        setupSync(ctx)
+      } else {
+        prefsManager.setSync(false)
+      }
+    }
+  }
+
+  suspend fun setupSync(ctx: Context) {
+    val result = userManager.setupSync()
+
+    if (result == SyncResult.CREATE_PIN) {
+      bottomSheetNavigator.show(CreatePinBottomSheetScreen(
+        onConfirm = { onCreatePin(ctx) },
+        onCancel = { bottomSheetNavigator.hide() }
+      ))
+    }
+
+    if (result == SyncResult.PREVIOUS_PIN_REQUIRED) {
+      bottomSheetNavigator.show(ProvidePreviousPinBottomSheetScreen(
+        onConfirm = { onProvidePreviousPin() },
+        onCancel = { bottomSheetNavigator.hide() }
+      ))
+    }
+  }
+
+  private fun onCreatePin(ctx: Context) {
     viewModelScope.launch(Dispatchers.IO) {
       bottomSheetNavigator.hide()
       delay(200)
@@ -71,15 +89,6 @@ class AccountViewModel(
     actions.setAfterPinCreated {
       navigator.popUntil { it is AccountScreen }
       signInWithGoogle(ctx)
-    }
-  }
-
-  private suspend fun setupSync(user: User) {
-    userManager.setupSync {
-      bottomSheetNavigator.show(ProvidePreviousPinBottomSheetScreen(
-        onConfirm = { onProvidePreviousPin() },
-        onCancel = { bottomSheetNavigator.hide() }
-      ))
     }
   }
 

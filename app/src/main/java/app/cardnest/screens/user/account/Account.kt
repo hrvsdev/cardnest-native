@@ -10,6 +10,7 @@ import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
 import app.cardnest.components.settings.SettingsItem
+import app.cardnest.components.settings.SettingsSwitch
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
@@ -30,7 +31,11 @@ class AccountScreen : Screen {
     val user = vm.user.collectAsStateWithLifecycle().value
 
     fun onSignInWithGoogleClick() {
-      vm.onSignInWithGoogle(ctx)
+      vm.signInWithGoogle(ctx)
+    }
+
+    fun onSyncChange(isSyncing: Boolean) {
+      vm.onSyncChange(ctx, isSyncing)
     }
 
     SubScreenRoot("Account", leftIconLabel = "Settings", spacedBy = 24.dp) {
@@ -49,6 +54,18 @@ class AccountScreen : Screen {
             onClick = vm::signOut
           )
         }
+
+        SettingsGroup("Sync", SYNC_DESC) {
+          SettingsSwitch(
+            title = "Sync data",
+            icon = painterResource(R.drawable.tabler__refresh_dot),
+            checked = user.isSyncing,
+            onCheckedChange = { onSyncChange(it) },
+            isFirst = true,
+            isLast = true,
+          )
+        }
+
       } else {
         SettingsGroup("Sign in", SIGN_IN_GOOGLE_DESC) {
           SettingsButton(
@@ -67,3 +84,5 @@ class AccountScreen : Screen {
 
 const val SIGN_IN_GOOGLE_DESC = "Sign in with your account to sync you data across devices."
 const val SIGN_OUT_DESC = "Sign out of your account to remove your data from this device."
+
+const val SYNC_DESC = "Data will be securely synchronized across your devices."

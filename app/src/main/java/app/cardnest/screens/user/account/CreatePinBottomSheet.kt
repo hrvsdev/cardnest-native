@@ -10,14 +10,13 @@ import app.cardnest.components.button.ButtonTheme
 import app.cardnest.components.button.ButtonVariant
 import cafe.adriel.voyager.core.screen.Screen
 
-data class CreatePinBottomSheetScreen(val onConfirm: () -> Unit, val onCancel: () -> Unit) :
-  Screen {
+data class CreatePinBottomSheetScreen(val onConfirm: () -> Unit, val onCancel: () -> Unit) : Screen {
   @Composable
   override fun Content() {
     BottomSheet {
       BottomSheetHeading("Create a PIN")
 
-      BottomSheetDescription("Creating a PIN is mandatory before signing in.")
+      BottomSheetDescription("Creating a PIN is mandatory to sync data.")
       BottomSheetDescription("This is to ensure that your data is secure between server and devices.")
 
       BottomSheetButtons {
