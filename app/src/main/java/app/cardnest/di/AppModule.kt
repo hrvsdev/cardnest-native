@@ -41,7 +41,7 @@ import org.koin.dsl.module
 val appModule = module {
   single { CryptoManager }
 
-  single { UserManager(get(), get(), get()) }
+  single { UserManager(get(), get(), get(), get()) }
 
   single { FirebaseUserManager() }
   single { CardDbManager() }
@@ -74,7 +74,7 @@ val appModule = module {
   viewModel { AddCardViewModel(get(), it.get()) }
 
   viewModel { UserViewModel(get(), get(), it.get(), it.get()) }
-  viewModel { AccountViewModel(get(), get(), get(), it.get(), it.get()) }
+  viewModel { AccountViewModel(get(), get(), get(), get(), it.get(), it.get()) }
   viewModel { SecurityViewModel(get(), get(), get(), it.get(), it.get()) }
 
   viewModel { UserInterfaceViewModel(get()) }
