@@ -69,6 +69,11 @@ class AuthManager(private val db: AuthDbManager, private val repo: AuthRepositor
     return true
   }
 
+  suspend fun setAuthDataAndStateFromDb(authData: AuthData, pin: String, dek: SecretKey) {
+    repo.setAuthData(authData)
+    authState.update { it.copy(pin = pin, dek = dek) }
+  }
+
   fun getDbDek(dbPin: String, dbAuthData: AuthData): SecretKey? {
     val dekString = getDekString(dbPin, dbAuthData) ?: return null
     return crypto.stringToKey(dekString)

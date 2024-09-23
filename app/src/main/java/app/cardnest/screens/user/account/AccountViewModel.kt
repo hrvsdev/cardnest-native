@@ -1,6 +1,7 @@
 package app.cardnest.screens.user.account
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -63,6 +64,10 @@ class AccountViewModel(
   suspend fun setupSync(ctx: Context) {
     val result = userManager.setupSync()
 
+    if (result == SyncResult.ERROR) {
+      Log.e("AccountViewModel", "Error setting up sync")
+    }
+
     if (result == SyncResult.CREATE_PIN) {
       bottomSheetNavigator.show(CreatePinBottomSheetScreen(
         onConfirm = { onCreatePin(ctx) },
@@ -88,7 +93,9 @@ class AccountViewModel(
 
     actions.setAfterPinCreated {
       navigator.popUntil { it is AccountScreen }
-      signInWithGoogle(ctx)
+      viewModelScope.launch(Dispatchers.IO) {
+        userManager.setupSync()
+      }
     }
   }
 

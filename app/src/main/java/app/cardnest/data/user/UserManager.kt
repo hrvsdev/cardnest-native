@@ -50,6 +50,8 @@ class UserManager(
     val dbAuthData = authDb.getAuthData(user.uid) ?: return SyncResult.ERROR
     val dbDek = authManager.getDbDek(pin, dbAuthData) ?: return SyncResult.ERROR
 
+    authManager.setAuthDataAndStateFromDb(dbAuthData, pin, dbDek)
+
     return syncDataAndUpdateState(user, dbDek)
   }
 
