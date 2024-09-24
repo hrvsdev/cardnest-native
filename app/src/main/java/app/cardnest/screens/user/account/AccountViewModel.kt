@@ -40,7 +40,7 @@ class AccountViewModel(
     viewModelScope.launch {
       fbUserManager.signInWithGoogle(ctx, { isLoading.value = false }) {
         viewModelScope.launch(Dispatchers.IO) {
-          setupSync(ctx)
+          setupSync()
           isLoading.value = false
         }
       }
@@ -51,17 +51,18 @@ class AccountViewModel(
     fbUserManager.signOut()
   }
 
-  fun onSyncChange(ctx: Context, isSyncing: Boolean) {
+  fun onSyncChange() {
     viewModelScope.launch(Dispatchers.IO) {
+      val isSyncing = user.value?.isSyncing == true
       if (isSyncing) {
-        setupSync(ctx)
-      } else {
         prefsManager.setSync(false)
+      } else {
+        setupSync()
       }
     }
   }
 
-  suspend fun setupSync(ctx: Context) {
+  suspend fun setupSync() {
     val result = userManager.setupSync()
 
     if (result == SyncResult.ERROR) {
@@ -70,7 +71,7 @@ class AccountViewModel(
 
     if (result == SyncResult.CREATE_PIN) {
       bottomSheetNavigator.show(CreatePinBottomSheetScreen(
-        onConfirm = { onCreatePin(ctx) },
+        onConfirm = { onCreatePin() },
         onCancel = { bottomSheetNavigator.hide() }
       ))
     }
@@ -83,7 +84,7 @@ class AccountViewModel(
     }
   }
 
-  private fun onCreatePin(ctx: Context) {
+  private fun onCreatePin() {
     viewModelScope.launch(Dispatchers.IO) {
       bottomSheetNavigator.hide()
       delay(200)

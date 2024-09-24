@@ -34,10 +34,6 @@ class AccountScreen : Screen {
       vm.signInWithGoogle(ctx)
     }
 
-    fun onSyncChange(isSyncing: Boolean) {
-      vm.onSyncChange(ctx, isSyncing)
-    }
-
     SubScreenRoot("Account", leftIconLabel = "Settings", spacedBy = 24.dp) {
       if (user != null) {
         SettingsGroup("User", SIGN_OUT_DESC) {
@@ -60,7 +56,7 @@ class AccountScreen : Screen {
             title = "Sync data",
             icon = painterResource(R.drawable.tabler__refresh_dot),
             checked = user.isSyncing,
-            onCheckedChange = { onSyncChange(it) },
+            onCheckedChange = { vm.onSyncChange() },
             isFirst = true,
             isLast = true,
           )
