@@ -1,6 +1,7 @@
 package app.cardnest.data.user
 
 import app.cardnest.data.User
+import app.cardnest.data.auth.AuthData
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.authData
 import app.cardnest.data.authState
@@ -27,7 +28,7 @@ class UserManager(
 
     if (isUserNew) {
       return if (dek != null) {
-        syncDataAndUpdateState(user, dek)
+        syncDataAndUpdateState(authData.value, user, dek)
       } else {
         SyncResult.CREATE_PIN
       }
@@ -39,7 +40,7 @@ class UserManager(
     val isCurrentPinSameAsDb = dbDek != null
 
     return if (isCurrentPinSameAsDb) {
-      syncDataAndUpdateState(user, dbDek)
+      syncDataAndUpdateState(authData.value, user, dbDek)
     } else {
       SyncResult.PREVIOUS_PIN_REQUIRED
     }
@@ -52,11 +53,11 @@ class UserManager(
 
     authManager.setAuthDataAndStateFromDb(dbAuthData, pin, dbDek)
 
-    return syncDataAndUpdateState(user, dbDek)
+    return syncDataAndUpdateState(dbAuthData, user, dbDek)
   }
 
-  private suspend fun syncDataAndUpdateState(user: User, dek: SecretKey): SyncResult {
-    authDb.setAuthData(authData.value, user.uid)
+  private suspend fun syncDataAndUpdateState(authData: AuthData, user: User, dek: SecretKey): SyncResult {
+    authDb.setAuthData(authData, user.uid)
     cardDataManager.syncCards(user.uid, dek)
 
     prefsManager.setSync(true)
