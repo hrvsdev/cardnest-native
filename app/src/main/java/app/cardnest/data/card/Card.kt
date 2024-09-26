@@ -26,7 +26,8 @@ data class CardRecords(
 @Serializable
 data class CardDataWithId(
   val id: String,
-  val data: CardData
+  val data: CardData,
+  val modifiedAt: Long
 )
 
 @Serializable
@@ -48,17 +49,20 @@ data class CardEncryptedEncodedWithIdForDb(
   val id: String,
   val cipherText: String,
   val iv: String,
+  val modifiedAt: Long
 )
 
 data class CardEncryptedEncodedWithIdForDbNullable(
   val id: String? = null,
   val cipherText: String? = null,
   val iv: String? = null,
+  val modifiedAt: Long? = null
 )
 
 data class CardRecord(
   val id: String,
-  val plainData: Card
+  val plainData: Card,
+  val modifiedAt: Long
 )
 
 data class CardErrorsState(
