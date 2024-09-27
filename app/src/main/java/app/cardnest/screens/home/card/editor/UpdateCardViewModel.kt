@@ -2,6 +2,7 @@ package app.cardnest.screens.home.card.editor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.cardnest.data.card.Card
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.card.CardRecord
 import app.cardnest.data.cardsState
@@ -17,14 +18,9 @@ class UpdateCardViewModel(
   private val id: String,
   private val navigator: Navigator
 ) : ViewModel() {
-  val cardRecord = cardsState.map { it[id] }.stateIn(
-    scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = null
-  )
-
-  fun updateCard(cardRecord: CardRecord) {
+  fun updateCard(id: String, card: Card) {
     viewModelScope.launch(Dispatchers.IO) {
-      dataManager.encryptAndAddOrUpdateCard(cardRecord)
-
+      dataManager.encryptAndAddOrUpdateCard(CardRecord(id, card, System.currentTimeMillis()))
       navigator.pop()
     }
   }

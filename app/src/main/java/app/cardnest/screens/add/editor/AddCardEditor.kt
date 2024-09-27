@@ -6,8 +6,6 @@ import app.cardnest.components.button.AppButton
 import app.cardnest.components.card.CardEditor
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.data.card.CardEditorViewModel
-import app.cardnest.data.card.CardRecord
-import app.cardnest.utils.genId
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -24,7 +22,7 @@ class AddCardEditorScreen : Screen {
 
     fun saveCard() {
       editorVM.onSubmit {
-        addCardVM.addCard(CardRecord(genId(), it))
+        addCardVM.addCard(it)
       }
     }
 

@@ -23,8 +23,7 @@ data class UpdateCardEditorScreen(val cardRecord: CardRecord) : Screen {
 
     fun update() {
       editorVM.onSubmit {
-        val updatedCard = CardRecord(cardRecord.id, it)
-        updateCardVM.updateCard(updatedCard)
+        updateCardVM.updateCard(cardRecord.id, it)
       }
     }
 
