@@ -11,7 +11,6 @@ import app.cardnest.data.preferences.PreferencesManager
 import app.cardnest.data.user.UserManager
 import app.cardnest.db.auth.AuthDataOperations
 import app.cardnest.db.auth.AuthRepository
-import app.cardnest.db.card.CardDataOperations
 import app.cardnest.db.card.CardRepository
 import app.cardnest.db.preferences.PreferencesDataOperations
 import app.cardnest.db.preferences.PreferencesRepository
@@ -51,9 +50,8 @@ val appModule = module {
   single { AuthRepository(get()) }
   single { AuthManager(get(), get(), get()) }
 
-  single { CardDataOperations(androidContext().cardsDataStore) }
-  single { CardRepository(get()) }
-  single { CardDataManager(get(), get(), get()) }
+  single { CardRepository(androidContext().cardsDataStore, get()) }
+  single { CardDataManager(get(), get()) }
 
   single { PreferencesDataOperations(androidContext().preferencesDataStore) }
   single { PreferencesRepository(get()) }
