@@ -18,6 +18,7 @@ import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 
 class CardDbManager {
   val db = Firebase.database("https://cardnest-app-default-rtdb.asia-southeast1.firebasedatabase.app/")
@@ -38,7 +39,7 @@ class CardDbManager {
     awaitClose { ref.removeEventListener(listener) }
   }
 
-  fun setCards(cards: CardRecords, uid: String) {
+  suspend fun setCards(uid: String, cards: CardRecords) {
     val ref = db.getReference("$uid/cards")
     val cardsEncodedForDb: MutableMap<String, CardEncryptedEncodedWithIdForDb> = mutableMapOf()
 
@@ -48,35 +49,46 @@ class CardDbManager {
         val cardEncryptedEncoded = CardEncryptedEncodedWithIdForDb(
           id = it.key,
           cipherText = cardData.card.cipherText.toEncoded(),
-          iv = cardData.card.iv.toEncoded()
+          iv = cardData.card.iv.toEncoded(),
+          modifiedAt = it.value.modifiedAt
         )
 
         cardsEncodedForDb[it.key] = cardEncryptedEncoded
       }
     }
 
-    ref.setValue(cardsEncodedForDb).addOnCompleteListener {
-      if (!it.isSuccessful) {
-        Log.e("RealtimeDbManager", "Failed to save data", it.exception)
-      }
+    try {
+      ref.setValue(cardsEncodedForDb).await()
+    } catch (e: Exception) {
+      Log.e("RealtimeDbManager", "Failed to save data", e)
     }
   }
 
-  fun addOrUpdateCard(card: CardEncryptedEncodedWithIdForDb, uid: String) {
+  suspend fun addOrUpdateCard(uid: String, card: CardDataWithId) {
     val ref = db.getReference("$uid/cards/${card.id}")
-    ref.setValue(card).addOnCompleteListener {
-      if (!it.isSuccessful) {
-        Log.e("RealtimeDbManager", "Failed to save data", it.exception)
-      }
+    val cardEncodedForDb = when (card.data) {
+      is CardData.Unencrypted -> return
+      is CardData.Encrypted -> CardEncryptedEncodedWithIdForDb(
+        id = card.id,
+        cipherText = card.data.card.cipherText.toEncoded(),
+        iv = card.data.card.iv.toEncoded(),
+        modifiedAt = card.modifiedAt
+      )
+    }
+
+    try {
+      ref.setValue(cardEncodedForDb).await()
+    } catch (e: Exception) {
+      Log.e("RealtimeDbManager", "Failed to save data", e)
     }
   }
 
-  fun deleteCard(cardId: String, uid: String) {
+  suspend fun deleteCard(uid: String, cardId: String) {
     val ref = db.getReference("$uid/cards/$cardId")
-    ref.removeValue().addOnCompleteListener {
-      if (!it.isSuccessful) {
-        Log.e("RealtimeDbManager", "Failed to delete data", it.exception)
-      }
+    try {
+      ref.removeValue().await()
+    } catch (e: Exception) {
+      Log.e("RealtimeDbManager", "Failed to delete data", e)
     }
   }
 
@@ -85,10 +97,10 @@ class CardDbManager {
 
     for (child in snapshot.children) {
       val data = child.getValue(CardEncryptedEncodedWithIdForDbNullable::class.java)
-      if (data == null || data.id == null || data.cipherText == null || data.iv == null) continue
+      if (data == null || data.id == null || data.cipherText == null || data.iv == null || data.modifiedAt == null) continue
 
       val cardData = CardData.Encrypted(CardEncrypted(data.cipherText.toDecoded(), data.iv.toDecoded()))
-      cards[data.id] = CardDataWithId(data.id, cardData)
+      cards[data.id] = CardDataWithId(data.id, cardData, data.modifiedAt)
     }
 
     return CardRecords(cards.toPersistentMap())
