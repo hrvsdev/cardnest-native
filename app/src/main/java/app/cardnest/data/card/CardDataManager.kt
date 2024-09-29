@@ -1,18 +1,19 @@
 package app.cardnest.data.card
 
+import android.util.Log
 import app.cardnest.data.auth.EncryptedData
 import app.cardnest.data.authState
 import app.cardnest.data.cardsState
 import app.cardnest.data.userState
 import app.cardnest.db.card.CardRepository
-import app.cardnest.firebase.realtime_db.CardDbManager
 import app.cardnest.utils.crypto.CryptoManager
-import app.cardnest.utils.extensions.toEncoded
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
@@ -20,24 +21,57 @@ import kotlinx.serialization.json.Json
 import javax.crypto.SecretKey
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class CardDataManager(
-  private val db: CardDbManager,
-  private val repo: CardRepository,
-  private val crypto: CryptoManager
-) {
+class CardDataManager(private val repo: CardRepository, private val crypto: CryptoManager) {
   suspend fun decryptAndCollectCards() {
     getDataFlow().collectLatest {
-      val cardRecords = it.cards.mapValues {
-        CardRecord(it.key, decryptCardData(it.value.data))
+      val updatedCards: MutableMap<String, CardRecord> = mutableMapOf()
+
+      for ((id, card) in it.cards) {
+        val stateCard = cardsState.value[card.id]
+
+        if (stateCard == null || stateCard.modifiedAt < card.modifiedAt) {
+          updatedCards[id] = CardRecord(id, decryptCardData(card.data), card.modifiedAt)
+        } else {
+          updatedCards[id] = stateCard
+        }
       }
 
-      cardsState.update { cardRecords }
+      cardsState.update { updatedCards }
+    }
+  }
+
+  suspend fun keepCardsSynced() {
+    userState.collectLatest {
+      Log.d("CardDataManager", "User state: $it")
+      if (it != null && it.isSyncing) {
+        combine(repo.getLocalCards(), repo.getRemoteCards()) { local, remote ->
+          val mergedIds = local.cards.keys + remote.cards.keys
+          mergedIds.associateWith {
+            val localCard = local.cards[it]
+            val remoteCard = remote.cards[it]
+
+            when {
+              localCard == null -> checkNotNull(remoteCard)
+              remoteCard == null -> localCard
+              localCard.modifiedAt < remoteCard.modifiedAt -> remoteCard
+              localCard.modifiedAt > remoteCard.modifiedAt -> localCard
+              else -> localCard
+            }
+          }
+        }.distinctUntilChanged().collectLatest {
+          Log.d("CardDataManager", "Merged cards: $it")
+          CardRecords(it.toPersistentMap()).also {
+            repo.setCards(it)
+            repo.setRemoteCards(it)
+          }
+        }
+      }
     }
   }
 
   suspend fun encryptAndSaveCards() {
     val cardRecords = cardsState.value.mapValues {
-      CardDataWithId(it.key, encryptCard(it.value.plainData))
+      CardDataWithId(it.key, encryptCard(it.value.plainData), it.value.modifiedAt)
     }
 
     repo.setCards(CardRecords(cardRecords.toPersistentMap()))
@@ -45,7 +79,7 @@ class CardDataManager(
 
   suspend fun decryptAndSaveCards() {
     val cardRecords = cardsState.value.mapValues {
-      CardDataWithId(it.key, CardData.Unencrypted(it.value.plainData))
+      CardDataWithId(it.key, CardData.Unencrypted(it.value.plainData), it.value.modifiedAt)
     }
 
     repo.setCards(CardRecords(cardRecords.toPersistentMap()))
@@ -53,48 +87,32 @@ class CardDataManager(
 
   suspend fun encryptAndAddOrUpdateCard(cardRecord: CardRecord) {
     val cardData = encryptCard(cardRecord.plainData)
-    repo.addCard(CardDataWithId(cardRecord.id, cardData))
-
-    val uid = userState.value?.uid ?: return
-    if (cardData is CardData.Encrypted) {
-      val encryptedCardForDb = CardEncryptedEncodedWithIdForDb(
-        id = cardRecord.id,
-        cipherText = cardData.card.cipherText.toEncoded(),
-        iv = cardData.card.iv.toEncoded()
-      )
-
-      db.addOrUpdateCard(encryptedCardForDb, uid)
-    }
+    repo.addOrUpdateCard(CardDataWithId(cardRecord.id, cardData, cardRecord.modifiedAt))
   }
 
   suspend fun deleteCard(cardId: String) {
     repo.deleteCard(cardId)
-
-    val uid = userState.value?.uid ?: return
-    db.deleteCard(cardId, uid)
   }
 
   suspend fun deleteAllCards() {
     repo.setCards(CardRecords(persistentMapOf()))
   }
 
-  suspend fun syncCards(uid: String, dek: SecretKey) {
-    val localCards = repo.getCards().first().cards
-    val dbCards = db.getCards(uid).first().cards
+  suspend fun syncCards(dek: SecretKey) {
+    val localCards = repo.getLocalCards().first().cards
+    val remoteCards = repo.getRemoteCards().first().cards
 
     val mergedCards = localCards.toMutableMap()
 
-    for (it in dbCards) {
+    for (it in remoteCards) {
       val decrypted = decryptCardData(it.value.data as CardData.Encrypted, dek)
       val encryptedWithCurrentDek = encryptCard(decrypted)
 
-      mergedCards[it.key] = CardDataWithId(it.key, encryptedWithCurrentDek)
+      mergedCards[it.key] = CardDataWithId(it.key, encryptedWithCurrentDek, it.value.modifiedAt)
     }
 
-    val cardRecords = CardRecords(mergedCards.toPersistentMap())
-
-    repo.setCards(cardRecords)
-    db.setCards(cardRecords, uid)
+    repo.setLocalCards(CardRecords())
+    repo.setRemoteCards(CardRecords(mergedCards.toPersistentMap()))
   }
 
   private fun encryptCard(card: Card): CardData {
@@ -147,7 +165,7 @@ class CardDataManager(
 
   private fun getDataFlow(): Flow<CardRecords> {
     return userState.flatMapLatest {
-      if (it != null && it.isSyncing) db.getCards(it.uid) else repo.getCards()
+      if (it != null && it.isSyncing) repo.getRemoteCards() else repo.getLocalCards()
     }
   }
 }
