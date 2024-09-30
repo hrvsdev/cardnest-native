@@ -58,7 +58,7 @@ class UserManager(
 
   private suspend fun syncDataAndUpdateState(authData: AuthData, user: User, dek: SecretKey): SyncResult {
     authDb.setAuthData(authData, user.uid)
-    cardDataManager.syncCards(user.uid, dek)
+    cardDataManager.syncCards(dek)
 
     prefsManager.setSync(true)
 
