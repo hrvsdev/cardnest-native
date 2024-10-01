@@ -1,7 +1,7 @@
 package app.cardnest.db.card
 
 import androidx.datastore.core.DataStore
-import app.cardnest.data.card.CardDataWithId
+import app.cardnest.data.card.CardData
 import app.cardnest.data.card.CardRecords
 import app.cardnest.data.userState
 import app.cardnest.firebase.realtime_db.CardDbManager
@@ -15,7 +15,7 @@ class CardRepository(private val db: DataStore<CardRecords>, private val remoteD
     return db.data
   }
 
-  fun getRemoteCards(): Flow<CardRecords> {
+  fun getRemoteCards(): Flow<CardRecords.Encrypted> {
     return remoteDb.getCards(uid)
   }
 
@@ -28,19 +28,39 @@ class CardRepository(private val db: DataStore<CardRecords>, private val remoteD
   }
 
   suspend fun setRemoteCards(cards: CardRecords) {
-    remoteDb.setCards(uid, cards)
+    if (cards is CardRecords.Encrypted) {
+      remoteDb.setCards(uid, cards)
+    } else {
+      error("Unencrypted card records cannot be set to remote database")
+    }
   }
 
-  suspend fun addOrUpdateCard(card: CardDataWithId) {
+  suspend fun addOrUpdateCard(card: CardData) {
     if (isSyncing) addOrUpdateRemoteCard(card) else addOrUpdateLocalCard(card)
   }
 
-  suspend fun addOrUpdateLocalCard(card: CardDataWithId) {
-    db.updateData { it.copy(it.cards.put(card.id, card)) }
+  suspend fun addOrUpdateLocalCard(card: CardData) {
+    db.updateData {
+      when (it) {
+        is CardRecords.Encrypted -> when (card) {
+          is CardData.Encrypted -> it.copy(it.cards.put(card.encrypted.id, card.encrypted))
+          is CardData.Unencrypted -> error("Unencrypted card data cannot be added to encrypted records")
+        }
+
+        is CardRecords.Unencrypted -> when (card) {
+          is CardData.Unencrypted -> it.copy(it.cards.put(card.unencrypted.id, card.unencrypted))
+          is CardData.Encrypted -> error("Encrypted card data cannot be added to unencrypted records")
+        }
+      }
+    }
   }
 
-  suspend fun addOrUpdateRemoteCard(card: CardDataWithId) {
-    remoteDb.addOrUpdateCard(uid, card)
+  suspend fun addOrUpdateRemoteCard(card: CardData) {
+    if (card is CardData.Encrypted) {
+      remoteDb.addOrUpdateCard(uid, card.encrypted)
+    } else {
+      error("Unencrypted card data cannot be added to remote database")
+    }
   }
 
   suspend fun deleteCard(id: String) {
@@ -48,7 +68,12 @@ class CardRepository(private val db: DataStore<CardRecords>, private val remoteD
   }
 
   suspend fun deleteLocalCard(id: String) {
-    db.updateData { it.copy(it.cards.remove(id)) }
+    db.updateData {
+      when (it) {
+        is CardRecords.Encrypted -> it.copy(it.cards.remove(id))
+        is CardRecords.Unencrypted -> it.copy(it.cards.remove(id))
+      }
+    }
   }
 
   suspend fun deleteRemoteCard(id: String) {

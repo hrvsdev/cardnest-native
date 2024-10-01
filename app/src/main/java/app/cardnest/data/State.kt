@@ -1,7 +1,7 @@
 package app.cardnest.data
 
 import app.cardnest.data.auth.AuthData
-import app.cardnest.data.card.CardRecord
+import app.cardnest.data.card.CardUnencrypted
 import app.cardnest.data.preferences.Preferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.crypto.SecretKey
@@ -11,7 +11,7 @@ val authState = MutableStateFlow(AuthState())
 
 val userState = MutableStateFlow<User?>(null)
 
-val cardsState = MutableStateFlow<Map<String, CardRecord>>(emptyMap())
+val cardsState = MutableStateFlow<Map<String, CardUnencrypted>>(emptyMap())
 
 val preferencesState = MutableStateFlow(Preferences())
 

@@ -18,51 +18,73 @@ data class Card(
 )
 
 @Serializable
-data class CardRecords(
-  @Serializable(with = AppPersistentMapSerializer::class)
-  val cards: PersistentMap<String, CardDataWithId> = persistentMapOf()
-)
+sealed class CardRecords {
+  @Serializable
+  data class Encrypted(
+    @Serializable(with = AppPersistentMapSerializer::class)
+    val cards: PersistentMap<String, CardEncrypted> = persistentMapOf()
+  ) : CardRecords()
 
-@Serializable
-data class CardDataWithId(
-  val id: String,
-  val data: CardData,
-  val modifiedAt: Long
-)
+  @Serializable
+  data class Unencrypted(
+    @Serializable(with = AppPersistentMapSerializer::class)
+    val cards: PersistentMap<String, CardUnencrypted> = persistentMapOf()
+  ) : CardRecords()
+}
 
 @Serializable
 sealed class CardData {
   @Serializable
-  data class Encrypted(val card: CardEncrypted) : CardData()
+  data class Encrypted(val encrypted: CardEncrypted) : CardData()
 
   @Serializable
-  data class Unencrypted(val card: Card) : CardData()
+  data class Unencrypted(val unencrypted: CardUnencrypted) : CardData()
 }
 
 @Serializable
 data class CardEncrypted(
+  val id: String,
+  val data: CardEncryptedData,
+  val modifiedAt: Long
+)
+
+@Serializable
+data class CardUnencrypted(
+  val id: String,
+  val data: Card,
+  val modifiedAt: Long
+)
+
+@Serializable
+data class CardEncryptedData(
   val cipherText: ByteArray,
   val iv: ByteArray,
 )
 
-data class CardEncryptedEncodedWithIdForDb(
+@Serializable
+data class CardEncryptedEncodedForDb(
   val id: String,
-  val cipherText: String,
-  val iv: String,
+  val data: CardEncryptedDataEncodedForDb,
   val modifiedAt: Long
 )
 
-data class CardEncryptedEncodedWithIdForDbNullable(
+@Serializable
+data class CardEncryptedEncodedForDbNullable(
   val id: String? = null,
-  val cipherText: String? = null,
-  val iv: String? = null,
+  val data: CardEncryptedDataEncodedForDbNullable? = null,
   val modifiedAt: Long? = null
 )
 
-data class CardRecord(
-  val id: String,
-  val plainData: Card,
-  val modifiedAt: Long
+@Serializable
+data class CardEncryptedDataEncodedForDb(
+  val cipherText: String,
+  val iv: String,
+)
+
+@Serializable
+data class CardEncryptedDataEncodedForDbNullable(
+  val cipherText: String? = null,
+  val iv: String? = null
 )
 
 data class CardErrorsState(

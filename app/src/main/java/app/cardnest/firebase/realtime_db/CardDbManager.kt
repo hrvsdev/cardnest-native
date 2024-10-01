@@ -1,11 +1,11 @@
 package app.cardnest.firebase.realtime_db
 
 import android.util.Log
-import app.cardnest.data.card.CardData
-import app.cardnest.data.card.CardDataWithId
 import app.cardnest.data.card.CardEncrypted
-import app.cardnest.data.card.CardEncryptedEncodedWithIdForDb
-import app.cardnest.data.card.CardEncryptedEncodedWithIdForDbNullable
+import app.cardnest.data.card.CardEncryptedData
+import app.cardnest.data.card.CardEncryptedDataEncodedForDb
+import app.cardnest.data.card.CardEncryptedEncodedForDb
+import app.cardnest.data.card.CardEncryptedEncodedForDbNullable
 import app.cardnest.data.card.CardRecords
 import app.cardnest.utils.extensions.toDecoded
 import app.cardnest.utils.extensions.toEncoded
@@ -23,7 +23,7 @@ import kotlinx.coroutines.tasks.await
 class CardDbManager {
   val db = Firebase.database("https://cardnest-app-default-rtdb.asia-southeast1.firebasedatabase.app/")
 
-  fun getCards(uid: String): Flow<CardRecords> = callbackFlow {
+  fun getCards(uid: String): Flow<CardRecords.Encrypted> = callbackFlow {
     val ref = db.getReference("$uid/cards")
 
     val listener = ref.addValueEventListener(object : ValueEventListener {
@@ -39,22 +39,14 @@ class CardDbManager {
     awaitClose { ref.removeEventListener(listener) }
   }
 
-  suspend fun setCards(uid: String, cards: CardRecords) {
+  suspend fun setCards(uid: String, cards: CardRecords.Encrypted) {
     val ref = db.getReference("$uid/cards")
-    val cardsEncodedForDb: MutableMap<String, CardEncryptedEncodedWithIdForDb> = mutableMapOf()
-
-    for (it in cards.cards) {
-      val cardData = it.value.data
-      if (cardData is CardData.Encrypted) {
-        val cardEncryptedEncoded = CardEncryptedEncodedWithIdForDb(
-          id = it.key,
-          cipherText = cardData.card.cipherText.toEncoded(),
-          iv = cardData.card.iv.toEncoded(),
-          modifiedAt = it.value.modifiedAt
-        )
-
-        cardsEncodedForDb[it.key] = cardEncryptedEncoded
-      }
+    val cardsEncodedForDb = cards.cards.mapValues {
+      CardEncryptedEncodedForDb(
+        id = it.value.id,
+        data = CardEncryptedDataEncodedForDb(it.value.data.cipherText.toEncoded(), it.value.data.iv.toEncoded()),
+        modifiedAt = it.value.modifiedAt
+      )
     }
 
     try {
@@ -64,17 +56,13 @@ class CardDbManager {
     }
   }
 
-  suspend fun addOrUpdateCard(uid: String, card: CardDataWithId) {
+  suspend fun addOrUpdateCard(uid: String, card: CardEncrypted) {
     val ref = db.getReference("$uid/cards/${card.id}")
-    val cardEncodedForDb = when (card.data) {
-      is CardData.Unencrypted -> return
-      is CardData.Encrypted -> CardEncryptedEncodedWithIdForDb(
-        id = card.id,
-        cipherText = card.data.card.cipherText.toEncoded(),
-        iv = card.data.card.iv.toEncoded(),
-        modifiedAt = card.modifiedAt
-      )
-    }
+    val cardEncodedForDb = CardEncryptedEncodedForDb(
+      id = card.id,
+      data = CardEncryptedDataEncodedForDb(card.data.cipherText.toEncoded(), card.data.iv.toEncoded()),
+      modifiedAt = card.modifiedAt
+    )
 
     try {
       ref.setValue(cardEncodedForDb).await()
@@ -92,17 +80,23 @@ class CardDbManager {
     }
   }
 
-  private fun getCardRecordsFromSnapshot(snapshot: DataSnapshot): CardRecords {
-    val cards: MutableMap<String, CardDataWithId> = mutableMapOf()
+  private fun getCardRecordsFromSnapshot(snapshot: DataSnapshot): CardRecords.Encrypted {
+    val cards: MutableMap<String, CardEncrypted> = mutableMapOf()
 
     for (child in snapshot.children) {
-      val data = child.getValue(CardEncryptedEncodedWithIdForDbNullable::class.java)
-      if (data == null || data.id == null || data.cipherText == null || data.iv == null || data.modifiedAt == null) continue
+      val data = child.getValue(CardEncryptedEncodedForDbNullable::class.java)
+      if (data == null || data.id == null || data.data == null || data.modifiedAt == null) continue
+      if (data.data.cipherText == null || data.data.iv == null) continue
 
-      val cardData = CardData.Encrypted(CardEncrypted(data.cipherText.toDecoded(), data.iv.toDecoded()))
-      cards[data.id] = CardDataWithId(data.id, cardData, data.modifiedAt)
+      val card = CardEncrypted(
+        id = data.id,
+        data = CardEncryptedData(data.data.cipherText.toDecoded(), data.data.iv.toDecoded()),
+        modifiedAt = data.modifiedAt
+      )
+
+      cards[data.id] = card
     }
 
-    return CardRecords(cards.toPersistentMap())
+    return CardRecords.Encrypted(cards.toPersistentMap())
   }
 }
