@@ -6,24 +6,24 @@ import app.cardnest.components.button.AppButton
 import app.cardnest.components.card.CardEditor
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.data.card.CardEditorViewModel
-import app.cardnest.data.card.CardRecord
+import app.cardnest.data.card.CardUnencrypted
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-data class UpdateCardEditorScreen(val cardRecord: CardRecord) : Screen {
+data class UpdateCardEditorScreen(val card: CardUnencrypted) : Screen {
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
 
-    val updateCardVM = koinViewModel<UpdateCardViewModel> { parametersOf(cardRecord.id, navigator) }
-    val editorVM = koinViewModel<CardEditorViewModel> { parametersOf(cardRecord.plainData) }
+    val updateCardVM = koinViewModel<UpdateCardViewModel> { parametersOf(card.id, navigator) }
+    val editorVM = koinViewModel<CardEditorViewModel> { parametersOf(card.data) }
 
     fun update() {
       editorVM.onSubmit {
-        updateCardVM.updateCard(cardRecord.id, it)
+        updateCardVM.updateCard(card.id, it)
       }
     }
 

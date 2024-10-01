@@ -33,7 +33,7 @@ class HomeViewModel(private val dataManager: CardDataManager) : ViewModel() {
   )
 
   val filteredCardIds = combine(cardRecordList, queryTextFlow) { state, text ->
-    state.filter { filterCard(it.plainData, text) }.map { it.id }
+    state.filter { filterCard(it.data, text) }.map { it.id }
   }.stateIn(
     scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = emptyList()
   )

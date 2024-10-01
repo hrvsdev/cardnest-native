@@ -54,7 +54,7 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
           AnimatedVisibility(filteredCardIds.contains(it.id)) {
             Column {
               Box(Modifier.clickable { navigator.push(CardViewScreen(it.id)) }) {
-                CardPreview(it.plainData, maskCardNumber = maskCardNumber)
+                CardPreview(it.data, maskCardNumber = maskCardNumber)
               }
 
               Spacer(Modifier.size(16.dp))

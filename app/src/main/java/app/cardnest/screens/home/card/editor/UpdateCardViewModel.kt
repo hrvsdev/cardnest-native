@@ -4,13 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.card.Card
 import app.cardnest.data.card.CardDataManager
-import app.cardnest.data.card.CardRecord
-import app.cardnest.data.cardsState
+import app.cardnest.data.card.CardUnencrypted
 import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class UpdateCardViewModel(
@@ -20,7 +16,7 @@ class UpdateCardViewModel(
 ) : ViewModel() {
   fun updateCard(id: String, card: Card) {
     viewModelScope.launch(Dispatchers.IO) {
-      dataManager.encryptAndAddOrUpdateCard(CardRecord(id, card, System.currentTimeMillis()))
+      dataManager.encryptAndAddOrUpdateCard(CardUnencrypted(id, card, System.currentTimeMillis()))
       navigator.pop()
     }
   }

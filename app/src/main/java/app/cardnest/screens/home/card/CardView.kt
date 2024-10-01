@@ -28,8 +28,8 @@ data class CardViewScreen(val id: String) : Screen {
     val bottomSheetNavigator = LocalBottomSheetNavigator.current
 
     val viewModel = koinViewModel<CardViewModel> { parametersOf(id, navigator) }
-    val cardRecord = viewModel.cardRecord.collectAsStateWithLifecycle().value
-    val card = cardRecord?.plainData?.copy()
+    val cardWithMeta = viewModel.cardWithMeta.collectAsStateWithLifecycle().value
+    val card = cardWithMeta?.data?.copy()
 
     fun del() {
       bottomSheetNavigator.hide()
@@ -37,7 +37,9 @@ data class CardViewScreen(val id: String) : Screen {
     }
 
     fun onEditClick() {
-      if (cardRecord != null) navigator.push(UpdateCardEditorScreen(cardRecord))
+      if (cardWithMeta != null) {
+        navigator.push(UpdateCardEditorScreen(cardWithMeta))
+      }
     }
 
     fun onDeleteClick() {

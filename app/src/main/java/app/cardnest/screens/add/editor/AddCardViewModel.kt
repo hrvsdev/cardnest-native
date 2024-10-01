@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.card.Card
 import app.cardnest.data.card.CardDataManager
-import app.cardnest.data.card.CardRecord
+import app.cardnest.data.card.CardUnencrypted
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.home.card.CardViewScreen
 import app.cardnest.utils.genId
@@ -19,7 +19,7 @@ class AddCardViewModel(
   fun addCard(card: Card) {
     viewModelScope.launch(Dispatchers.IO) {
       val id = genId()
-      dataManager.encryptAndAddOrUpdateCard(CardRecord(id, card, System.currentTimeMillis()))
+      dataManager.encryptAndAddOrUpdateCard(CardUnencrypted(id, card, System.currentTimeMillis()))
       navigator.replaceAll(listOf(HomeScreen, CardViewScreen(id)))
     }
   }

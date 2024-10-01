@@ -17,7 +17,7 @@ class CardViewModel(
   private val id: String,
   private val navigator: Navigator
 ) : ViewModel() {
-  val cardRecord = cardsState.map { it[id] }.stateIn(
+  val cardWithMeta = cardsState.map { it[id] }.stateIn(
     scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = null
   )
 
