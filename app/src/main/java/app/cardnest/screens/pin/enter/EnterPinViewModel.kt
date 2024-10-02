@@ -3,6 +3,7 @@ package app.cardnest.screens.pin.enter
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.auth.AuthManager
+import app.cardnest.data.authData
 import app.cardnest.data.authState
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.pin.PinBaseViewModel
@@ -28,7 +29,7 @@ class EnterPinViewModel(
   }
 
   fun getShowBiometricsButton(ctx: FragmentActivity): Boolean {
-    return authState.value.hasBiometricsEnabled && authManager.getAreBiometricsAvailable(ctx)
+    return authData.value.hasBiometricsEnabled && authManager.getAreBiometricsAvailable(ctx)
   }
 
   fun unlockWithBiometrics(ctx: FragmentActivity) {

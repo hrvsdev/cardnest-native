@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.actions.Actions
 import app.cardnest.data.auth.AuthManager
+import app.cardnest.data.authData
 import app.cardnest.data.authState
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.screens.pin.create.CreatePinScreen
@@ -25,13 +26,13 @@ class SecurityViewModel(
   private val navigator: Navigator,
   private val bottomSheetNavigator: BottomSheetNavigator,
 ) : ViewModel() {
-  val hasCreatedPin = authState.map { it.hasCreatedPin }.stateIn(
+  val hasCreatedPin = authData.map { it.hasCreatedPin }.stateIn(
     scope = viewModelScope,
     started = SharingStarted.WhileSubscribed(),
     initialValue = false
   )
 
-  val hasBiometricsEnabled = authState.map { it.hasBiometricsEnabled }.stateIn(
+  val hasBiometricsEnabled = authData.map { it.hasBiometricsEnabled }.stateIn(
     scope = viewModelScope,
     started = SharingStarted.WhileSubscribed(),
     initialValue = false

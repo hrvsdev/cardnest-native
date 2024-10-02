@@ -3,6 +3,7 @@ package app.cardnest.screens.user
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.actions.Actions
+import app.cardnest.data.authData
 import app.cardnest.data.authState
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
@@ -28,7 +29,7 @@ class UserViewModel(
     viewModelScope.launch(Dispatchers.IO) {
       delay(200)
 
-      if (authState.value.hasCreatedPin) {
+      if (authData.value.hasCreatedPin) {
         actions.setAfterPinVerified { deleteAllCards() }
         navigator.push(VerifyPinBeforeActionScreen())
       } else {

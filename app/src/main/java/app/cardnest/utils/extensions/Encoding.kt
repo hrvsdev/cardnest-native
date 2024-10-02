@@ -4,7 +4,7 @@ import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 @OptIn(ExperimentalEncodingApi::class)
-fun ByteArray.toEncoded() = Base64.encode(this)
+val ByteArray.encoded get() = Base64.encode(this)
 
 @OptIn(ExperimentalEncodingApi::class)
-fun String.toDecoded() = Base64.decode(this)
+val String.decoded get() = Base64.decode(this)

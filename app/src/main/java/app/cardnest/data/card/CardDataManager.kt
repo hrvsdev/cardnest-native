@@ -1,13 +1,14 @@
 package app.cardnest.data.card
 
 import app.cardnest.data.auth.EncryptedData
+import app.cardnest.data.authData
 import app.cardnest.data.authState
 import app.cardnest.data.cardsState
 import app.cardnest.data.userState
 import app.cardnest.db.card.CardRepository
 import app.cardnest.utils.crypto.CryptoManager
-import app.cardnest.utils.extensions.toDecoded
-import app.cardnest.utils.extensions.toEncoded
+import app.cardnest.utils.extensions.decoded
+import app.cardnest.utils.extensions.encoded
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -60,7 +61,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun encryptAndAddOrUpdateCard(cardUnencrypted: CardUnencrypted) {
-    val cardData = if (authState.value.hasCreatedPin) {
+    val cardData = if (authData.value.hasCreatedPin) {
       CardData.Encrypted(encryptToCardEncrypted(cardUnencrypted))
     } else {
       CardData.Unencrypted(cardUnencrypted)
@@ -74,7 +75,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun deleteAllCards() {
-    val cardRecords = if (authState.value.hasCreatedPin) CardRecords.Encrypted() else CardRecords.Unencrypted()
+    val cardRecords = if (authData.value.hasCreatedPin) CardRecords.Encrypted() else CardRecords.Unencrypted()
     repo.setCards(cardRecords)
   }
 
@@ -109,7 +110,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     val serialized = Json.encodeToString(Card.serializer(), card)
     val encrypted = crypto.encryptData(serialized, dek)
 
-    return CardEncryptedData(encrypted.ciphertext.toEncoded(), encrypted.iv.toEncoded())
+    return CardEncryptedData(encrypted.ciphertext.encoded, encrypted.iv.encoded)
   }
 
   private fun decryptToCardUnencrypted(card: CardEncrypted): CardUnencrypted {
@@ -120,7 +121,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   private fun decryptCardData(cardEncrypted: CardEncryptedData, dek: SecretKey): Card {
-    val encryptedData = EncryptedData(cardEncrypted.cipherText.toDecoded(), cardEncrypted.iv.toDecoded())
+    val encryptedData = EncryptedData(cardEncrypted.cipherText.decoded, cardEncrypted.iv.decoded)
     val decryptedString = checkNotNull(crypto.decryptData(encryptedData, dek)) { "Failed to decrypt card data" }
 
     return Json.decodeFromString(Card.serializer(), decryptedString)

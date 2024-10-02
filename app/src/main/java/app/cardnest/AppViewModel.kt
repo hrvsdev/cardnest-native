@@ -10,6 +10,7 @@ import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.db.preferences.PreferencesRepository
 import app.cardnest.firebase.auth.FirebaseUserManager
+import app.cardnest.utils.extensions.decoded
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -25,7 +26,7 @@ class AppViewModel(
   private val prefsRepo: PreferencesRepository
 ) : ViewModel() {
   val isLoading = mutableStateOf(true)
-  val hasCreatedPin = authState.map { it.hasCreatedPin }.stateIn(
+  val hasCreatedPin = authData.map { it.hasCreatedPin }.stateIn(
     scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = false
   )
 
@@ -49,12 +50,6 @@ class AppViewModel(
     viewModelScope.launch(Dispatchers.IO) {
       authRepo.getAuthData().collectLatest { d ->
         authData.update { d }
-        authState.update {
-          it.copy(
-            salt = d.salt, hasCreatedPin = d.hasCreatedPin, hasBiometricsEnabled = d.hasBiometricsEnabled
-          )
-        }
-
         isLoading.value = false
       }
     }

@@ -11,6 +11,8 @@ import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.firebase.realtime_db.AuthDbManager
 import app.cardnest.utils.crypto.CryptoManager
+import app.cardnest.utils.extensions.decoded
+import app.cardnest.utils.extensions.encoded
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
@@ -43,7 +45,7 @@ class AuthManager(private val db: AuthDbManager, private val repo: AuthRepositor
     val dek = authState.value.dek ?: crypto.generateKey()
     val encryptedDek = crypto.encryptData(crypto.keyToString(dek), kek)
 
-    val data = authData.value.copy(salt = salt, encryptedDek = encryptedDek, hasCreatedPin = true)
+    val data = authData.value.copy(salt = salt.encoded, encryptedDek = encryptedDek.encoded, hasCreatedPin = true)
 
     authState.update { it.copy(pin = pin, dek = dek) }
 
@@ -83,8 +85,8 @@ class AuthManager(private val db: AuthDbManager, private val repo: AuthRepositor
     val salt = authData.salt ?: return null
     val encryptedDek = authData.encryptedDek ?: return null
 
-    val kek = crypto.deriveKey(pin.toCharArray(), salt)
-    val dekString = crypto.decryptData(encryptedDek, kek)
+    val kek = crypto.deriveKey(pin.toCharArray(), salt.decoded)
+    val dekString = crypto.decryptData(encryptedDek.decoded, kek)
 
     return dekString
   }
@@ -98,7 +100,7 @@ class AuthManager(private val db: AuthDbManager, private val repo: AuthRepositor
     authenticate(ctx, cipher, enableBiometricsPromptInfo) {
       scope.launch(Dispatchers.IO) {
         val encryptedDek = crypto.encryptDataWithCipher(crypto.keyToString(dek), cipher)
-        val data = authData.value.copy(encryptedBiometricsDek = encryptedDek, hasBiometricsEnabled = true)
+        val data = authData.value.copy(encryptedBiometricsDek = encryptedDek.encoded, hasBiometricsEnabled = true)
 
         repo.setAuthData(data)
         userState.value?.let { db.setAuthData(data, it.uid) }
@@ -117,10 +119,10 @@ class AuthManager(private val db: AuthDbManager, private val repo: AuthRepositor
     val encryptedDek = authData.value.encryptedBiometricsDek ?: return
 
     val androidKey = crypto.getOrCreateAndroidSecretKey()
-    val cipher = crypto.getInitializedCipherForDecryption(androidKey, encryptedDek.iv)
+    val cipher = crypto.getInitializedCipherForDecryption(androidKey, encryptedDek.iv.decoded)
 
     authenticate(ctx, cipher, unlockWithBiometricsPromptInfo) {
-      val dekString = crypto.decryptDataWithCipher(encryptedDek.ciphertext, cipher)
+      val dekString = crypto.decryptDataWithCipher(encryptedDek.ciphertext.decoded, cipher)
       authState.update { it.copy(dek = crypto.stringToKey(dekString)) }
 
       onSuccess()

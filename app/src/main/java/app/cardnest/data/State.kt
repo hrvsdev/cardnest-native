@@ -18,9 +18,6 @@ val preferencesState = MutableStateFlow(Preferences())
 data class AuthState(
   val pin: String? = null,
   val dek: SecretKey? = null,
-  val salt: ByteArray? = null,
-  val hasCreatedPin: Boolean = false,
-  val hasBiometricsEnabled: Boolean = false
 )
 
 data class User(
