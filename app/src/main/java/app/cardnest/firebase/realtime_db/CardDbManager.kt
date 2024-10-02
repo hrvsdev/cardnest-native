@@ -39,7 +39,7 @@ class CardDbManager {
     val ref = db.getReference("$uid/cards")
 
     try {
-      ref.setValue(cards).await()
+      ref.setValue(cards.cards).await()
     } catch (e: Exception) {
       Log.e("RealtimeDbManager", "Failed to save data", e)
     }

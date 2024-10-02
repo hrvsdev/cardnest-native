@@ -51,9 +51,13 @@ class UserManager(
     val dbAuthData = authDb.getAuthData(user.uid) ?: return SyncResult.ERROR
     val dbDek = authManager.getDbDek(pin, dbAuthData) ?: return SyncResult.ERROR
 
-    authManager.setAuthDataAndStateFromDb(dbAuthData, pin, dbDek)
+    val hasCreatedPin = authData.value.hasCreatedPin
 
-    return syncDataAndUpdateState(dbAuthData, user, dbDek)
+    if (!hasCreatedPin) {
+      authManager.setAuthDataAndStateFromDb(dbAuthData, pin, dbDek)
+    }
+
+    return syncDataAndUpdateState(if (hasCreatedPin) authData.value else dbAuthData, user, dbDek)
   }
 
   private suspend fun syncDataAndUpdateState(authData: AuthData, user: User, dek: SecretKey): SyncResult {

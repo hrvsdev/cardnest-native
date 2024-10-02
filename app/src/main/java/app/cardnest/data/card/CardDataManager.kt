@@ -80,23 +80,35 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun syncCards(dek: SecretKey) {
-    val localCards = repo.getLocalCards().first().let {
-      if (it is CardRecords.Encrypted) it.cards else error("Local cards must be encrypted before syncing")
+    val localCardRecords = repo.getLocalCards().first()
+    val remoteCardRecords = repo.getRemoteCards().first()
+
+    val mergedCardRecords = mutableMapOf<String, CardEncrypted>()
+
+    if (localCardRecords is CardRecords.Unencrypted) {
+      for (it in localCardRecords.cards) {
+        val encrypted = encryptCard(it.value.data, dek)
+        mergedCardRecords[it.key] = CardEncrypted(it.value.id, encrypted, it.value.modifiedAt)
+      }
+
+      for (it in remoteCardRecords.cards) {
+        mergedCardRecords[it.key] = it.value
+      }
     }
 
-    val remoteCards = repo.getRemoteCards().first().cards
+    if (localCardRecords is CardRecords.Encrypted) {
+      for (it in localCardRecords.cards) {
+        mergedCardRecords[it.key] = it.value
+      }
 
-    val mergedCards = localCards.toMutableMap()
-
-    for (it in remoteCards) {
-      val decrypted = decryptCardData(it.value.data, dek)
-      val encryptedWithCurrentDek = encryptCard(decrypted, dek)
-
-      mergedCards[it.key] = CardEncrypted(it.value.id, encryptedWithCurrentDek, it.value.modifiedAt)
+      for (it in remoteCardRecords.cards) {
+        val decrypted = decryptCardData(it.value.data, dek)
+        mergedCardRecords[it.key] = encryptToCardEncrypted(CardUnencrypted(it.value.id, decrypted, it.value.modifiedAt))
+      }
     }
 
     repo.setLocalCards(CardRecords.Encrypted())
-    repo.setRemoteCards(CardRecords.Encrypted(mergedCards.toPersistentMap()))
+    repo.setRemoteCards(CardRecords.Encrypted(mergedCardRecords.toPersistentMap()))
   }
 
   private fun encryptToCardEncrypted(card: CardUnencrypted): CardEncrypted {
