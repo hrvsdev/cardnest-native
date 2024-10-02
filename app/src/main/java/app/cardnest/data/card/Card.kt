@@ -57,32 +57,17 @@ data class CardUnencrypted(
 
 @Serializable
 data class CardEncryptedData(
-  val cipherText: ByteArray,
-  val iv: ByteArray,
-)
-
-@Serializable
-data class CardEncryptedEncodedForDb(
-  val id: String,
-  val data: CardEncryptedDataEncodedForDb,
-  val modifiedAt: Long
-)
-
-@Serializable
-data class CardEncryptedEncodedForDbNullable(
-  val id: String? = null,
-  val data: CardEncryptedDataEncodedForDbNullable? = null,
-  val modifiedAt: Long? = null
-)
-
-@Serializable
-data class CardEncryptedDataEncodedForDb(
   val cipherText: String,
   val iv: String,
 )
 
-@Serializable
-data class CardEncryptedDataEncodedForDbNullable(
+data class CardEncryptedNullable(
+  val id: String? = null,
+  val data: CardEncryptedDataNullable? = null,
+  val modifiedAt: Long? = null
+)
+
+data class CardEncryptedDataNullable(
   val cipherText: String? = null,
   val iv: String? = null
 )

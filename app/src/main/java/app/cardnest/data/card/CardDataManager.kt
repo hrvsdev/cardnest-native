@@ -6,6 +6,8 @@ import app.cardnest.data.cardsState
 import app.cardnest.data.userState
 import app.cardnest.db.card.CardRepository
 import app.cardnest.utils.crypto.CryptoManager
+import app.cardnest.utils.extensions.toDecoded
+import app.cardnest.utils.extensions.toEncoded
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -107,7 +109,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     val serialized = Json.encodeToString(Card.serializer(), card)
     val encrypted = crypto.encryptData(serialized, dek)
 
-    return CardEncryptedData(encrypted.ciphertext, encrypted.iv)
+    return CardEncryptedData(encrypted.ciphertext.toEncoded(), encrypted.iv.toEncoded())
   }
 
   private fun decryptToCardUnencrypted(card: CardEncrypted): CardUnencrypted {
@@ -118,7 +120,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   private fun decryptCardData(cardEncrypted: CardEncryptedData, dek: SecretKey): Card {
-    val encryptedData = EncryptedData(cardEncrypted.cipherText, cardEncrypted.iv)
+    val encryptedData = EncryptedData(cardEncrypted.cipherText.toDecoded(), cardEncrypted.iv.toDecoded())
     val decryptedString = checkNotNull(crypto.decryptData(encryptedData, dek)) { "Failed to decrypt card data" }
 
     return Json.decodeFromString(Card.serializer(), decryptedString)

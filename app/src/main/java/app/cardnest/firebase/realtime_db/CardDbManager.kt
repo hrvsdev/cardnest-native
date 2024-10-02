@@ -3,12 +3,8 @@ package app.cardnest.firebase.realtime_db
 import android.util.Log
 import app.cardnest.data.card.CardEncrypted
 import app.cardnest.data.card.CardEncryptedData
-import app.cardnest.data.card.CardEncryptedDataEncodedForDb
-import app.cardnest.data.card.CardEncryptedEncodedForDb
-import app.cardnest.data.card.CardEncryptedEncodedForDbNullable
+import app.cardnest.data.card.CardEncryptedNullable
 import app.cardnest.data.card.CardRecords
-import app.cardnest.utils.extensions.toDecoded
-import app.cardnest.utils.extensions.toEncoded
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -41,16 +37,9 @@ class CardDbManager {
 
   suspend fun setCards(uid: String, cards: CardRecords.Encrypted) {
     val ref = db.getReference("$uid/cards")
-    val cardsEncodedForDb = cards.cards.mapValues {
-      CardEncryptedEncodedForDb(
-        id = it.value.id,
-        data = CardEncryptedDataEncodedForDb(it.value.data.cipherText.toEncoded(), it.value.data.iv.toEncoded()),
-        modifiedAt = it.value.modifiedAt
-      )
-    }
 
     try {
-      ref.setValue(cardsEncodedForDb).await()
+      ref.setValue(cards).await()
     } catch (e: Exception) {
       Log.e("RealtimeDbManager", "Failed to save data", e)
     }
@@ -58,14 +47,9 @@ class CardDbManager {
 
   suspend fun addOrUpdateCard(uid: String, card: CardEncrypted) {
     val ref = db.getReference("$uid/cards/${card.id}")
-    val cardEncodedForDb = CardEncryptedEncodedForDb(
-      id = card.id,
-      data = CardEncryptedDataEncodedForDb(card.data.cipherText.toEncoded(), card.data.iv.toEncoded()),
-      modifiedAt = card.modifiedAt
-    )
 
     try {
-      ref.setValue(cardEncodedForDb).await()
+      ref.setValue(card).await()
     } catch (e: Exception) {
       Log.e("RealtimeDbManager", "Failed to save data", e)
     }
@@ -84,17 +68,11 @@ class CardDbManager {
     val cards: MutableMap<String, CardEncrypted> = mutableMapOf()
 
     for (child in snapshot.children) {
-      val data = child.getValue(CardEncryptedEncodedForDbNullable::class.java)
+      val data = child.getValue(CardEncryptedNullable::class.java)
       if (data == null || data.id == null || data.data == null || data.modifiedAt == null) continue
       if (data.data.cipherText == null || data.data.iv == null) continue
 
-      val card = CardEncrypted(
-        id = data.id,
-        data = CardEncryptedData(data.data.cipherText.toDecoded(), data.data.iv.toDecoded()),
-        modifiedAt = data.modifiedAt
-      )
-
-      cards[data.id] = card
+      cards[data.id] = CardEncrypted(data.id, CardEncryptedData(data.data.cipherText, data.data.iv), data.modifiedAt)
     }
 
     return CardRecords.Encrypted(cards.toPersistentMap())
