@@ -11,14 +11,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.datastore.dataStore
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.db.auth.AuthDataSerializer
 import app.cardnest.db.card.CardsDataSerializer
 import app.cardnest.db.preferences.PreferencesDataSerializer
 import app.cardnest.di.appModule
-import app.cardnest.ui.theme.CardNestTheme
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.compose.koinViewModel
 import org.koin.androix.startup.KoinStartup.onKoinStartup
 import org.koin.core.annotation.KoinExperimentalAPI
 
@@ -35,7 +32,7 @@ class MainActivity : AppCompatActivity() {
       navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
     )
 
-    setContent { AppRoot(installSplashScreen()) }
+    installSplashScreen().also { setContent { AppRoot(it) } }
 
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
   }
