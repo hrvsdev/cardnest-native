@@ -29,22 +29,14 @@ val Context.preferencesDataStore by dataStore("preferences_data.json", Preferenc
 class MainActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    val splashScreen = installSplashScreen()
-    enableEdgeToEdge(SystemBarStyle.dark(Color.TRANSPARENT), SystemBarStyle.dark(Color.TRANSPARENT))
-    setContent {
-      CardNestTheme {
-        val vm = koinViewModel<AppViewModel>()
 
-        val isLoading = vm.isLoading.value
-        val hasCreatedPin = vm.hasCreatedPin.collectAsStateWithLifecycle().value
+    enableEdgeToEdge(
+      statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+      navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
+    )
 
-        splashScreen.setKeepOnScreenCondition { isLoading }
+    setContent { AppRoot(installSplashScreen()) }
 
-        if (!isLoading) {
-          App(hasCreatedPin)
-        }
-      }
-    }
     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
   }
 }
