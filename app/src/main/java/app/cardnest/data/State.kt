@@ -15,6 +15,8 @@ val cardsState = MutableStateFlow<Map<String, CardUnencrypted>>(emptyMap())
 
 val preferencesState = MutableStateFlow(Preferences())
 
+val connectionState = MutableStateFlow(Connection())
+
 data class AuthState(
   val pin: String? = null,
   val dek: SecretKey? = null,
@@ -26,3 +28,9 @@ data class User(
   val fullName: String,
   val isSyncing: Boolean = false
 )
+
+data class Connection(
+  val shouldWrite: Boolean = false,
+  val isConnected: Boolean = false
+)
+
