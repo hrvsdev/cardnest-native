@@ -5,6 +5,7 @@ import app.cardnest.firebase.rtDb
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 
 class ConnectionManager {
@@ -14,7 +15,7 @@ class ConnectionManager {
 
   fun getConnectionState() = callbackFlow {
     val ref = rtDb.getReference(".info/connected")
-    ref.addValueEventListener(object : ValueEventListener {
+    val listener = ref.addValueEventListener(object : ValueEventListener {
       override fun onDataChange(snapshot: DataSnapshot) {
         trySend(snapshot.value == true)
       }
@@ -23,5 +24,7 @@ class ConnectionManager {
         Log.e("RealtimeDbManager", "Failed to read value.", error.toException())
       }
     })
+
+    awaitClose { ref.removeEventListener(listener) }
   }
 }
