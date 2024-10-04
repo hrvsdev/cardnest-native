@@ -22,6 +22,7 @@ val TH_SKY_80 = Color(0xCC3FA1FF)
 val TH_RED = Color(0xFFF31260)
 val TH_RED_10 = Color(0x19F31260)
 val TH_RED_12 = Color(0x1FF31260)
+val TH_RED_20 = Color(0x33F31260)
 val TH_RED_15 = Color(0x26F31260)
 val TH_RED_60 = Color(0x99F31260)
 
