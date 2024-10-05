@@ -1,5 +1,6 @@
 package app.cardnest.components.header
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,12 +17,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.R
+import app.cardnest.data.connectionState
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_SKY
+import app.cardnest.ui.theme.TH_SKY_70
 import app.cardnest.ui.theme.TH_WHITE
 import app.cardnest.ui.theme.TH_WHITE_10
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -36,9 +41,20 @@ fun SubScreenHeader(
   rightButtonLabel: String? = null,
   rightButtonIcon: Painter? = null,
   onRightButtonClick: () -> Unit = {},
+  disableIfOffline: Boolean = false,
 ) {
-
+  val ctx = LocalContext.current
   val navigator = LocalNavigator.currentOrThrow
+
+  val isDisabledOffline = disableIfOffline && connectionState.collectAsStateWithLifecycle().value.shouldWrite.not()
+
+  fun onRightButtonClickWithOfflineCheck() {
+    if (isDisabledOffline) {
+      Toast.makeText(ctx, "You are offline", Toast.LENGTH_SHORT).show()
+    } else {
+      onRightButtonClick()
+    }
+  }
 
   Column(Modifier.statusBarsPadding()) {
     Box(Modifier.fillMaxWidth(), Alignment.Center) {
@@ -78,7 +94,7 @@ fun SubScreenHeader(
           horizontalArrangement = Arrangement.spacedBy(4.dp),
           modifier = Modifier
             .height(48.dp)
-            .clickable(onClick = onRightButtonClick)
+            .clickable(onClick = ::onRightButtonClickWithOfflineCheck)
             .padding(start = 16.dp, end = 20.dp)
         ) {
 
@@ -86,13 +102,13 @@ fun SubScreenHeader(
             Icon(
               painter = rightButtonIcon,
               contentDescription = null,
-              tint = TH_SKY,
+              tint = if (isDisabledOffline) TH_SKY_70 else TH_SKY,
               modifier = Modifier.size(18.dp)
             )
           }
 
           if (rightButtonLabel != null) {
-            AppText(text = rightButtonLabel, color = TH_SKY)
+            AppText(text = rightButtonLabel, color = if (isDisabledOffline) TH_SKY_70 else TH_SKY)
           }
         }
       }
