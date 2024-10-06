@@ -17,13 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import app.cardnest.ui.theme.TH_SKY
+import app.cardnest.ui.theme.TH_SKY_70
 import app.cardnest.ui.theme.TH_WHITE
 import app.cardnest.ui.theme.TH_WHITE_10
+import app.cardnest.ui.theme.TH_WHITE_70
 
 @Composable
-fun AppSwitch(checked: Boolean, onCheckedChange: (checked: Boolean) -> Unit) {
+fun AppSwitch(checked: Boolean, onCheckedChange: (checked: Boolean) -> Unit, isDisabled: Boolean = false) {
   val thumbOffsetX by animateDpAsState(if (checked) 20.dp else 0.dp, label = "")
-  val bgColor by animateColorAsState(if (checked) TH_SKY else TH_WHITE_10, label = "")
+  val bgColor by animateColorAsState(if (checked) if (isDisabled) TH_SKY_70 else TH_SKY else TH_WHITE_10, label = "")
 
   Box(
     Modifier
@@ -39,7 +41,7 @@ fun AppSwitch(checked: Boolean, onCheckedChange: (checked: Boolean) -> Unit) {
         .size(24.dp)
         .offset(x = thumbOffsetX)
         .clip(RoundedCornerShape(12.dp))
-        .background(TH_WHITE)
+        .background(if (isDisabled) TH_WHITE_70 else TH_WHITE)
     )
   }
 }
