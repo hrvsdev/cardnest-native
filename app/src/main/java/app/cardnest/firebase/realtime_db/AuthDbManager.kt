@@ -7,39 +7,34 @@ import app.cardnest.data.auth.AuthDataRemoteNullable
 import app.cardnest.data.auth.EncryptedDataEncoded
 import app.cardnest.data.authData
 import com.google.firebase.Firebase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseException
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class AuthDbManager {
   private val db = Firebase.database("https://cardnest-app-default-rtdb.asia-southeast1.firebasedatabase.app/")
 
-  suspend fun getAuthData(uid: String): AuthData? {
+  fun getAuthData(uid: String) = callbackFlow {
     val ref = db.getReference("$uid/auth")
+    val listener = ref.addValueEventListener(object : ValueEventListener {
+      override fun onDataChange(snapshot: DataSnapshot) {
+        trySend(getAuthDataFromSnapshot(snapshot))
+      }
 
-    try {
-      val snapshot = ref.get().await()
-      val data = snapshot.getValue(AuthDataRemoteNullable::class.java) ?: return null
+      override fun onCancelled(error: DatabaseError) {
+        Log.e("RealtimeDbManager", "Failed to read value", error.toException())
+      }
+    })
 
-      if (data.salt == null || data.encryptedDek == null) return null
-      if (data.encryptedDek.ciphertext == null || data.encryptedDek.iv == null) return null
-
-      return AuthData(
-        salt = data.salt,
-        encryptedDek = EncryptedDataEncoded(data.encryptedDek.ciphertext, data.encryptedDek.iv),
-        hasCreatedPin = data.hasCreatedPin,
-
-        encryptedBiometricsDek = authData.value.encryptedBiometricsDek,
-        hasBiometricsEnabled = authData.value.hasBiometricsEnabled
-      )
-
-    } catch (e: DatabaseException) {
-      Log.e("RealtimeDbManager", "Failed to read value.", e)
-      return null
-    }
+    awaitClose { ref.removeEventListener(listener) }
   }
 
-  suspend fun setAuthData(authData: AuthData, uid: String) {
+  suspend fun setAuthData(uid: String, authData: AuthData) {
     val ref = db.getReference("$uid/auth")
 
     val salt = checkNotNull(authData.salt) { "Salt is required" }
@@ -50,5 +45,20 @@ class AuthDbManager {
     } catch (e: DatabaseException) {
       Log.e("RealtimeDbManager", "Failed to save data", e)
     }
+  }
+
+  private fun getAuthDataFromSnapshot(snapshot: DataSnapshot): AuthData? {
+    val data = snapshot.getValue(AuthDataRemoteNullable::class.java) ?: return null
+    if (data.salt == null || data.encryptedDek == null) error("Salt and encrypted DEK are required")
+    if (data.encryptedDek.ciphertext == null || data.encryptedDek.iv == null) error("Encrypted DEK ciphertext and IV are required")
+
+    return AuthData(
+      salt = data.salt,
+      encryptedDek = EncryptedDataEncoded(data.encryptedDek.ciphertext, data.encryptedDek.iv),
+      hasCreatedPin = data.hasCreatedPin,
+
+      encryptedBiometricsDek = authData.value.encryptedBiometricsDek,
+      hasBiometricsEnabled = authData.value.hasBiometricsEnabled
+    )
   }
 }

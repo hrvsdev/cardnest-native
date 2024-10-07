@@ -9,7 +9,6 @@ import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.card.CardEditorViewModel
 import app.cardnest.data.preferences.PreferencesManager
 import app.cardnest.data.user.UserManager
-import app.cardnest.db.auth.AuthDataOperations
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.db.card.CardRepository
 import app.cardnest.db.preferences.PreferencesDataOperations
@@ -41,7 +40,7 @@ import org.koin.dsl.module
 val appModule = module {
   single { CryptoManager }
 
-  single { UserManager(get(), get(), get(), get()) }
+  single { UserManager(get(), get(), get()) }
 
   single { FirebaseUserManager() }
   single { CardDbManager() }
@@ -49,9 +48,8 @@ val appModule = module {
 
   single { ConnectionManager() }
 
-  single { AuthDataOperations(androidContext().authDataStore) }
-  single { AuthRepository(get()) }
-  single { AuthManager(get(), get(), get()) }
+  single { AuthRepository(androidContext().authDataStore, get()) }
+  single { AuthManager(get(), get()) }
 
   single { CardRepository(androidContext().cardsDataStore, get()) }
   single { CardDataManager(get(), get()) }

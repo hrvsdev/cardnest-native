@@ -4,9 +4,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.Connection
+import app.cardnest.data.RemoteAuthData
 import app.cardnest.data.authData
 import app.cardnest.data.connectionState
 import app.cardnest.data.preferencesState
+import app.cardnest.data.remoteAuthDataState
 import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.db.preferences.PreferencesRepository
@@ -35,6 +37,7 @@ class AppViewModel(
   init {
     initUser()
     initAuth()
+    initRemoteAuth()
     initPreferences()
     initConnectionState()
   }
@@ -51,9 +54,23 @@ class AppViewModel(
 
   private fun initAuth() {
     viewModelScope.launch(Dispatchers.IO) {
-      authRepo.getAuthData().collectLatest { d ->
+      authRepo.getLocalAuthData().collectLatest { d ->
         authData.update { d }
         isLoading.value = false
+      }
+    }
+  }
+
+  private fun initRemoteAuth() {
+    viewModelScope.launch(Dispatchers.IO) {
+      userState.collectLatest {
+        if (it != null) {
+          authRepo.getRemoteAuthData().collectLatest { d ->
+            remoteAuthDataState.update { RemoteAuthData(data = d, hasLoaded = true) }
+          }
+        } else {
+          remoteAuthDataState.update { RemoteAuthData() }
+        }
       }
     }
   }

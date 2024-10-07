@@ -9,6 +9,8 @@ import javax.crypto.SecretKey
 val authData = MutableStateFlow(AuthData())
 val authState = MutableStateFlow(AuthState())
 
+val remoteAuthDataState = MutableStateFlow(RemoteAuthData())
+
 val userState = MutableStateFlow<User?>(null)
 
 val cardsState = MutableStateFlow<Map<String, CardUnencrypted>>(emptyMap())
@@ -20,6 +22,11 @@ val connectionState = MutableStateFlow(Connection())
 data class AuthState(
   val pin: String? = null,
   val dek: SecretKey? = null,
+)
+
+data class RemoteAuthData(
+  val data: AuthData? = null,
+  val hasLoaded: Boolean = false
 )
 
 data class User(

@@ -1,71 +1,70 @@
 package app.cardnest.data.user
 
-import app.cardnest.data.User
 import app.cardnest.data.auth.AuthData
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.authData
 import app.cardnest.data.authState
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.preferences.PreferencesManager
-import app.cardnest.data.userState
-import app.cardnest.firebase.realtime_db.AuthDbManager
+import app.cardnest.data.remoteAuthDataState
+import kotlinx.coroutines.delay
 import javax.crypto.SecretKey
 
 class UserManager(
-  private val authDb: AuthDbManager,
   private val authManager: AuthManager,
   private val cardDataManager: CardDataManager,
   private val prefsManager: PreferencesManager
 ) {
   suspend fun setupSync(): SyncResult {
-    val user = userState.value ?: return SyncResult.ERROR
-
-    val dbAuthData = authDb.getAuthData(user.uid)
-    val isUserNew = dbAuthData == null
+    val isUserNew = waitAndGetRemoteAuthData() == null
 
     val dek = authState.value.dek
     val pin = authState.value.pin
 
     if (isUserNew) {
-      return if (dek != null) {
-        syncDataAndUpdateState(authData.value, user, dek)
-      } else {
+      return if (dek == null) {
         SyncResult.CREATE_PIN
+      } else {
+        syncDataAndUpdateState(dek)
       }
     }
 
     if (pin == null) return SyncResult.PREVIOUS_PIN_REQUIRED
 
-    val dbDek = authManager.getDbDek(pin, dbAuthData)
-    val isCurrentPinSameAsDb = dbDek != null
+    val remoteDek = authManager.getRemoteDek(pin)
+    val isLocalPinSameAsRemote = remoteDek != null
 
-    return if (isCurrentPinSameAsDb) {
-      syncDataAndUpdateState(authData.value, user, dbDek)
+    return if (isLocalPinSameAsRemote) {
+      syncDataAndUpdateState(remoteDek)
     } else {
       SyncResult.PREVIOUS_PIN_REQUIRED
     }
   }
 
   suspend fun continueSetupSyncWithDifferentPin(pin: String): SyncResult {
-    val user = userState.value ?: return SyncResult.ERROR
-    val dbAuthData = authDb.getAuthData(user.uid) ?: return SyncResult.ERROR
-    val dbDek = authManager.getDbDek(pin, dbAuthData) ?: return SyncResult.ERROR
+    val remoteDek = authManager.getRemoteDek(pin) ?: return SyncResult.ERROR
 
-    val hasCreatedPin = authData.value.hasCreatedPin
-
-    if (!hasCreatedPin) {
-      authManager.setAuthDataAndStateFromDb(dbAuthData, pin, dbDek)
+    if (!authData.value.hasCreatedPin) {
+      authManager.syncStateFromRemoteData(pin, remoteDek)
     }
 
-    return syncDataAndUpdateState(if (hasCreatedPin) authData.value else dbAuthData, user, dbDek)
+    return syncDataAndUpdateState(remoteDek)
   }
 
-  private suspend fun syncDataAndUpdateState(authData: AuthData, user: User, dek: SecretKey): SyncResult {
-    authDb.setAuthData(authData, user.uid)
+  private suspend fun syncDataAndUpdateState(dek: SecretKey): SyncResult {
+    authManager.syncAuthData()
     cardDataManager.syncCards(dek)
 
     prefsManager.setSync(true)
 
     return SyncResult.SUCCESS
+  }
+
+  private suspend fun waitAndGetRemoteAuthData(): AuthData? {
+    while (remoteAuthDataState.value.data == null) {
+      delay(200)
+    }
+
+    return remoteAuthDataState.value.data
   }
 }

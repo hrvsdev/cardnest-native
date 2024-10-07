@@ -7,9 +7,8 @@ import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
 import app.cardnest.data.authData
 import app.cardnest.data.authState
-import app.cardnest.data.userState
+import app.cardnest.data.remoteAuthDataState
 import app.cardnest.db.auth.AuthRepository
-import app.cardnest.firebase.realtime_db.AuthDbManager
 import app.cardnest.utils.crypto.CryptoManager
 import app.cardnest.utils.extensions.decoded
 import app.cardnest.utils.extensions.encoded
@@ -21,7 +20,7 @@ import kotlinx.coroutines.withContext
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
 
-class AuthManager(private val db: AuthDbManager, private val repo: AuthRepository, private val crypto: CryptoManager) {
+class AuthManager(private val repo: AuthRepository, private val crypto: CryptoManager) {
   private val allowedAuthenticators = BIOMETRIC_STRONG
 
   private val enableBiometricsPromptInfo = BiometricPrompt.PromptInfo.Builder()
@@ -50,14 +49,11 @@ class AuthManager(private val db: AuthDbManager, private val repo: AuthRepositor
     authState.update { it.copy(pin = pin, dek = dek) }
 
     repo.setAuthData(data)
-    userState.value?.let { db.setAuthData(data, it.uid) }
   }
 
   suspend fun removePin() {
     authState.update { it.copy(pin = null, dek = null) }
-
     repo.setAuthData(AuthData())
-    userState.value?.let { db.setAuthData(AuthData(), it.uid) }
   }
 
   fun verifyPin(pin: String): Boolean {
@@ -71,13 +67,25 @@ class AuthManager(private val db: AuthDbManager, private val repo: AuthRepositor
     return true
   }
 
-  suspend fun setAuthDataAndStateFromDb(authData: AuthData, pin: String, dek: SecretKey) {
-    repo.setAuthData(authData)
+  suspend fun syncAuthData() {
+    val localAuthData = authData.value
+    val remoteAuthData = remoteAuthDataState.value.data
+
+    if (localAuthData.hasCreatedPin) {
+      repo.setRemoteAuthData(localAuthData)
+    } else {
+      checkNotNull(remoteAuthData) { "Remote auth data is required" }
+      repo.setLocalAuthData(remoteAuthData)
+    }
+  }
+
+  fun syncStateFromRemoteData(pin: String, dek: SecretKey) {
     authState.update { it.copy(pin = pin, dek = dek) }
   }
 
-  fun getDbDek(dbPin: String, dbAuthData: AuthData): SecretKey? {
-    val dekString = getDekString(dbPin, dbAuthData) ?: return null
+  fun getRemoteDek(remotePin: String): SecretKey? {
+    val authData = remoteAuthDataState.value.data ?: return null
+    val dekString = getDekString(remotePin, authData) ?: return null
     return crypto.stringToKey(dekString)
   }
 
@@ -103,16 +111,13 @@ class AuthManager(private val db: AuthDbManager, private val repo: AuthRepositor
         val data = authData.value.copy(encryptedBiometricsDek = encryptedDek.encoded, hasBiometricsEnabled = true)
 
         repo.setAuthData(data)
-        userState.value?.let { db.setAuthData(data, it.uid) }
       }
     }
   }
 
   suspend fun disableBiometrics() {
     val data = authData.value.copy(encryptedBiometricsDek = null, hasBiometricsEnabled = false)
-
     repo.setAuthData(data)
-    userState.value?.let { db.setAuthData(data, it.uid) }
   }
 
   suspend fun unlockWithBiometrics(ctx: FragmentActivity, onSuccess: () -> Unit) {
