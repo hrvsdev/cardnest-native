@@ -61,7 +61,7 @@ class UserManager(
   }
 
   private suspend fun waitAndGetRemoteAuthData(): AuthData? {
-    while (remoteAuthDataState.value.data == null) {
+    while (remoteAuthDataState.value.hasLoaded == false) {
       delay(200)
     }
 
