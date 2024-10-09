@@ -10,7 +10,8 @@ data class AuthData(
   val encryptedDek: EncryptedDataEncoded? = null,
   val encryptedBiometricsDek: EncryptedDataEncoded? = null,
   val hasCreatedPin: Boolean = false,
-  val hasBiometricsEnabled: Boolean = false
+  val hasBiometricsEnabled: Boolean = false,
+  val modifiedAt: Long,
 )
 
 @Serializable
@@ -23,12 +24,14 @@ data class AuthDataRemote(
   val salt: String,
   val encryptedDek: EncryptedDataEncoded,
   val hasCreatedPin: Boolean = true,
+  val modifiedAt: Long
 )
 
 data class AuthDataRemoteNullable(
   val salt: String? = null,
   val encryptedDek: EncryptedDataEncodedNullable? = null,
-  val hasCreatedPin: Boolean = true
+  val hasCreatedPin: Boolean = true,
+  val modifiedAt: Long? = null
 )
 
 data class EncryptedDataEncodedNullable(val ciphertext: String? = null, val iv: String? = null)

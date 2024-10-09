@@ -6,7 +6,7 @@ import app.cardnest.data.preferences.Preferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.crypto.SecretKey
 
-val authData = MutableStateFlow(AuthData())
+val authData = MutableStateFlow(AuthData(modifiedAt = 0))
 val authState = MutableStateFlow(AuthState())
 
 val remoteAuthDataState = MutableStateFlow(RemoteAuthData())
