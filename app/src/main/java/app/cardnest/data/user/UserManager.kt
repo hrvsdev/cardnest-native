@@ -29,7 +29,7 @@ class UserManager(
       }
     }
 
-    if (pin == null) return SyncResult.PREVIOUS_PIN_REQUIRED
+    if (pin == null) return getPreviousOrNewPinRequired()
 
     val remoteDek = authManager.getRemoteDek(pin)
     val isLocalPinSameAsRemote = remoteDek != null
@@ -37,17 +37,14 @@ class UserManager(
     return if (isLocalPinSameAsRemote) {
       syncDataAndUpdateState(remoteDek)
     } else {
-      SyncResult.PREVIOUS_PIN_REQUIRED
+      getPreviousOrNewPinRequired()
     }
   }
 
   suspend fun continueSetupSyncWithDifferentPin(pin: String): SyncResult {
     val remoteDek = authManager.getRemoteDek(pin) ?: return SyncResult.ERROR
 
-    if (!authData.value.hasCreatedPin) {
-      authManager.syncStateFromRemoteData(pin, remoteDek)
-    }
-
+    authManager.syncAuthState(pin, remoteDek)
     return syncDataAndUpdateState(remoteDek)
   }
 
@@ -66,5 +63,14 @@ class UserManager(
     }
 
     return remoteAuthDataState.value.data
+  }
+
+  private fun getPreviousOrNewPinRequired(): SyncResult {
+    val remoteModifiedAt = remoteAuthDataState.value.data?.modifiedAt ?: return SyncResult.ERROR
+    return if (authData.value.hasCreatedPin && authData.value.modifiedAt < remoteModifiedAt) {
+      SyncResult.NEW_PIN_REQUIRED
+    } else {
+      SyncResult.PREVIOUS_PIN_REQUIRED
+    }
   }
 }
