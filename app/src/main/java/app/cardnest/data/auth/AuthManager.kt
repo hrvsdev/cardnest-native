@@ -8,18 +8,24 @@ import androidx.fragment.app.FragmentActivity
 import app.cardnest.data.authData
 import app.cardnest.data.authState
 import app.cardnest.data.remoteAuthDataState
+import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.utils.crypto.CryptoManager
 import app.cardnest.utils.extensions.decoded
 import app.cardnest.utils.extensions.encoded
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
 
+@OptIn(FlowPreview::class)
 class AuthManager(private val repo: AuthRepository, private val crypto: CryptoManager) {
   private val allowedAuthenticators = BIOMETRIC_STRONG
 
@@ -44,16 +50,20 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val dek = authState.value.dek ?: crypto.generateKey()
     val encryptedDek = crypto.encryptData(crypto.keyToString(dek), kek)
 
-    val data = authData.value.copy(salt = salt.encoded, encryptedDek = encryptedDek.encoded, hasCreatedPin = true)
+    val data = authData.value.copy(
+      salt = salt.encoded,
+      encryptedDek = encryptedDek.encoded,
+      hasCreatedPin = true,
+      modifiedAt = System.currentTimeMillis()
+    )
 
     authState.update { it.copy(pin = pin, dek = dek) }
-
     repo.setAuthData(data)
   }
 
   suspend fun removePin() {
     authState.update { it.copy(pin = null, dek = null) }
-    repo.setAuthData(AuthData())
+    repo.setLocalAuthData(AuthData(modifiedAt = System.currentTimeMillis()))
   }
 
   fun verifyPin(pin: String): Boolean {
@@ -71,22 +81,42 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val localAuthData = authData.value
     val remoteAuthData = remoteAuthDataState.value.data
 
-    if (localAuthData.hasCreatedPin) {
+    if (remoteAuthData == null) {
       repo.setRemoteAuthData(localAuthData)
     } else {
-      checkNotNull(remoteAuthData) { "Remote auth data is required" }
-      repo.setLocalAuthData(remoteAuthData)
+      if (localAuthData.modifiedAt > remoteAuthData.modifiedAt) {
+        repo.setRemoteAuthData(localAuthData)
+      } else {
+        repo.setLocalAuthData(remoteAuthData)
+      }
     }
   }
 
-  fun syncStateFromRemoteData(pin: String, dek: SecretKey) {
-    authState.update { it.copy(pin = pin, dek = dek) }
+  fun syncAuthState(remotePin: String, remoteDek: SecretKey) {
+    val localAuthData = authData.value
+    val remoteAuthData = checkNotNull(remoteAuthDataState.value.data) { "Remote auth data can't be null" }
+
+    if (!localAuthData.hasCreatedPin || localAuthData.modifiedAt < remoteAuthData.modifiedAt) {
+      authState.update { it.copy(pin = remotePin, dek = remoteDek) }
+    }
   }
 
   fun getRemoteDek(remotePin: String): SecretKey? {
     val authData = remoteAuthDataState.value.data ?: return null
     val dekString = getDekString(remotePin, authData) ?: return null
     return crypto.stringToKey(dekString)
+  }
+
+  fun hasAuthDataChangedOnAnotherDevice(): Flow<Boolean> {
+    val hasChanged = combine(authData, remoteAuthDataState, userState) { local, remoteState, user ->
+      when {
+        user == null || !user.isSyncing -> false
+        remoteState.data == null -> false
+        else -> local.modifiedAt < remoteState.data.modifiedAt
+      }
+    }
+
+    return hasChanged.debounce(500)
   }
 
   private fun getDekString(pin: String, authData: AuthData): String? {
@@ -110,14 +140,14 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
         val encryptedDek = crypto.encryptDataWithCipher(crypto.keyToString(dek), cipher)
         val data = authData.value.copy(encryptedBiometricsDek = encryptedDek.encoded, hasBiometricsEnabled = true)
 
-        repo.setAuthData(data)
+        repo.setLocalAuthData(data)
       }
     }
   }
 
   suspend fun disableBiometrics() {
     val data = authData.value.copy(encryptedBiometricsDek = null, hasBiometricsEnabled = false)
-    repo.setAuthData(data)
+    repo.setLocalAuthData(data)
   }
 
   suspend fun unlockWithBiometrics(ctx: FragmentActivity, onSuccess: () -> Unit) {
