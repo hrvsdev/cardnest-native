@@ -25,9 +25,11 @@ import app.cardnest.ui.theme.TH_WHITE_60
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.ScreenTransition
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Suppress("JavaIoSerializableObjectMustHaveReadResolve")
 @OptIn(ExperimentalVoyagerApi::class)
@@ -35,8 +37,9 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
+    val bottomSheetNavigator = LocalBottomSheetNavigator.current
 
-    val vm = koinViewModel<HomeViewModel>()
+    val vm = koinViewModel<HomeViewModel> { parametersOf(navigator, bottomSheetNavigator) }
 
     val userName = vm.userName.collectAsStateWithLifecycle().value
     val cardRecordList = vm.cardRecordList.collectAsStateWithLifecycle().value
