@@ -39,9 +39,10 @@ class AuthDbManager {
 
     val salt = checkNotNull(authData.salt) { "Salt is required" }
     val encryptedDek = checkNotNull(authData.encryptedDek) { "Encrypted DEK is required" }
+    val modifiedAt = checkNotNull(authData.modifiedAt) { "ModifiedAt is required" }
 
     try {
-      ref.setValue(AuthDataRemote(salt, encryptedDek)).await()
+      ref.setValue(AuthDataRemote(salt, encryptedDek, authData.hasCreatedPin, modifiedAt)).await()
     } catch (e: DatabaseException) {
       Log.e("RealtimeDbManager", "Failed to save data", e)
     }
@@ -49,13 +50,14 @@ class AuthDbManager {
 
   private fun getAuthDataFromSnapshot(snapshot: DataSnapshot): AuthData? {
     val data = snapshot.getValue(AuthDataRemoteNullable::class.java) ?: return null
-    if (data.salt == null || data.encryptedDek == null) error("Salt and encrypted DEK are required")
-    if (data.encryptedDek.ciphertext == null || data.encryptedDek.iv == null) error("Encrypted DEK ciphertext and IV are required")
+    if (data.salt == null || data.encryptedDek == null || data.modifiedAt == null) error("Salt, encrypted DEK and modifiedAt are required")
+    if (data.encryptedDek.ciphertext == null || data.encryptedDek.iv == null) error("Encrypted DEK, ciphertext and IV are required")
 
     return AuthData(
       salt = data.salt,
       encryptedDek = EncryptedDataEncoded(data.encryptedDek.ciphertext, data.encryptedDek.iv),
       hasCreatedPin = data.hasCreatedPin,
+      modifiedAt = data.modifiedAt,
 
       encryptedBiometricsDek = authData.value.encryptedBiometricsDek,
       hasBiometricsEnabled = authData.value.hasBiometricsEnabled
