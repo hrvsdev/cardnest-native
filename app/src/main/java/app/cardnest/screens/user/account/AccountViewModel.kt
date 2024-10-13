@@ -11,8 +11,13 @@ import app.cardnest.data.user.SyncResult
 import app.cardnest.data.user.UserManager
 import app.cardnest.data.userState
 import app.cardnest.firebase.auth.FirebaseUserManager
-import app.cardnest.screens.pin.create.CreatePinScreen
+import app.cardnest.screens.pin.create.create.CreatePinBottomSheetScreen
+import app.cardnest.screens.pin.create.create.CreatePinScreen
+import app.cardnest.screens.pin.verify_new_pin.ProvideNewPinBottomSheetScreen
+import app.cardnest.screens.pin.verify_new_pin.VerifyNewPinScreen
+import app.cardnest.screens.pin.verify_previous_pin.ProvidePreviousPinBottomSheetScreen
 import app.cardnest.screens.pin.verify_previous_pin.VerifyPreviousPinScreen
+import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import kotlinx.coroutines.Dispatchers
@@ -64,23 +69,24 @@ class AccountViewModel(
 
   suspend fun setupSync() {
     val result = userManager.setupSync()
-
-    if (result == SyncResult.ERROR) {
-      Log.e("AccountViewModel", "Error setting up sync")
-    }
-
-    if (result == SyncResult.CREATE_PIN) {
-      bottomSheetNavigator.show(CreatePinBottomSheetScreen(
+    when (result) {
+      SyncResult.CREATE_PIN -> bottomSheetNavigator.show(CreatePinBottomSheetScreen(
         onConfirm = { onCreatePin() },
         onCancel = { bottomSheetNavigator.hide() }
       ))
-    }
 
-    if (result == SyncResult.PREVIOUS_PIN_REQUIRED) {
-      bottomSheetNavigator.show(ProvidePreviousPinBottomSheetScreen(
-        onConfirm = { onProvidePreviousPin() },
+      SyncResult.PREVIOUS_PIN_REQUIRED -> bottomSheetNavigator.show(ProvidePreviousPinBottomSheetScreen(
+        onConfirm = { onProvidePin(VerifyPreviousPinScreen()) },
         onCancel = { bottomSheetNavigator.hide() }
       ))
+
+      SyncResult.NEW_PIN_REQUIRED -> bottomSheetNavigator.show(ProvideNewPinBottomSheetScreen(
+        onConfirm = { onProvidePin(VerifyNewPinScreen()) },
+        onCancel = { bottomSheetNavigator.hide() }
+      ))
+
+      SyncResult.ERROR -> Log.e("AccountViewModel", "Error setting up sync")
+      SyncResult.SUCCESS -> {}
     }
   }
 
@@ -100,12 +106,12 @@ class AccountViewModel(
     }
   }
 
-  private fun onProvidePreviousPin() {
+  private fun onProvidePin(screen: Screen) {
     viewModelScope.launch(Dispatchers.IO) {
       bottomSheetNavigator.hide()
       delay(200)
 
-      navigator.push(VerifyPreviousPinScreen())
+      navigator.push(screen)
     }
 
     actions.setAfterPinVerified {

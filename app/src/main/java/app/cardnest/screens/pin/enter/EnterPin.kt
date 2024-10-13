@@ -12,11 +12,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.components.containers.ScreenContainer
 import app.cardnest.components.pin.Keypad
 import app.cardnest.components.pin.PinInput
-import app.cardnest.screens.pin.create.PIN_LENGTH
+import app.cardnest.screens.pin.create.create.PIN_LENGTH
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_RED

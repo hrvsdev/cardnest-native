@@ -1,4 +1,4 @@
-package app.cardnest.screens.pin.create
+package app.cardnest.screens.pin.create.confirm
 
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.actions.Actions

@@ -1,4 +1,4 @@
-package app.cardnest.screens.pin.verify
+package app.cardnest.screens.pin.create.confirm
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,24 +19,26 @@ import app.cardnest.ui.theme.TH_RED
 import app.cardnest.ui.theme.TH_WHITE
 import cafe.adriel.voyager.core.screen.Screen
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
-class VerifyPinBeforeActionScreen : Screen {
+data class ConfirmPinScreen(val enteredPin: String) : Screen {
   @Composable
   override fun Content() {
-    val vm = koinViewModel<VerifyPinViewModel>()
+    val vm = koinViewModel<ConfirmPinViewModel> { parametersOf(enteredPin) }
 
     SubScreenRoot(title = "") {
       Spacer(Modifier.weight(1f))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(
-          text = "Confirm your PIN",
+          text = "Confirm the PIN",
           modifier = Modifier.padding(bottom = 8.dp),
           size = AppTextSize.XL,
           weight = FontWeight.Bold,
           color = TH_WHITE
         )
 
-        AppText("Please enter your pin to proceed.", Modifier.padding(bottom = 32.dp))
+        AppText("Please confirm the PIN you entered.")
+        AppText("Remember it as there is no way to recover it.", Modifier.padding(bottom = 32.dp))
 
         PinInput(
           pin = vm.pin.value,
@@ -45,7 +47,7 @@ class VerifyPinBeforeActionScreen : Screen {
         )
 
         AppText(
-          text = if (vm.showErrorMessage.value) "Entered PIN is incorrect" else "",
+          text = if (vm.showErrorMessage.value) "Both PIN don't match" else "",
           modifier = Modifier.padding(top = 24.dp),
           size = AppTextSize.SM,
           color = TH_RED
@@ -53,8 +55,7 @@ class VerifyPinBeforeActionScreen : Screen {
       }
 
       Spacer(Modifier.weight(2f))
-
-      Keypad(pin = vm.pin, onPinChange = vm::onPinChange, onPinSubmit = vm::onPinSubmit)
+      Keypad(vm.pin, vm::onPinChange, vm::onPinSubmit)
       Spacer(Modifier.weight(1f))
     }
   }

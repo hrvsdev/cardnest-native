@@ -6,9 +6,8 @@ import androidx.lifecycle.viewModelScope
 import app.cardnest.data.actions.Actions
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.authData
-import app.cardnest.data.authState
 import app.cardnest.data.card.CardDataManager
-import app.cardnest.screens.pin.create.CreatePinScreen
+import app.cardnest.screens.pin.create.create.CreatePinScreen
 import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator

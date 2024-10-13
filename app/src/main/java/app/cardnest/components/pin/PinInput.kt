@@ -22,7 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
-import app.cardnest.screens.pin.create.PIN_LENGTH
+import app.cardnest.screens.pin.create.create.PIN_LENGTH
 import app.cardnest.ui.theme.TH_RED
 import app.cardnest.ui.theme.TH_WHITE
 import app.cardnest.ui.theme.TH_WHITE_00

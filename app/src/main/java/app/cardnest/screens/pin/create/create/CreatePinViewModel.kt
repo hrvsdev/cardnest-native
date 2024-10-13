@@ -1,7 +1,8 @@
-package app.cardnest.screens.pin.create
+package app.cardnest.screens.pin.create.create
 
 import androidx.lifecycle.viewModelScope
 import app.cardnest.screens.pin.PinBaseViewModel
+import app.cardnest.screens.pin.create.confirm.ConfirmPinScreen
 import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

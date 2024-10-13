@@ -31,7 +31,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import app.cardnest.R
-import app.cardnest.screens.pin.create.PIN_LENGTH
+import app.cardnest.screens.pin.create.create.PIN_LENGTH
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE

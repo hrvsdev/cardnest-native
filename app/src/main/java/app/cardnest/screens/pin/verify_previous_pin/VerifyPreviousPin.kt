@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.pin.Keypad
 import app.cardnest.components.pin.PinInput
-import app.cardnest.screens.pin.create.PIN_LENGTH
+import app.cardnest.screens.pin.create.create.PIN_LENGTH
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_RED
