@@ -5,6 +5,7 @@ import app.cardnest.utils.serialization.AppPersistentMapSerializer
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.serialization.Serializable
+import java.io.Serializable as JavaSerializable
 
 @Serializable
 data class Card(
@@ -15,7 +16,7 @@ data class Card(
   val cvv: String,
   val network: PaymentNetwork,
   val theme: CardTheme
-)
+) : JavaSerializable
 
 @Serializable
 sealed class CardRecords {
@@ -53,7 +54,7 @@ data class CardUnencrypted(
   val id: String,
   val data: Card,
   val modifiedAt: Long
-)
+) : JavaSerializable
 
 @Serializable
 data class CardEncryptedData(
