@@ -40,7 +40,7 @@ class SecurityViewModel(
   fun onCreatePin() {
     navigator.push(CreatePinScreen())
     actions.setAfterPinCreated {
-      navigator.popUntilRoot()
+      navigator.popUntil { it is SecurityScreen }
     }
   }
 
@@ -63,7 +63,7 @@ class SecurityViewModel(
       cardDataManager.decryptAndSaveCards()
       authManager.removePin()
 
-      navigator.popUntilRoot()
+      navigator.popUntil { it is SecurityScreen }
     }
   }
 
