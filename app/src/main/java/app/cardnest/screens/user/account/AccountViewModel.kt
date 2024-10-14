@@ -53,7 +53,10 @@ class AccountViewModel(
   }
 
   fun signOut() {
-    fbUserManager.signOut()
+    viewModelScope.launch(Dispatchers.IO) {
+      prefsManager.setSync(false)
+      fbUserManager.signOut()
+    }
   }
 
   fun onSyncChange() {
