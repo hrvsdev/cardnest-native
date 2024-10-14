@@ -100,4 +100,4 @@ const val BIOMETRICS_DESC =
   "Use your fingerprint, face or iris to unlock the app."
 
 const val REMOVE_PASSWORD_DESC =
-  "Removing your app PIN will make all your data accessible to anyone who has access to your device."
+  "Removing your app PIN will turn sync off and make all your data accessible to anyone who has access to your device."

@@ -17,7 +17,7 @@ data class RemovePinBottomSheetScreen(val onConfirm: () -> Unit, val onClose: ()
       BottomSheetHeading("Remove app PIN")
 
       BottomSheetDescription("Are you sure you want to remove the PIN?")
-      BottomSheetDescription("Anyone who has access to your device will be able to see your data.")
+      BottomSheetDescription("Sync will be turned off. Anyone who has access to your device will be able to see your data.")
 
       BottomSheetButtons {
         AppButton("Cancel", onClose, variant = ButtonVariant.Flat)

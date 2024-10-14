@@ -7,6 +7,7 @@ import app.cardnest.data.actions.Actions
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.authData
 import app.cardnest.data.card.CardDataManager
+import app.cardnest.data.preferences.PreferencesManager
 import app.cardnest.screens.pin.create.create.CreatePinScreen
 import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
 import cafe.adriel.voyager.navigator.Navigator
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 class SecurityViewModel(
   private val authManager: AuthManager,
   private val cardDataManager: CardDataManager,
+  private val prefsManager: PreferencesManager,
   private val actions: Actions,
   private val navigator: Navigator,
   private val bottomSheetNavigator: BottomSheetNavigator,
@@ -60,6 +62,7 @@ class SecurityViewModel(
     }
 
     actions.setAfterPinVerified {
+      prefsManager.setSync(false)
       cardDataManager.decryptAndSaveCards()
       authManager.removePin()
 
