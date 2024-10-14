@@ -22,8 +22,8 @@ import app.cardnest.screens.add.editor.AddCardViewModel
 import app.cardnest.screens.home.HomeViewModel
 import app.cardnest.screens.home.card.CardViewModel
 import app.cardnest.screens.home.card.editor.UpdateCardViewModel
-import app.cardnest.screens.pin.create.ConfirmPinViewModel
-import app.cardnest.screens.pin.create.CreatePinViewModel
+import app.cardnest.screens.pin.create.confirm.ConfirmPinViewModel
+import app.cardnest.screens.pin.create.create.CreatePinViewModel
 import app.cardnest.screens.pin.enter.EnterPinViewModel
 import app.cardnest.screens.pin.verify.VerifyPinViewModel
 import app.cardnest.screens.pin.verify_previous_pin.VerifyPreviousPinViewModel
@@ -66,7 +66,7 @@ val appModule = module {
 
   viewModel { AppViewModel(get(), get(), get(), get()) }
 
-  viewModel { HomeViewModel(get()) }
+  viewModel { HomeViewModel(get(), get(), get(), it.get(), it.get()) }
   viewModel { CardViewModel(get(), it.get(), it.get()) }
   viewModel { UpdateCardViewModel(get(), it.get(), it.get()) }
 
