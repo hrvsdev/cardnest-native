@@ -45,13 +45,23 @@ class SecurityScreen : Screen {
 
     SubScreenRoot("Security", leftIconLabel = "Settings", spacedBy = 24.dp) {
       SettingsGroup("PIN", if (hasCreatedPin) null else CREATE_PASSWORD_DESC) {
-        SettingsButton(
-          title = if (hasCreatedPin) "Change PIN" else "Create PIN",
-          icon = painterResource(R.drawable.tabler__password_mobile_phone),
-          onClick = if (hasCreatedPin) vm::onChangePin else vm::onCreatePin,
-          isFirst = true,
-          isLast = true,
-        )
+        if (hasCreatedPin) {
+          SettingsButton(
+            title = "Change PIN",
+            icon = painterResource(R.drawable.tabler__password_mobile_phone),
+            onClick = vm::onChangePin,
+            isFirst = true,
+            isLast = true,
+          )
+        } else {
+          SettingsButton(
+            title = "Create PIN",
+            icon = painterResource(R.drawable.tabler__password_mobile_phone),
+            onClick = vm::onCreatePin,
+            isFirst = true,
+            isLast = true,
+          )
+        }
       }
 
       if (vm.getShowBiometricsSwitch(ctx)) {
