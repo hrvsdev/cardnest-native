@@ -23,7 +23,7 @@ import org.koin.androidx.compose.koinViewModel
 class VerifyNewPinScreen : Screen {
   @Composable
   override fun Content() {
-    val vm = koinViewModel<VerifyPreviousNewViewModel>()
+    val vm = koinViewModel<VerifyNewPinViewModel>()
 
     SubScreenRoot(title = "") {
       Spacer(Modifier.weight(1f))

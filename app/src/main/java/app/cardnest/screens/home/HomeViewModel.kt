@@ -12,7 +12,7 @@ import app.cardnest.data.cardsState
 import app.cardnest.data.preferencesState
 import app.cardnest.data.userState
 import app.cardnest.screens.pin.verify_new_pin.ProvideNewPinBottomSheetScreen
-import app.cardnest.screens.pin.verify_previous_pin.VerifyPreviousPinScreen
+import app.cardnest.screens.pin.verify_new_pin.VerifyNewPinScreen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import kotlinx.coroutines.Dispatchers
@@ -67,8 +67,8 @@ class HomeViewModel(
   private fun showProvidePreviousPinBottomSheet() {
     bottomSheetNavigator.show(
       ProvideNewPinBottomSheetScreen(
-        onCancel = { bottomSheetNavigator.hide() },
-        onConfirm = { onProvideNewPin() }
+        onConfirm = { onProvideNewPin() },
+        onCancel = { bottomSheetNavigator.hide() }
       )
     )
   }
@@ -78,7 +78,7 @@ class HomeViewModel(
       bottomSheetNavigator.hide()
       delay(200)
 
-      navigator.push(VerifyPreviousPinScreen())
+      navigator.push(VerifyNewPinScreen())
     }
 
     actions.setAfterPinVerified {

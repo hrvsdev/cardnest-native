@@ -8,7 +8,7 @@ import app.cardnest.screens.pin.PinBaseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class VerifyPreviousNewViewModel(
+class VerifyNewPinViewModel(
   private val userManager: UserManager,
   private val actions: Actions
 ) : PinBaseViewModel() {
