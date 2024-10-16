@@ -8,6 +8,7 @@ import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.authData
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.preferences.PreferencesManager
+import app.cardnest.data.preferencesState
 import app.cardnest.screens.pin.create.create.CreatePinScreen
 import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
 import cafe.adriel.voyager.navigator.Navigator
@@ -62,8 +63,11 @@ class SecurityViewModel(
     }
 
     actions.setAfterPinVerified {
-      prefsManager.setSync(false)
-      cardDataManager.decryptAndSaveCards()
+      if (preferencesState.value.sync.isSyncing) {
+        prefsManager.setSync(false)
+      } else {
+        cardDataManager.decryptAndSaveCards()
+      }
       authManager.removePin()
 
       navigator.popUntil { it is SecurityScreen }

@@ -63,7 +63,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
 
   suspend fun removePin() {
     authState.update { it.copy(pin = null, dek = null) }
-    repo.setLocalAuthData(AuthData(modifiedAt = System.currentTimeMillis()))
+    repo.setLocalAuthData(AuthData(modifiedAt = 0))
   }
 
   fun verifyPin(pin: String): Boolean {

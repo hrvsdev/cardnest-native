@@ -75,7 +75,7 @@ val appModule = module {
 
   viewModel { UserViewModel(get(), get(), it.get(), it.get()) }
   viewModel { AccountViewModel(get(), get(), get(), get(), it.get(), it.get()) }
-  viewModel { SecurityViewModel(get(), get(), get(), it.get(), it.get()) }
+  viewModel { SecurityViewModel(get(), get(), get(), get(), it.get(), it.get()) }
 
   viewModel { UserInterfaceViewModel(get()) }
 
