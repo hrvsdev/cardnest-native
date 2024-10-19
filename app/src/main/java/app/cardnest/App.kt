@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import app.cardnest.components.containers.appGradient
 import app.cardnest.components.tabs.TabBar
 import app.cardnest.components.tabs.tabs
+import app.cardnest.components.toast.AppToast
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.pin.enter.EnterPinScreen
 import app.cardnest.ui.theme.TH_BLACK_00
@@ -24,6 +25,7 @@ fun App(showPinScreen: Boolean) {
       Box(Modifier.background(appGradient)) {
         SlideTransition(it)
         TabBar(showTabBar)
+        AppToast()
       }
     }
   }
