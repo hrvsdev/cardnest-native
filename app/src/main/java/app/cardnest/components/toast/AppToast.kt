@@ -42,7 +42,7 @@ fun BoxScope.AppToast() {
 
   LaunchedEffect(state) {
     if (state.show) {
-      delay(2000)
+      delay(3000)
       AppToast.hide()
     }
   }
