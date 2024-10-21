@@ -3,6 +3,7 @@ package app.cardnest.screens.user.security
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.cardnest.components.toast.AppToast
 import app.cardnest.data.actions.Actions
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.authData
@@ -44,6 +45,9 @@ class SecurityViewModel(
     navigator.push(CreatePinScreen())
     actions.setAfterPinCreated {
       navigator.popUntil { it is SecurityScreen }
+      if (hasCreatedPin.value) {
+        AppToast.success("PIN has been updated")
+      }
     }
   }
 

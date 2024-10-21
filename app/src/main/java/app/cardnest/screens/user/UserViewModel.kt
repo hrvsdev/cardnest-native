@@ -2,6 +2,7 @@ package app.cardnest.screens.user
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.cardnest.components.toast.AppToast
 import app.cardnest.data.actions.Actions
 import app.cardnest.data.authData
 import app.cardnest.data.authState
@@ -22,6 +23,7 @@ class UserViewModel(
   suspend fun deleteAllCards() {
     cardDataManager.deleteAllCards()
     navigator.popUntil { it is UserScreen }
+    AppToast.success("Deleted all cards")
   }
 
   fun onDeleteAllCards() {
