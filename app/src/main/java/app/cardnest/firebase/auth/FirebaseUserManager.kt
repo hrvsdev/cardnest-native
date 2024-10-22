@@ -4,17 +4,24 @@ import android.content.Context
 import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
 import app.cardnest.R
+import app.cardnest.components.toast.AppToast
 import app.cardnest.data.User
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 import java.security.MessageDigest
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -22,7 +29,7 @@ import kotlin.uuid.Uuid
 class FirebaseUserManager {
   private val auth = Firebase.auth
 
-  suspend fun signInWithGoogle(ctx: Context, onError: () -> Unit, onSuccess: (User) -> Unit) {
+  suspend fun signInWithGoogle(ctx: Context, onError: () -> Unit, onSuccess: () -> Unit) {
     val credentialManager = CredentialManager.create(ctx)
 
     val googleIdOption = GetGoogleIdOption.Builder()
@@ -38,28 +45,35 @@ class FirebaseUserManager {
 
     val result = try {
       credentialManager.getCredential(context = ctx, request = request)
-    } catch (e: Exception) {
-      onError()
+    } catch (e: GetCredentialException) {
+      if (e !is GetCredentialCancellationException) {
+        AppToast.error("Error getting Google ID credential")
+        Log.e("AccountViewModel", "Error getting Google ID credential", e)
+      }
 
-      Log.e("AccountViewModel", "Error getting credential", e)
+      onError()
       return
     }
 
-    val credential = result.credential
-
-    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)
     val authCredential = googleIdTokenCredential.idToken
 
     val googleCredential = GoogleAuthProvider.getCredential(authCredential, null)
 
-    auth.signInWithCredential(googleCredential).addOnCompleteListener {
-      if (it.isSuccessful) {
-        val user = it.result.user
-        if (user != null) onSuccess(user.toUser()) else onError()
-      } else {
-        onError()
-        Log.e("AccountViewModel", "Error signing in with Google", it.exception)
+    try {
+      auth.signInWithCredential(googleCredential).await()
+      onSuccess()
+    } catch (e: FirebaseAuthException) {
+      when (e) {
+        is FirebaseAuthInvalidUserException -> AppToast.error("User is deleted or disabled")
+        is FirebaseAuthInvalidCredentialsException -> AppToast.error("Invalid credentials")
+        else -> AppToast.error("Error signing in with Google")
       }
+
+      Log.e("AccountViewModel", "Error signing in with Google", e)
+
+      onError()
+      return
     }
   }
 
