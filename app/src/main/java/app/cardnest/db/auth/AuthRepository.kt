@@ -2,16 +2,18 @@ package app.cardnest.db.auth
 
 import androidx.datastore.core.DataStore
 import app.cardnest.data.auth.AuthData
+import app.cardnest.data.auth.AuthRecord
 import app.cardnest.data.userState
 import app.cardnest.firebase.realtime_db.AuthDbManager
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-class AuthRepository(private val db: DataStore<AuthData>, private val remoteDb: AuthDbManager) {
+class AuthRepository(private val db: DataStore<AuthRecord>, private val remoteDb: AuthDbManager) {
   private val uid get() = checkNotNull(userState.value?.uid) { "User is not logged in" }
   private val isSyncing get() = userState.value?.isSyncing == true
 
-  fun getLocalAuthData(): Flow<AuthData> {
-    return db.data
+  fun getLocalAuthData(): Flow<AuthData?> {
+    return db.data.map { it.data }
   }
 
   fun getRemoteAuthData(): Flow<AuthData?> {
@@ -23,8 +25,8 @@ class AuthRepository(private val db: DataStore<AuthData>, private val remoteDb: 
     if (isSyncing) setRemoteAuthData(authData)
   }
 
-  suspend fun setLocalAuthData(authData: AuthData) {
-    db.updateData { authData }
+  suspend fun setLocalAuthData(authData: AuthData?) {
+    db.updateData { it.copy(authData) }
   }
 
   suspend fun setRemoteAuthData(authData: AuthData) {
