@@ -5,12 +5,15 @@ import app.cardnest.utils.extensions.encoded
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class AuthRecord(
+  val data: AuthData? = null,
+)
+
+@Serializable
 data class AuthData(
-  val salt: String? = null,
-  val encryptedDek: EncryptedDataEncoded? = null,
+  val salt: String,
+  val encryptedDek: EncryptedDataEncoded,
   val encryptedBiometricsDek: EncryptedDataEncoded? = null,
-  val hasCreatedPin: Boolean = false,
-  val hasBiometricsEnabled: Boolean = false,
   val modifiedAt: Long,
 )
 
