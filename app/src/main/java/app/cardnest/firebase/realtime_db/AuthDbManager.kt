@@ -42,7 +42,7 @@ class AuthDbManager {
     val modifiedAt = checkNotNull(authData.modifiedAt) { "ModifiedAt is required" }
 
     try {
-      ref.setValue(AuthDataRemote(salt, encryptedDek, authData.hasCreatedPin, modifiedAt)).await()
+      ref.setValue(AuthDataRemote(salt, encryptedDek, true, modifiedAt)).await()
     } catch (e: DatabaseException) {
       Log.e("RealtimeDbManager", "Failed to save data", e)
     }
@@ -56,11 +56,8 @@ class AuthDbManager {
     return AuthData(
       salt = data.salt,
       encryptedDek = EncryptedDataEncoded(data.encryptedDek.ciphertext, data.encryptedDek.iv),
-      hasCreatedPin = data.hasCreatedPin,
       modifiedAt = data.modifiedAt,
-
-      encryptedBiometricsDek = authData.value.encryptedBiometricsDek,
-      hasBiometricsEnabled = authData.value.hasBiometricsEnabled
+      encryptedBiometricsDek = authData.value?.encryptedBiometricsDek,
     )
   }
 }

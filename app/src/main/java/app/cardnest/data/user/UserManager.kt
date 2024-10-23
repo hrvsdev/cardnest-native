@@ -67,7 +67,9 @@ class UserManager(
 
   private fun getPreviousOrNewPinRequired(): SyncResult {
     val remoteModifiedAt = remoteAuthDataState.value.data?.modifiedAt ?: return SyncResult.ERROR
-    return if (authData.value.hasCreatedPin && authData.value.modifiedAt < remoteModifiedAt) {
+    val authData = authData.value
+
+    return if (authData != null && authData.modifiedAt < remoteModifiedAt) {
       SyncResult.NEW_PIN_REQUIRED
     } else {
       SyncResult.PREVIOUS_PIN_REQUIRED

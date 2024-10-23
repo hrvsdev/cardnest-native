@@ -61,7 +61,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun encryptAndAddOrUpdateCard(cardUnencrypted: CardUnencrypted) {
-    val cardData = if (authData.value.hasCreatedPin) {
+    val cardData = if (authData.value != null) {
       CardData.Encrypted(encryptToCardEncrypted(cardUnencrypted))
     } else {
       CardData.Unencrypted(cardUnencrypted)
@@ -75,7 +75,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun deleteAllCards() {
-    val cardRecords = if (authData.value.hasCreatedPin) CardRecords.Encrypted() else CardRecords.Unencrypted()
+    val cardRecords = if (authData.value == null) CardRecords.Unencrypted() else CardRecords.Encrypted()
     repo.setCards(cardRecords)
   }
 
