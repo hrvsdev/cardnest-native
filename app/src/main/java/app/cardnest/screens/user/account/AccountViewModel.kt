@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.cardnest.data.AppException
 import app.cardnest.data.actions.Actions
 import app.cardnest.data.preferences.PreferencesManager
 import app.cardnest.data.user.SyncResult
@@ -41,13 +42,15 @@ class AccountViewModel(
   )
 
   fun signInWithGoogle(ctx: Context) {
-    isLoading.value = true
     viewModelScope.launch {
-      fbUserManager.signInWithGoogle(ctx, { isLoading.value = false }) {
-        viewModelScope.launch(Dispatchers.IO) {
-          setupSync()
-          isLoading.value = false
-        }
+      try {
+        isLoading.value = true
+        fbUserManager.signInWithGoogle(ctx)
+        setupSync()
+      } catch (e: AppException) {
+        e.toastAndLog("AccountViewModel")
+      } finally {
+        isLoading.value = false
       }
     }
   }

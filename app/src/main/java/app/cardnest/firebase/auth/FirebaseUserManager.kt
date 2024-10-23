@@ -1,13 +1,12 @@
 package app.cardnest.firebase.auth
 
 import android.content.Context
-import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import app.cardnest.R
-import app.cardnest.components.toast.AppToast
+import app.cardnest.data.AppException
 import app.cardnest.data.User
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -29,7 +28,7 @@ import kotlin.uuid.Uuid
 class FirebaseUserManager {
   private val auth = Firebase.auth
 
-  suspend fun signInWithGoogle(ctx: Context, onError: () -> Unit, onSuccess: () -> Unit) {
+  suspend fun signInWithGoogle(ctx: Context) {
     val credentialManager = CredentialManager.create(ctx)
 
     val googleIdOption = GetGoogleIdOption.Builder()
@@ -46,13 +45,8 @@ class FirebaseUserManager {
     val result = try {
       credentialManager.getCredential(context = ctx, request = request)
     } catch (e: GetCredentialException) {
-      if (e !is GetCredentialCancellationException) {
-        AppToast.error("Error getting Google ID credential")
-        Log.e("AccountViewModel", "Error getting Google ID credential", e)
-      }
-
-      onError()
-      return
+      if (e is GetCredentialCancellationException) throw AppException()
+      throw AppException("Error getting Google ID credential", e)
     }
 
     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)
@@ -62,18 +56,12 @@ class FirebaseUserManager {
 
     try {
       auth.signInWithCredential(googleCredential).await()
-      onSuccess()
     } catch (e: FirebaseAuthException) {
       when (e) {
-        is FirebaseAuthInvalidUserException -> AppToast.error("User is deleted or disabled")
-        is FirebaseAuthInvalidCredentialsException -> AppToast.error("Invalid credentials")
-        else -> AppToast.error("Error signing in with Google")
+        is FirebaseAuthInvalidUserException -> throw AppException("User is deleted or disabled", e)
+        is FirebaseAuthInvalidCredentialsException -> throw AppException("Invalid credentials", e)
+        else -> throw AppException("Error signing in with Google", e)
       }
-
-      Log.e("AccountViewModel", "Error signing in with Google", e)
-
-      onError()
-      return
     }
   }
 
