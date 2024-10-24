@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import app.cardnest.components.toast.AppToast
 import app.cardnest.data.actions.Actions
 import app.cardnest.data.authData
-import app.cardnest.data.authState
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
 import cafe.adriel.voyager.navigator.Navigator
@@ -31,11 +30,11 @@ class UserViewModel(
     viewModelScope.launch(Dispatchers.IO) {
       delay(200)
 
-      if (authData.value.hasCreatedPin) {
+      if (authData.value == null) {
+        deleteAllCards()
+      } else {
         actions.setAfterPinVerified { deleteAllCards() }
         navigator.push(VerifyPinBeforeActionScreen())
-      } else {
-        deleteAllCards()
       }
     }
   }

@@ -29,13 +29,13 @@ class SecurityViewModel(
   private val navigator: Navigator,
   private val bottomSheetNavigator: BottomSheetNavigator,
 ) : ViewModel() {
-  val hasCreatedPin = authData.map { it.hasCreatedPin }.stateIn(
+  val hasCreatedPin = authData.map { it != null }.stateIn(
     scope = viewModelScope,
     started = SharingStarted.WhileSubscribed(),
     initialValue = false
   )
 
-  val hasBiometricsEnabled = authData.map { it.hasBiometricsEnabled }.stateIn(
+  val hasBiometricsEnabled = authData.map { it?.encryptedBiometricsDek != null }.stateIn(
     scope = viewModelScope,
     started = SharingStarted.WhileSubscribed(),
     initialValue = false

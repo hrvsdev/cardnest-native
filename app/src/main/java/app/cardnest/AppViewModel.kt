@@ -30,7 +30,7 @@ class AppViewModel(
   private val connectionManager: ConnectionManager
 ) : ViewModel() {
   val isLoading = mutableStateOf(true)
-  val hasCreatedPin = authData.map { it.hasCreatedPin }.stateIn(
+  val hasCreatedPin = authData.map { it != null }.stateIn(
     scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = false
   )
 
