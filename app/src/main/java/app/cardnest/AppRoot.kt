@@ -11,7 +11,7 @@ fun AppRoot(splashScreen: SplashScreen) {
   CardNestTheme {
     val vm = koinViewModel<AppViewModel>()
 
-    val isLoading = vm.isLoading.value
+    val isLoading = vm.hasAuthLoaded.collectAsStateWithLifecycle().value.not()
     val hasCreatedPin = vm.hasCreatedPin.collectAsStateWithLifecycle().value
 
     splashScreen.setKeepOnScreenCondition { isLoading }

@@ -1,14 +1,13 @@
 package app.cardnest
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.Connection
-import app.cardnest.data.RemoteAuthData
 import app.cardnest.data.authData
+import app.cardnest.data.authDataLoadState
 import app.cardnest.data.connectionState
 import app.cardnest.data.preferencesState
-import app.cardnest.data.remoteAuthDataState
+import app.cardnest.data.remoteAuthData
 import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.db.preferences.PreferencesRepository
@@ -29,8 +28,11 @@ class AppViewModel(
   private val prefsRepo: PreferencesRepository,
   private val connectionManager: ConnectionManager
 ) : ViewModel() {
-  val isLoading = mutableStateOf(true)
   val hasCreatedPin = authData.map { it != null }.stateIn(
+    scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = false
+  )
+
+  val hasAuthLoaded = authDataLoadState.map { it.hasLocalLoaded }.stateIn(
     scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = false
   )
 
@@ -56,7 +58,7 @@ class AppViewModel(
     viewModelScope.launch(Dispatchers.IO) {
       authRepo.getLocalAuthData().collectLatest { d ->
         authData.update { d }
-        isLoading.value = false
+        authDataLoadState.update { it.copy(hasLocalLoaded = true) }
       }
     }
   }
@@ -66,10 +68,12 @@ class AppViewModel(
       userState.collectLatest {
         if (it != null) {
           authRepo.getRemoteAuthData().collectLatest { d ->
-            remoteAuthDataState.update { RemoteAuthData(data = d, hasLoaded = true) }
+            remoteAuthData.update { d }
+            authDataLoadState.update { it.copy(hasRemoteLoaded = true) }
           }
         } else {
-          remoteAuthDataState.update { RemoteAuthData() }
+          remoteAuthData.update { null }
+          authDataLoadState.update { it.copy(hasRemoteLoaded = false) }
         }
       }
     }

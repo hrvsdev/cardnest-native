@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import javax.crypto.SecretKey
 
 val authData = MutableStateFlow<AuthData?>(null)
+val remoteAuthData = MutableStateFlow<AuthData?>(null)
 
+val authDataLoadState = MutableStateFlow(AuthDataLoadState())
 val authState = MutableStateFlow(AuthState())
-
-val remoteAuthDataState = MutableStateFlow(RemoteAuthData())
 
 val userState = MutableStateFlow<User?>(null)
 
@@ -20,14 +20,14 @@ val preferencesState = MutableStateFlow(Preferences())
 
 val connectionState = MutableStateFlow(Connection())
 
+data class AuthDataLoadState(
+  val hasLocalLoaded: Boolean = false,
+  val hasRemoteLoaded: Boolean = false,
+)
+
 data class AuthState(
   val pin: String? = null,
   val dek: SecretKey? = null,
-)
-
-data class RemoteAuthData(
-  val data: AuthData? = null,
-  val hasLoaded: Boolean = false
 )
 
 data class User(
@@ -41,4 +41,3 @@ data class Connection(
   val shouldWrite: Boolean = false,
   val isConnected: Boolean = false
 )
-

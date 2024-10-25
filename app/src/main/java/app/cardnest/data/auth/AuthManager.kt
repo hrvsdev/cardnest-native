@@ -8,7 +8,7 @@ import androidx.fragment.app.FragmentActivity
 import app.cardnest.data.AppException
 import app.cardnest.data.authData
 import app.cardnest.data.authState
-import app.cardnest.data.remoteAuthDataState
+import app.cardnest.data.remoteAuthData
 import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.utils.crypto.CryptoManager
@@ -83,7 +83,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
 
   suspend fun syncAuthData() {
     val localAuthData = authData.value
-    val remoteAuthData = remoteAuthDataState.value.data
+    val remoteAuthData = remoteAuthData.value
 
     when {
       localAuthData == null && remoteAuthData != null -> repo.setLocalAuthData(remoteAuthData)
@@ -102,7 +102,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
 
   fun syncAuthState(remotePin: String, remoteDek: SecretKey) {
     val localAuthData = authData.value
-    val remoteAuthData = remoteAuthDataState.value.data.checkNotNull { "Remote auth data" }
+    val remoteAuthData = remoteAuthData.value.checkNotNull { "Remote auth data" }
 
     if (localAuthData == null || localAuthData.modifiedAt < remoteAuthData.modifiedAt) {
       authState.update { it.copy(pin = remotePin, dek = remoteDek) }
@@ -110,16 +110,16 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
   }
 
   fun getRemoteDek(remotePin: String): SecretKey? {
-    val authData = remoteAuthDataState.value.data ?: return null
+    val authData = remoteAuthData.value ?: return null
     val dekString = getDekString(remotePin, authData) ?: return null
     return crypto.stringToKey(dekString)
   }
 
   fun hasAuthDataChangedOnAnotherDevice(): Flow<Boolean> {
-    val hasChanged = combine(authData, remoteAuthDataState, userState) { local, remoteState, user ->
+    val hasChanged = combine(authData, remoteAuthData, userState) { local, remote, user ->
       when {
-        user == null || !user.isSyncing || local == null || remoteState.data == null -> false
-        else -> local.modifiedAt < remoteState.data.modifiedAt
+        user == null || !user.isSyncing || local == null || remote == null -> false
+        else -> local.modifiedAt < remote.modifiedAt
       }
     }
 

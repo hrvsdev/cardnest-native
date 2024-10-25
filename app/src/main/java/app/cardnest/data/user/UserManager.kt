@@ -3,11 +3,12 @@ package app.cardnest.data.user
 import app.cardnest.data.auth.AuthData
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.authData
+import app.cardnest.data.authDataLoadState
 import app.cardnest.data.authState
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.preferences.PreferencesManager
-import app.cardnest.data.remoteAuthDataState
-import kotlinx.coroutines.delay
+import app.cardnest.data.remoteAuthData
+import kotlinx.coroutines.flow.first
 import javax.crypto.SecretKey
 
 class UserManager(
@@ -58,15 +59,12 @@ class UserManager(
   }
 
   private suspend fun waitAndGetRemoteAuthData(): AuthData? {
-    while (remoteAuthDataState.value.hasLoaded == false) {
-      delay(200)
-    }
-
-    return remoteAuthDataState.value.data
+    authDataLoadState.first { it.hasRemoteLoaded }
+    return remoteAuthData.value
   }
 
   private fun getPreviousOrNewPinRequired(): SyncResult {
-    val remoteModifiedAt = remoteAuthDataState.value.data?.modifiedAt ?: return SyncResult.ERROR
+    val remoteModifiedAt = remoteAuthData.value?.modifiedAt ?: return SyncResult.ERROR
     val authData = authData.value
 
     return if (authData != null && authData.modifiedAt < remoteModifiedAt) {
