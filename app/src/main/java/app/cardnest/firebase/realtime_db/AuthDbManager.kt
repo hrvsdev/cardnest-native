@@ -1,6 +1,5 @@
 package app.cardnest.firebase.realtime_db
 
-import android.util.Log
 import app.cardnest.data.auth.AuthData
 import app.cardnest.data.auth.AuthDataRemote
 import app.cardnest.data.auth.AuthDataRemoteNullable
@@ -27,7 +26,7 @@ class AuthDbManager {
       }
 
       override fun onCancelled(error: DatabaseError) {
-        Log.e("RealtimeDbManager", "Failed to read value", error.toException())
+        throw DatabaseException("Error getting auth data", error.toException())
       }
     })
 
@@ -36,22 +35,29 @@ class AuthDbManager {
 
   suspend fun setAuthData(uid: String, authData: AuthData) {
     val ref = db.getReference("$uid/auth")
-
-    val salt = checkNotNull(authData.salt) { "Salt is required" }
-    val encryptedDek = checkNotNull(authData.encryptedDek) { "Encrypted DEK is required" }
-    val modifiedAt = checkNotNull(authData.modifiedAt) { "ModifiedAt is required" }
+    val remoteAuthData = AuthDataRemote(
+      salt = authData.salt,
+      encryptedDek = authData.encryptedDek,
+      modifiedAt = authData.modifiedAt,
+    )
 
     try {
-      ref.setValue(AuthDataRemote(salt, encryptedDek, true, modifiedAt)).await()
+      ref.setValue(remoteAuthData).await()
     } catch (e: DatabaseException) {
-      Log.e("RealtimeDbManager", "Failed to save data", e)
+      throw DatabaseException("Error saving auth data", e)
     }
   }
 
   private fun getAuthDataFromSnapshot(snapshot: DataSnapshot): AuthData? {
     val data = snapshot.getValue(AuthDataRemoteNullable::class.java) ?: return null
-    if (data.salt == null || data.encryptedDek == null || data.modifiedAt == null) error("Salt, encrypted DEK and modifiedAt are required")
-    if (data.encryptedDek.ciphertext == null || data.encryptedDek.iv == null) error("Encrypted DEK, ciphertext and IV are required")
+
+    if (data.salt == null || data.encryptedDek == null || data.modifiedAt == null) {
+      throw DatabaseException("Auth data seems to be corrupted")
+    }
+
+    if (data.encryptedDek.ciphertext == null || data.encryptedDek.iv == null) {
+      throw DatabaseException("Encrypted encryption key seems to be corrupted")
+    }
 
     return AuthData(
       salt = data.salt,
