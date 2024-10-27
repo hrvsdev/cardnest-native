@@ -26,7 +26,7 @@ class AuthDbManager {
       }
 
       override fun onCancelled(error: DatabaseError) {
-        throw DatabaseException("Error getting auth data", error.toException())
+        throw Exception("Error getting auth data", error.toException())
       }
     })
 
@@ -44,7 +44,7 @@ class AuthDbManager {
     try {
       ref.setValue(remoteAuthData).await()
     } catch (e: DatabaseException) {
-      throw DatabaseException("Error saving auth data", e)
+      throw Exception("Error saving auth data", e)
     }
   }
 
@@ -52,11 +52,11 @@ class AuthDbManager {
     val data = snapshot.getValue(AuthDataRemoteNullable::class.java) ?: return null
 
     if (data.salt == null || data.encryptedDek == null || data.modifiedAt == null) {
-      throw DatabaseException("Auth data seems to be corrupted")
+      throw IllegalStateException("Auth data seems to be corrupted")
     }
 
     if (data.encryptedDek.ciphertext == null || data.encryptedDek.iv == null) {
-      throw DatabaseException("Encrypted encryption key seems to be corrupted")
+      throw IllegalStateException("Encrypted encryption key seems to be corrupted")
     }
 
     return AuthData(
