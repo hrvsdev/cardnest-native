@@ -1,6 +1,5 @@
 package app.cardnest.firebase.realtime_db
 
-import android.util.Log
 import app.cardnest.data.card.CardEncrypted
 import app.cardnest.data.card.CardEncryptedData
 import app.cardnest.data.card.CardEncryptedNullable
@@ -8,6 +7,7 @@ import app.cardnest.data.card.CardRecords
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseException
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import kotlinx.collections.immutable.toPersistentMap
@@ -28,7 +28,7 @@ class CardDbManager {
       }
 
       override fun onCancelled(error: DatabaseError) {
-        Log.e("RealtimeDbManager", "Failed to read value.", error.toException())
+        throw Exception("Error getting cards", error.toException())
       }
     })
 
@@ -40,8 +40,8 @@ class CardDbManager {
 
     try {
       ref.setValue(cards.cards).await()
-    } catch (e: Exception) {
-      Log.e("RealtimeDbManager", "Failed to save data", e)
+    } catch (e: DatabaseException) {
+      throw Exception("Error saving cards", e)
     }
   }
 
@@ -50,8 +50,8 @@ class CardDbManager {
 
     try {
       ref.setValue(card).await()
-    } catch (e: Exception) {
-      Log.e("RealtimeDbManager", "Failed to save data", e)
+    } catch (e: DatabaseException) {
+      throw Exception("Error saving card", e)
     }
   }
 
@@ -59,8 +59,8 @@ class CardDbManager {
     val ref = db.getReference("$uid/cards/$cardId")
     try {
       ref.removeValue().await()
-    } catch (e: Exception) {
-      Log.e("RealtimeDbManager", "Failed to delete data", e)
+    } catch (e: DatabaseException) {
+      throw Exception("Error deleting card", e)
     }
   }
 
@@ -69,8 +69,14 @@ class CardDbManager {
 
     for (child in snapshot.children) {
       val data = child.getValue(CardEncryptedNullable::class.java)
-      if (data == null || data.id == null || data.data == null || data.modifiedAt == null) continue
-      if (data.data.cipherText == null || data.data.iv == null) continue
+
+      if (data == null || data.id == null || data.data == null || data.modifiedAt == null) {
+        throw IllegalStateException("Card data or metadata seems to be corrupted")
+      }
+
+      if (data.data.cipherText == null || data.data.iv == null) {
+        throw IllegalStateException("Encrypted card data seems to be corrupted")
+      }
 
       cards[data.id] = CardEncrypted(data.id, CardEncryptedData(data.data.cipherText, data.data.iv), data.modifiedAt)
     }
