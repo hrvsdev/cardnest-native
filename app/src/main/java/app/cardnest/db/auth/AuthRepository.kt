@@ -5,11 +5,12 @@ import app.cardnest.data.auth.AuthData
 import app.cardnest.data.auth.AuthRecord
 import app.cardnest.data.userState
 import app.cardnest.firebase.realtime_db.AuthDbManager
+import app.cardnest.utils.extensions.checkNotNull
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class AuthRepository(private val db: DataStore<AuthRecord>, private val remoteDb: AuthDbManager) {
-  private val uid get() = checkNotNull(userState.value?.uid) { "User is not logged in" }
+  private val uid get() = userState.value?.uid.checkNotNull { "User or UID" }
   private val isSyncing get() = userState.value?.isSyncing == true
 
   fun getLocalAuthData(): Flow<AuthData?> {
