@@ -5,10 +5,11 @@ import app.cardnest.data.card.CardData
 import app.cardnest.data.card.CardRecords
 import app.cardnest.data.userState
 import app.cardnest.firebase.realtime_db.CardDbManager
+import app.cardnest.utils.extensions.checkNotNull
 import kotlinx.coroutines.flow.Flow
 
 class CardRepository(private val db: DataStore<CardRecords>, private val remoteDb: CardDbManager) {
-  private val uid get() = checkNotNull(userState.value?.uid) { "User is not logged in" }
+  private val uid get() = userState.value?.uid.checkNotNull { "User or UID" }
   private val isSyncing get() = userState.value?.isSyncing == true
 
   fun getLocalCards(): Flow<CardRecords> {
@@ -31,7 +32,7 @@ class CardRepository(private val db: DataStore<CardRecords>, private val remoteD
     if (cards is CardRecords.Encrypted) {
       remoteDb.setCards(uid, cards)
     } else {
-      error("Unencrypted card records cannot be set to remote database")
+      throw IllegalArgumentException("Unencrypted card records cannot be saved in remote database")
     }
   }
 
@@ -44,12 +45,12 @@ class CardRepository(private val db: DataStore<CardRecords>, private val remoteD
       when (it) {
         is CardRecords.Encrypted -> when (card) {
           is CardData.Encrypted -> it.copy(it.cards.put(card.encrypted.id, card.encrypted))
-          is CardData.Unencrypted -> error("Unencrypted card data cannot be added to encrypted records")
+          is CardData.Unencrypted -> throw IllegalArgumentException("Unencrypted card can't be saved in encrypted records")
         }
 
         is CardRecords.Unencrypted -> when (card) {
           is CardData.Unencrypted -> it.copy(it.cards.put(card.unencrypted.id, card.unencrypted))
-          is CardData.Encrypted -> error("Encrypted card data cannot be added to unencrypted records")
+          is CardData.Encrypted -> throw IllegalArgumentException("Encrypted card can't be saved in unencrypted records")
         }
       }
     }
@@ -59,7 +60,7 @@ class CardRepository(private val db: DataStore<CardRecords>, private val remoteD
     if (card is CardData.Encrypted) {
       remoteDb.addOrUpdateCard(uid, card.encrypted)
     } else {
-      error("Unencrypted card data cannot be added to remote database")
+      throw IllegalArgumentException("Unencrypted card cannot be saved in remote database")
     }
   }
 
