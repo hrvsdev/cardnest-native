@@ -11,7 +11,6 @@ import app.cardnest.data.preferencesState
 import app.cardnest.data.user.SyncResult
 import app.cardnest.data.user.UserManager
 import app.cardnest.data.userState
-import app.cardnest.firebase.auth.FirebaseUserManager
 import app.cardnest.screens.pin.create.create.CreatePinBottomSheetScreen
 import app.cardnest.screens.pin.create.create.CreatePinScreen
 import app.cardnest.screens.pin.verify_new_pin.ProvideNewPinBottomSheetScreen
@@ -31,7 +30,6 @@ import kotlinx.coroutines.launch
 
 class AccountViewModel(
   private val userManager: UserManager,
-  private val fbUserManager: FirebaseUserManager,
   private val prefsManager: PreferencesManager,
   private val actions: Actions,
   private val navigator: Navigator,
@@ -51,7 +49,7 @@ class AccountViewModel(
     viewModelScope.launch {
       try {
         isLoading.value = true
-        fbUserManager.signInWithGoogle(ctx)
+        userManager.signInWithGoogle(ctx)
         setupSync()
       } catch (e: Exception) {
         e.toastAndLog("AccountViewModel")
@@ -63,14 +61,13 @@ class AccountViewModel(
 
   fun signOut() {
     viewModelScope.launch(Dispatchers.IO) {
-      prefsManager.setSync(false)
-      fbUserManager.signOut()
+      userManager.signOut()
     }
   }
 
   fun onSyncChange() {
     viewModelScope.launch(Dispatchers.IO) {
-      if (preferencesState.value.sync.isSyncing) {
+      if (isSyncing.value) {
         prefsManager.setSync(false)
       } else {
         setupSync()

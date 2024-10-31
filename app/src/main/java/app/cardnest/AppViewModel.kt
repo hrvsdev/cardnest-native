@@ -8,10 +8,10 @@ import app.cardnest.data.authDataLoadState
 import app.cardnest.data.connectionState
 import app.cardnest.data.preferencesState
 import app.cardnest.data.remoteAuthData
+import app.cardnest.data.user.UserManager
 import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.db.preferences.PreferencesRepository
-import app.cardnest.firebase.auth.FirebaseUserManager
 import app.cardnest.firebase.realtime_db.ConnectionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AppViewModel(
-  private val userManager: FirebaseUserManager,
+  private val userManager: UserManager,
   private val authRepo: AuthRepository,
   private val prefsRepo: PreferencesRepository,
   private val connectionManager: ConnectionManager
@@ -46,7 +46,7 @@ class AppViewModel(
 
   private fun initUser() {
     viewModelScope.launch(Dispatchers.IO) {
-      userManager.getUser().collectLatest { d -> userState.update { d } }
+      userManager.collectUser()
     }
   }
 
