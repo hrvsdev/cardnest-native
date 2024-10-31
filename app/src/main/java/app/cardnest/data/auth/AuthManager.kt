@@ -69,12 +69,12 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
   }
 
   fun verifyPin(pin: String): Boolean {
-    val authData = authData.value ?: return false
+    val authData = authData.value.checkNotNull { "Auth data must not be null when verifying PIN" }
     return getDekString(pin, authData) != null
   }
 
   fun unlockWithPin(pin: String): Boolean {
-    val authData = authData.value ?: return false
+    val authData = authData.value.checkNotNull { "Auth data must not be null when unlocking app" }
     val dekString = getDekString(pin, authData) ?: return false
     authState.update { it.copy(pin = pin, dek = crypto.stringToKey(dekString)) }
 
@@ -96,7 +96,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
         }
       }
 
-      else -> throw IllegalStateException("Local and Remote auth data can't be null at the same time")
+      else -> throw IllegalStateException("Local and remote auth data can't be null at the same time")
     }
   }
 
@@ -110,7 +110,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
   }
 
   fun getRemoteDek(remotePin: String): SecretKey? {
-    val authData = remoteAuthData.value ?: return null
+    val authData = remoteAuthData.value.checkNotNull { "Remote auth data must not be null of signed-in user" }
     val dekString = getDekString(remotePin, authData) ?: return null
     return crypto.stringToKey(dekString)
   }
