@@ -102,7 +102,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
 
   fun syncAuthState(remotePin: String, remoteDek: SecretKey) {
     val localAuthData = authData.value
-    val remoteAuthData = remoteAuthData.value.checkNotNull { "Remote auth data" }
+    val remoteAuthData = remoteAuthData.value.checkNotNull { "Remote auth data must not be null when syncing auth state" }
 
     if (localAuthData == null || localAuthData.modifiedAt < remoteAuthData.modifiedAt) {
       authState.update { it.copy(pin = remotePin, dek = remoteDek) }

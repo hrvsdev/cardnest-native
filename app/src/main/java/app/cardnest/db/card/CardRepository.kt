@@ -9,7 +9,7 @@ import app.cardnest.utils.extensions.checkNotNull
 import kotlinx.coroutines.flow.Flow
 
 class CardRepository(private val db: DataStore<CardRecords>, private val remoteDb: CardDbManager) {
-  private val uid get() = userState.value?.uid.checkNotNull { "User or UID" }
+  private val uid get() = userState.value?.uid.checkNotNull { "User must be signed in to perform auth operations" }
   private val isSyncing get() = userState.value?.isSyncing == true
 
   fun getLocalCards(): Flow<CardRecords> {
