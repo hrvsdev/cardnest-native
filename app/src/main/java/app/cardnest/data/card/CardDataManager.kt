@@ -4,7 +4,7 @@ import app.cardnest.data.auth.EncryptedData
 import app.cardnest.data.authData
 import app.cardnest.data.authState
 import app.cardnest.data.cardsState
-import app.cardnest.data.userState
+import app.cardnest.data.preferencesState
 import app.cardnest.db.card.CardRepository
 import app.cardnest.utils.crypto.CryptoManager
 import app.cardnest.utils.extensions.checkNotNull
@@ -141,8 +141,8 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   private fun getDataFlow(): Flow<CardRecords> {
-    return userState.flatMapLatest {
-      if (it != null && it.isSyncing) repo.getRemoteCards() else repo.getLocalCards()
+    return preferencesState.flatMapLatest {
+      if (it.sync.isSyncing) repo.getRemoteCards() else repo.getLocalCards()
     }
   }
 }

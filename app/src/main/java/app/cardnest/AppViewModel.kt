@@ -46,11 +46,7 @@ class AppViewModel(
 
   private fun initUser() {
     viewModelScope.launch(Dispatchers.IO) {
-      val user = combine(userManager.getUser(), preferencesState) { user, prefs ->
-        user?.copy(isSyncing = prefs.sync.isSyncing)
-      }
-
-      user.collectLatest { d -> userState.update { d } }
+      userManager.getUser().collectLatest { d -> userState.update { d } }
     }
   }
 
@@ -89,8 +85,8 @@ class AppViewModel(
 
   private fun initConnectionState() {
     viewModelScope.launch(Dispatchers.IO) {
-      val connection = combine(userState, connectionManager.getConnectionState()) { user, isConnected ->
-        Connection(if (user?.isSyncing == true) isConnected else true, isConnected)
+      val connection = combine(preferencesState, connectionManager.getConnectionState()) { prefs, isConnected ->
+        Connection(shouldWrite = if (prefs.sync.isSyncing) isConnected else true, isConnected)
       }
 
       connection.collectLatest { d -> connectionState.update { d } }

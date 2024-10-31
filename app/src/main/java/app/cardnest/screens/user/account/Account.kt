@@ -29,6 +29,7 @@ class AccountScreen : Screen {
 
     val isLoading = vm.isLoading.value
     val user = vm.user.collectAsStateWithLifecycle().value
+    val isSyncing = vm.isSyncing.collectAsStateWithLifecycle().value
 
     fun onSignInWithGoogleClick() {
       vm.signInWithGoogle(ctx)
@@ -55,7 +56,7 @@ class AccountScreen : Screen {
           SettingsSwitch(
             title = "Sync data",
             icon = painterResource(R.drawable.tabler__refresh_dot),
-            checked = user.isSyncing,
+            checked = isSyncing,
             onCheckedChange = { vm.onSyncChange() },
             isFirst = true,
             isLast = true,

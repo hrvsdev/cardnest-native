@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.actions.Actions
 import app.cardnest.data.preferences.PreferencesManager
+import app.cardnest.data.preferencesState
 import app.cardnest.data.user.SyncResult
 import app.cardnest.data.user.UserManager
 import app.cardnest.data.userState
@@ -24,6 +25,7 @@ import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -39,6 +41,10 @@ class AccountViewModel(
 
   val user = userState.stateIn(
     scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = null
+  )
+
+  val isSyncing = preferencesState.map { it.sync.isSyncing }.stateIn(
+    scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = false
   )
 
   fun signInWithGoogle(ctx: Context) {
@@ -64,8 +70,7 @@ class AccountViewModel(
 
   fun onSyncChange() {
     viewModelScope.launch(Dispatchers.IO) {
-      val isSyncing = user.value?.isSyncing == true
-      if (isSyncing) {
+      if (preferencesState.value.sync.isSyncing) {
         prefsManager.setSync(false)
       } else {
         setupSync()

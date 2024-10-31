@@ -3,6 +3,7 @@ package app.cardnest.db.card
 import androidx.datastore.core.DataStore
 import app.cardnest.data.card.CardData
 import app.cardnest.data.card.CardRecords
+import app.cardnest.data.preferencesState
 import app.cardnest.data.userState
 import app.cardnest.firebase.realtime_db.CardDbManager
 import app.cardnest.utils.extensions.checkNotNull
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 
 class CardRepository(private val db: DataStore<CardRecords>, private val remoteDb: CardDbManager) {
   private val uid get() = userState.value?.uid.checkNotNull { "User must be signed in to perform auth operations" }
-  private val isSyncing get() = userState.value?.isSyncing == true
+  private val isSyncing get() = preferencesState.value.sync.isSyncing
 
   fun getLocalCards(): Flow<CardRecords> {
     return db.data

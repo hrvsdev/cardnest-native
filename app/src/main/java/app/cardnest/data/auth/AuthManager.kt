@@ -7,8 +7,8 @@ import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
 import app.cardnest.data.authData
 import app.cardnest.data.authState
+import app.cardnest.data.preferencesState
 import app.cardnest.data.remoteAuthData
-import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.utils.crypto.CryptoManager
 import app.cardnest.utils.extensions.checkNotNull
@@ -116,9 +116,9 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
   }
 
   fun hasAuthDataChangedOnAnotherDevice(): Flow<Boolean> {
-    val hasChanged = combine(authData, remoteAuthData, userState) { local, remote, user ->
+    val hasChanged = combine(authData, remoteAuthData, preferencesState) { local, remote, prefs ->
       when {
-        user == null || !user.isSyncing || local == null || remote == null -> false
+        prefs.sync.isSyncing.not() || local == null || remote == null -> false
         else -> local.modifiedAt < remote.modifiedAt
       }
     }
