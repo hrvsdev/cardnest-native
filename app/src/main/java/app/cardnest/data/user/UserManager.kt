@@ -17,7 +17,8 @@ class UserManager(
   private val prefsManager: PreferencesManager
 ) {
   suspend fun setupSync(): SyncResult {
-    val isUserNew = waitAndGetRemoteAuthData() == null
+    val remoteAuthData = waitAndGetRemoteAuthData()
+    val isUserNew = remoteAuthData == null
 
     val dek = authState.value.dek
     val pin = authState.value.pin
@@ -30,7 +31,7 @@ class UserManager(
       }
     }
 
-    if (pin == null) return getPreviousOrNewPinRequired()
+    if (pin == null) return getPreviousOrNewPinRequired(remoteAuthData)
 
     val remoteDek = authManager.getRemoteDek(pin)
     val isLocalPinSameAsRemote = remoteDek != null
@@ -38,7 +39,7 @@ class UserManager(
     return if (isLocalPinSameAsRemote) {
       syncDataAndUpdateState(remoteDek)
     } else {
-      getPreviousOrNewPinRequired()
+      getPreviousOrNewPinRequired(remoteAuthData)
     }
   }
 
@@ -63,11 +64,9 @@ class UserManager(
     return remoteAuthData.value
   }
 
-  private fun getPreviousOrNewPinRequired(): SyncResult {
-    val remoteModifiedAt = remoteAuthData.value?.modifiedAt ?: return SyncResult.ERROR
+  private fun getPreviousOrNewPinRequired(remoteAuthData: AuthData): SyncResult {
     val authData = authData.value
-
-    return if (authData != null && authData.modifiedAt < remoteModifiedAt) {
+    return if (authData != null && authData.modifiedAt < remoteAuthData.modifiedAt) {
       SyncResult.NEW_PIN_REQUIRED
     } else {
       SyncResult.PREVIOUS_PIN_REQUIRED
