@@ -7,6 +7,7 @@ import app.cardnest.data.cardsState
 import app.cardnest.data.userState
 import app.cardnest.db.card.CardRepository
 import app.cardnest.utils.crypto.CryptoManager
+import app.cardnest.utils.extensions.checkNotNull
 import app.cardnest.utils.extensions.decoded
 import app.cardnest.utils.extensions.encoded
 import kotlinx.collections.immutable.toPersistentMap
@@ -112,7 +113,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   private fun encryptToCardEncrypted(card: CardUnencrypted): CardEncrypted {
-    val dek = checkNotNull(authState.value.dek) { "PIN or DEK is required to encrypt card data" }
+    val dek = authState.value.dek.checkNotNull { "Encryption key is required to encrypt card data" }
     val encryptedData = encryptCard(card.data, dek)
 
     return CardEncrypted(card.id, encryptedData, card.modifiedAt)
@@ -126,7 +127,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   private fun decryptToCardUnencrypted(card: CardEncrypted): CardUnencrypted {
-    val dek = checkNotNull(authState.value.dek) { "PIN or DEK is required to decrypt card data" }
+    val dek = authState.value.dek.checkNotNull { "Encryption key is required to decrypt card data" }
     val decrypted = decryptCardData(card.data, dek)
 
     return CardUnencrypted(card.id, decrypted, card.modifiedAt)
@@ -134,7 +135,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
 
   private fun decryptCardData(cardEncrypted: CardEncryptedData, dek: SecretKey): Card {
     val encryptedData = EncryptedData(cardEncrypted.cipherText.decoded, cardEncrypted.iv.decoded)
-    val decryptedString = checkNotNull(crypto.decryptData(encryptedData, dek)) { "Failed to decrypt card data" }
+    val decryptedString = crypto.decryptData(encryptedData, dek).checkNotNull { "Invalid or corrupted key or data" }
 
     return Json.decodeFromString(Card.serializer(), decryptedString)
   }
