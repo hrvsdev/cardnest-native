@@ -5,7 +5,6 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
-import app.cardnest.data.AppException
 import app.cardnest.data.authData
 import app.cardnest.data.authState
 import app.cardnest.data.remoteAuthData
@@ -24,6 +23,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.IllegalStateException
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
 
@@ -96,7 +96,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
         }
       }
 
-      else -> throw AppException("Local and Remote auth data can't be null at the same time")
+      else -> throw IllegalStateException("Local and Remote auth data can't be null at the same time")
     }
   }
 

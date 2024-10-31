@@ -6,7 +6,6 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import app.cardnest.R
-import app.cardnest.data.AppException
 import app.cardnest.data.User
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -45,8 +44,8 @@ class FirebaseUserManager {
     val result = try {
       credentialManager.getCredential(context = ctx, request = request)
     } catch (e: GetCredentialException) {
-      if (e is GetCredentialCancellationException) throw AppException()
-      throw AppException("Error getting Google ID credential", e)
+      if (e is GetCredentialCancellationException) throw Exception()
+      throw Exception("Error getting Google ID credential", e)
     }
 
     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)
@@ -58,9 +57,9 @@ class FirebaseUserManager {
       auth.signInWithCredential(googleCredential).await()
     } catch (e: FirebaseAuthException) {
       when (e) {
-        is FirebaseAuthInvalidUserException -> throw AppException("User is deleted or disabled", e)
-        is FirebaseAuthInvalidCredentialsException -> throw AppException("Invalid credentials", e)
-        else -> throw AppException("Error signing in with Google", e)
+        is FirebaseAuthInvalidUserException -> throw Exception("User is deleted or disabled", e)
+        is FirebaseAuthInvalidCredentialsException -> throw Exception("Invalid credentials", e)
+        else -> throw Exception("Error signing in with Google", e)
       }
     }
   }

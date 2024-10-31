@@ -1,41 +1,27 @@
 package app.cardnest.utils.extensions
 
-import app.cardnest.data.AppException
+import kotlin.IllegalStateException
 
 /**
- * Throws an [AppException] with the result of calling [lazyLabel] and adding message if [this] is null. Otherwise
- * returns the not null value.
- *
+ * Throws an [IllegalStateException] with the result of calling [lazyMessage]  if [this] is null. Otherwise
+ * returns the not null [this].
  */
-fun <T> T?.checkNotNull(lazyLabel: () -> String): T {
+fun <T> T?.checkNotNull(lazyMessage: () -> String): T {
   if (this == null) {
-    val label = lazyLabel()
-    val message = "$label must not be null"
-
-    try {
-      throw IllegalStateException(message)
-    } catch (e: IllegalStateException) {
-      throw AppException(message, e)
-    }
+    throw IllegalStateException(lazyMessage())
   }
+
   return this
 }
 
 /**
- * Throws an [AppException] with the result of calling [lazyLabel] and adding message if [this] is null. Otherwise
- * returns the not null value.
- *
+ * Throws an [IllegalArgumentException] with the result of calling [lazyMessage] if [this] is null. Otherwise
+ * returns the not null [this].
  */
-fun <T> T?.requireNotNull(lazyLabel: () -> String): T {
+fun <T> T?.requireNotNull(lazyMessage: () -> String): T {
   if (this == null) {
-    val label = lazyLabel()
-    val message = "$label is required"
-
-    try {
-      throw IllegalArgumentException(message)
-    } catch (e: IllegalStateException) {
-      throw AppException(message, e)
-    }
+    throw IllegalArgumentException(lazyMessage())
   }
+
   return this
 }

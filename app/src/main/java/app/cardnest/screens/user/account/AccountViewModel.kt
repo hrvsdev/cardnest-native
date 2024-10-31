@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cardnest.data.AppException
 import app.cardnest.data.actions.Actions
 import app.cardnest.data.preferences.PreferencesManager
 import app.cardnest.data.user.SyncResult
@@ -18,6 +17,7 @@ import app.cardnest.screens.pin.verify_new_pin.ProvideNewPinBottomSheetScreen
 import app.cardnest.screens.pin.verify_new_pin.VerifyNewPinScreen
 import app.cardnest.screens.pin.verify_previous_pin.ProvidePreviousPinBottomSheetScreen
 import app.cardnest.screens.pin.verify_previous_pin.VerifyPreviousPinScreen
+import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
@@ -47,7 +47,7 @@ class AccountViewModel(
         isLoading.value = true
         fbUserManager.signInWithGoogle(ctx)
         setupSync()
-      } catch (e: AppException) {
+      } catch (e: Exception) {
         e.toastAndLog("AccountViewModel")
       } finally {
         isLoading.value = false
