@@ -6,12 +6,12 @@ import app.cardnest.data.Connection
 import app.cardnest.data.authData
 import app.cardnest.data.authDataLoadState
 import app.cardnest.data.connectionState
+import app.cardnest.data.preferences.PreferencesManager
 import app.cardnest.data.preferencesState
 import app.cardnest.data.remoteAuthData
 import app.cardnest.data.user.UserManager
 import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
-import app.cardnest.db.preferences.PreferencesRepository
 import app.cardnest.firebase.realtime_db.ConnectionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 class AppViewModel(
   private val userManager: UserManager,
   private val authRepo: AuthRepository,
-  private val prefsRepo: PreferencesRepository,
+  private val prefsManager: PreferencesManager,
   private val connectionManager: ConnectionManager
 ) : ViewModel() {
   val hasCreatedPin = authData.map { it != null }.stateIn(
@@ -77,9 +77,7 @@ class AppViewModel(
 
   private fun initPreferences() {
     viewModelScope.launch(Dispatchers.IO) {
-      prefsRepo.getPreferences().collectLatest { d ->
-        preferencesState.update { d }
-      }
+      prefsManager.collectPreferences()
     }
   }
 
