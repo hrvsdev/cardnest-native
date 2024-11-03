@@ -12,7 +12,7 @@ import app.cardnest.data.user.UserManager
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.db.card.CardRepository
 import app.cardnest.db.preferences.PreferencesRepository
-import app.cardnest.firebase.realtime_db.ConnectionManager
+import app.cardnest.firebase.ConnectionManager
 import app.cardnest.preferencesDataStore
 import app.cardnest.screens.add.editor.AddCardViewModel
 import app.cardnest.screens.home.HomeViewModel
@@ -38,7 +38,6 @@ val appModule = module {
   single { CryptoManager }
 
   single { UserManager(get(), get(), get()) }
-  single { ConnectionManager() }
 
   single { AuthRepository(androidContext().authDataStore) }
   single { AuthManager(get(), get()) }
@@ -49,9 +48,10 @@ val appModule = module {
   single { PreferencesRepository(androidContext().preferencesDataStore) }
   single { PreferencesManager(get()) }
 
-  factory { defaultCard() }
-
+  single { ConnectionManager() }
   single { Actions() }
+
+  factory { defaultCard() }
 
   viewModel { CardEditorViewModel(it.getOrNull() ?: get()) }
 

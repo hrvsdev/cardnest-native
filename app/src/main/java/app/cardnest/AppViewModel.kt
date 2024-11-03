@@ -2,21 +2,17 @@ package app.cardnest
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cardnest.data.Connection
 import app.cardnest.data.authData
 import app.cardnest.data.authDataLoadState
-import app.cardnest.data.connectionState
 import app.cardnest.data.preferences.PreferencesManager
-import app.cardnest.data.preferencesState
 import app.cardnest.data.remoteAuthData
 import app.cardnest.data.user.UserManager
 import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
-import app.cardnest.firebase.realtime_db.ConnectionManager
+import app.cardnest.firebase.ConnectionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -83,11 +79,7 @@ class AppViewModel(
 
   private fun initConnectionState() {
     viewModelScope.launch(Dispatchers.IO) {
-      val connection = combine(preferencesState, connectionManager.getConnectionState()) { prefs, isConnected ->
-        Connection(shouldWrite = if (prefs.sync.isSyncing) isConnected else true, isConnected)
-      }
-
-      connection.collectLatest { d -> connectionState.update { d } }
+      connectionManager.collectConnectionState()
     }
   }
 }
