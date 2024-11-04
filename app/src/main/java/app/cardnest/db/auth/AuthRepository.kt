@@ -26,7 +26,11 @@ class AuthRepository(private val localDb: DataStore<AuthRecord>) {
   private val isSyncing get() = preferencesState.value.sync.isSyncing
 
   fun getLocalAuthData(): Flow<AuthData?> {
-    return localDb.data.map { it.data }
+    try {
+      return localDb.data.map { it.data }
+    } catch (e: Exception) {
+      throw Exception("Error getting auth data", e)
+    }
   }
 
   fun getRemoteAuthData(): Flow<AuthData?> = callbackFlow {
@@ -37,7 +41,7 @@ class AuthRepository(private val localDb: DataStore<AuthRecord>) {
       }
 
       override fun onCancelled(error: DatabaseError) {
-        close(Exception("Error getting auth data", error.toException()))
+        close(Exception("Error getting remote auth data", error.toException()))
       }
     })
 

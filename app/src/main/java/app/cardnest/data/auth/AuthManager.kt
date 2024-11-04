@@ -6,18 +6,23 @@ import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
 import app.cardnest.data.authData
+import app.cardnest.data.authDataLoadState
 import app.cardnest.data.authState
 import app.cardnest.data.preferencesState
 import app.cardnest.data.remoteAuthData
+import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.utils.crypto.CryptoManager
 import app.cardnest.utils.extensions.checkNotNull
 import app.cardnest.utils.extensions.decoded
 import app.cardnest.utils.extensions.encoded
+import app.cardnest.utils.extensions.toastAndLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
@@ -44,6 +49,27 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     .setAllowedAuthenticators(allowedAuthenticators)
     .setNegativeButtonText("Use PIN")
     .build()
+
+  suspend fun collectAuthData() {
+    repo.getLocalAuthData().catch { it.toastAndLog("AuthManager") }.collectLatest { d ->
+      authData.update { d }
+      authDataLoadState.update { it.copy(hasLocalLoaded = true) }
+    }
+  }
+
+  suspend fun collectRemoteAuthData() {
+    userState.collectLatest {
+      if (it != null) {
+        repo.getRemoteAuthData().catch { it.toastAndLog("AuthManager") }.collectLatest { d ->
+          remoteAuthData.update { d }
+          authDataLoadState.update { it.copy(hasRemoteLoaded = true) }
+        }
+      } else {
+        remoteAuthData.update { null }
+        authDataLoadState.update { it.copy(hasRemoteLoaded = false) }
+      }
+    }
+  }
 
   suspend fun setPin(pin: String) {
     val salt = crypto.generateSalt()
