@@ -25,7 +25,11 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
   private val isSyncing get() = preferencesState.value.sync.isSyncing
 
   fun getLocalCards(): Flow<CardRecords> {
-    return localDb.data
+    try {
+      return localDb.data
+    } catch (e: Exception) {
+      throw Exception("Error getting cards", e)
+    }
   }
 
   fun getRemoteCards(): Flow<CardRecords.Encrypted> = callbackFlow {
@@ -36,7 +40,7 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
       }
 
       override fun onCancelled(error: DatabaseError) {
-        close(Exception("Error getting cards", error.toException()))
+        close(Exception("Error getting remote cards", error.toException()))
       }
     })
 

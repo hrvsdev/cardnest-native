@@ -10,9 +10,11 @@ import app.cardnest.utils.crypto.CryptoManager
 import app.cardnest.utils.extensions.checkNotNull
 import app.cardnest.utils.extensions.decoded
 import app.cardnest.utils.extensions.encoded
+import app.cardnest.utils.extensions.toastAndLog
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -23,7 +25,7 @@ import javax.crypto.SecretKey
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardDataManager(private val repo: CardRepository, private val crypto: CryptoManager) {
   suspend fun decryptAndCollectCards() {
-    getDataFlow().collectLatest {
+    getDataFlow().catch { it.toastAndLog("CardDataManager") }.collectLatest {
       val updatedCards: MutableMap<String, CardUnencrypted> = mutableMapOf()
 
       when (it) {
