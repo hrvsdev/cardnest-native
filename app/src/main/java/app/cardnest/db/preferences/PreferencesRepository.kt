@@ -6,7 +6,11 @@ import kotlinx.coroutines.flow.Flow
 
 class PreferencesRepository(private val localDb: DataStore<Preferences>) {
   fun getPreferences(): Flow<Preferences> {
-    return localDb.data
+    try {
+      return localDb.data
+    } catch (e: Exception) {
+      throw Exception("Error getting preferences", e)
+    }
   }
 
   suspend fun setPreferences(transform: (Preferences) -> Preferences) {
