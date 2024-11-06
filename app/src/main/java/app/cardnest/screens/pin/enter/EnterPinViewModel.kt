@@ -6,6 +6,7 @@ import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.authData
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.pin.PinBaseViewModel
+import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,14 +17,15 @@ class EnterPinViewModel(
 ) : PinBaseViewModel() {
   fun onPinSubmit() {
     viewModelScope.launch(Dispatchers.IO) {
-      val isPinCorrect = authManager.unlockWithPin(pin.value)
+      try {
+        val isPinCorrect = authManager.unlockWithPin(pin.value)
+        if (isPinCorrect.not()) throw Exception()
 
-      if (!isPinCorrect) {
+        navigator.replaceAll(HomeScreen)
+      } catch (e: Exception) {
         onError()
-        return@launch
+        e.toastAndLog("EnterPinViewModel")
       }
-
-      navigator.replaceAll(HomeScreen)
     }
   }
 
@@ -33,8 +35,10 @@ class EnterPinViewModel(
 
   fun unlockWithBiometrics(ctx: FragmentActivity) {
     viewModelScope.launch(Dispatchers.IO) {
-      authManager.unlockWithBiometrics(ctx) {
-        navigator.replaceAll(HomeScreen)
+      try {
+        authManager.unlockWithBiometrics(ctx) { navigator.replaceAll(HomeScreen) }
+      } catch (e: Exception) {
+        e.toastAndLog("EnterPinViewModel")
       }
     }
   }

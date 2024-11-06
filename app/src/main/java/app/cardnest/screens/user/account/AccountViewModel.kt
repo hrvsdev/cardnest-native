@@ -1,7 +1,6 @@
 package app.cardnest.screens.user.account
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -69,8 +68,10 @@ class AccountViewModel(
     viewModelScope.launch(Dispatchers.IO) {
       if (isSyncing.value) {
         prefsManager.setSync(false)
-      } else {
+      } else try {
         setupSync()
+      } catch (e: Exception) {
+        e.toastAndLog("AccountViewModel")
       }
     }
   }
@@ -93,7 +94,7 @@ class AccountViewModel(
         onCancel = { bottomSheetNavigator.hide() }
       ))
 
-      SyncResult.ERROR -> Log.e("AccountViewModel", "Error setting up sync")
+      SyncResult.ERROR -> throw Exception("Error setting up sync")
       SyncResult.SUCCESS -> {}
     }
   }
@@ -109,7 +110,7 @@ class AccountViewModel(
     actions.setAfterPinCreated {
       navigator.popUntil { it is AccountScreen }
       viewModelScope.launch(Dispatchers.IO) {
-        userManager.setupSync()
+        setupSync()
       }
     }
   }

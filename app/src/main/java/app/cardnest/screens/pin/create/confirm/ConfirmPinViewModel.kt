@@ -5,6 +5,7 @@ import app.cardnest.data.actions.Actions
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.screens.pin.PinBaseViewModel
+import app.cardnest.utils.extensions.toastAndLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -16,14 +17,17 @@ class ConfirmPinViewModel(
 ) : PinBaseViewModel() {
   fun onPinSubmit() {
     viewModelScope.launch(Dispatchers.IO) {
-      if (pin.value != enteredPin) {
-        onError()
-        return@launch
-      }
+      try {
+        if (pin.value != enteredPin) throw Exception()
 
-      authManager.setPin(pin.value)
-      cardDataManager.encryptAndSaveCards()
-      actions.afterPinCreated()
+        authManager.setPin(pin.value)
+        cardDataManager.encryptAndSaveCards()
+
+        actions.afterPinCreated()
+      } catch (e: Exception) {
+        onError()
+        e.toastAndLog("ConfirmPinViewModel")
+      }
     }
   }
 }

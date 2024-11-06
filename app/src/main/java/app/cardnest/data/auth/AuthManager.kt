@@ -181,7 +181,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
   }
 
   suspend fun unlockWithBiometrics(ctx: FragmentActivity, onSuccess: () -> Unit) {
-    val encryptedDek = authData.value?.encryptedBiometricsDek ?: return
+    val encryptedDek = authData.value?.encryptedBiometricsDek.checkNotNull { "Biometrics key data must not be null when unlocking app" }
 
     val androidKey = crypto.getOrCreateAndroidSecretKey()
     val cipher = crypto.getInitializedCipherForDecryption(androidKey, encryptedDek.iv.decoded)
