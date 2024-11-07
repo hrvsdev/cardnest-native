@@ -36,7 +36,11 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
     val ref = rtDb.getReference("$uid/cards")
     val listener = ref.addValueEventListener(object : ValueEventListener {
       override fun onDataChange(snapshot: DataSnapshot) {
-        trySend(getCardRecordsFromSnapshot(snapshot))
+        try {
+          trySend(getCardRecordsFromSnapshot(snapshot))
+        } catch (e: Exception) {
+          close(e)
+        }
       }
 
       override fun onCancelled(error: DatabaseError) {
