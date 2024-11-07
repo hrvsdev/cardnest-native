@@ -44,6 +44,9 @@ class AppViewModel(
   private fun initAuth() {
     viewModelScope.launch(Dispatchers.IO) {
       authManager.collectAuthData()
+    }
+
+    viewModelScope.launch(Dispatchers.IO) {
       authManager.collectRemoteAuthData()
     }
   }
