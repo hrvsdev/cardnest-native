@@ -49,7 +49,7 @@ val appModule = module {
   single { PreferencesManager(get()) }
 
   single { ConnectionManager() }
-  single { Actions() }
+  single { Actions }
 
   factory { defaultCard() }
 
