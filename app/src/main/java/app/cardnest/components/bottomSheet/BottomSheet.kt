@@ -12,11 +12,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import app.cardnest.components.button.AppButton
+import app.cardnest.components.button.ButtonTheme
+import app.cardnest.components.button.ButtonVariant
 import app.cardnest.components.containers.appGradient
+import app.cardnest.data.actions.Actions.onBottomSheetConfirm
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_SKY_20
 import app.cardnest.ui.theme.TH_WHITE
+import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
 
 @Composable
 fun BottomSheet(content: @Composable () -> Unit) {
@@ -53,4 +58,18 @@ fun BottomSheetButtons(content: @Composable () -> Unit) {
   Column(Modifier.padding(top = 40.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
     content()
   }
+}
+
+@Composable
+fun BottomSheetCancelButton(title: String = "Cancel") {
+  val sheetNavigator = LocalBottomSheetNavigator.current
+  val onClick = { sheetNavigator.hide() }
+
+  AppButton(title, onClick, variant = ButtonVariant.Flat)
+}
+
+@Composable
+fun BottomSheetPrimaryButton(title: String = "Confirm", theme: ButtonTheme = ButtonTheme.Primary) {
+  val onClick = { onBottomSheetConfirm() }
+  AppButton(title, onClick, theme)
 }
