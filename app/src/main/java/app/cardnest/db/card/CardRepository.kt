@@ -10,10 +10,12 @@ import app.cardnest.data.preferencesState
 import app.cardnest.data.userState
 import app.cardnest.firebase.rtDb
 import app.cardnest.utils.extensions.checkNotNull
+import app.cardnest.utils.extensions.toastAndLog
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseException
 import com.google.firebase.database.ValueEventListener
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -39,7 +41,8 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
         try {
           trySend(getCardRecordsFromSnapshot(snapshot))
         } catch (e: Exception) {
-          close(e)
+          trySend(CardRecords.Encrypted(persistentMapOf()))
+          e.toastAndLog("CardRepository")
         }
       }
 
