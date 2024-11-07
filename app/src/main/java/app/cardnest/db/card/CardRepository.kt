@@ -92,7 +92,7 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
     if (card is CardData.Encrypted) {
       val ref = rtDb.getReference("$uid/cards/${card.encrypted.id}")
       try {
-        ref.setValue(card).await()
+        ref.setValue(card.encrypted).await()
       } catch (e: DatabaseException) {
         throw Exception("Error saving card", e)
       }
