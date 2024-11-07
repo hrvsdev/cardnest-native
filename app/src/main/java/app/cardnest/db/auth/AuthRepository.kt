@@ -11,6 +11,7 @@ import app.cardnest.data.preferencesState
 import app.cardnest.data.userState
 import app.cardnest.firebase.rtDb
 import app.cardnest.utils.extensions.checkNotNull
+import app.cardnest.utils.extensions.toastAndLog
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseException
@@ -37,7 +38,12 @@ class AuthRepository(private val localDb: DataStore<AuthRecord>) {
     val ref = rtDb.getReference("$uid/auth")
     val listener = ref.addValueEventListener(object : ValueEventListener {
       override fun onDataChange(snapshot: DataSnapshot) {
-        trySend(getAuthDataFromSnapshot(snapshot))
+        try {
+          trySend(getAuthDataFromSnapshot(snapshot))
+        } catch (e: Exception) {
+          trySend(null)
+          e.toastAndLog("AuthRepository")
+        }
       }
 
       override fun onCancelled(error: DatabaseError) {
