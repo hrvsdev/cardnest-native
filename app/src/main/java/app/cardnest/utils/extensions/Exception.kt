@@ -8,7 +8,7 @@ fun Throwable.toast() {
 }
 
 fun Throwable.log(tag: String) {
-  Log.e(tag, message, this.cause)
+  Log.e(tag, message, this)
 }
 
 fun Throwable.toastAndLog(tag: String) {
