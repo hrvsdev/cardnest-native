@@ -11,6 +11,7 @@ import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
 import app.cardnest.components.settings.SettingsSwitch
+import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
@@ -31,12 +32,7 @@ class SecurityScreen : Screen {
     val hasBiometricsEnabled = vm.hasBiometricsEnabled.collectAsStateWithLifecycle().value
 
     fun onRemovePinClick() {
-      bottomSheetNavigator.show(
-        RemovePinBottomSheetScreen(
-          onConfirm = vm::onRemovePin,
-          onClose = { bottomSheetNavigator.hide() }
-        )
-      )
+      bottomSheetNavigator.open(RemovePinBottomSheetScreen(), vm::onRemovePin)
     }
 
     fun onBiometricsSwitchChange(checked: Boolean) {

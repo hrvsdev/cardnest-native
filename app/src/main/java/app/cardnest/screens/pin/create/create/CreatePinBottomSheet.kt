@@ -1,4 +1,4 @@
-package app.cardnest.screens.home.card
+package app.cardnest.screens.pin.create.create
 
 import androidx.compose.runtime.Composable
 import app.cardnest.components.bottomSheet.BottomSheet
@@ -7,21 +7,20 @@ import app.cardnest.components.bottomSheet.BottomSheetCancelButton
 import app.cardnest.components.bottomSheet.BottomSheetDescription
 import app.cardnest.components.bottomSheet.BottomSheetHeading
 import app.cardnest.components.bottomSheet.BottomSheetPrimaryButton
-import app.cardnest.components.button.ButtonTheme
 import cafe.adriel.voyager.core.screen.Screen
 
-class DeleteCardBottomSheetScreen : Screen {
+class CreatePinBottomSheetScreen : Screen {
   @Composable
   override fun Content() {
     BottomSheet {
-      BottomSheetHeading("Delete card")
+      BottomSheetHeading("Create a PIN")
 
-      BottomSheetDescription("Are you sure you want to delete this card?")
-      BottomSheetDescription("This action cannot be undone.")
+      BottomSheetDescription("Creating a PIN is mandatory to sync data.")
+      BottomSheetDescription("This is to ensure that your data is secure between server and devices.")
 
       BottomSheetButtons {
         BottomSheetCancelButton()
-        BottomSheetPrimaryButton("Delete", ButtonTheme.Danger)
+        BottomSheetPrimaryButton("Continue")
       }
     }
   }

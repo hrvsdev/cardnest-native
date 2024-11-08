@@ -9,13 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import app.cardnest.components.bottomSheet.BottomSheet
-import app.cardnest.components.bottomSheet.BottomSheetButtons
-import app.cardnest.components.bottomSheet.BottomSheetDescription
-import app.cardnest.components.bottomSheet.BottomSheetHeading
-import app.cardnest.components.button.AppButton
-import app.cardnest.components.button.ButtonTheme
-import app.cardnest.components.button.ButtonVariant
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.pin.Keypad
 import app.cardnest.components.pin.PinInput
@@ -68,23 +61,6 @@ class CreatePinScreen : Screen {
       Spacer(Modifier.weight(2f))
       Keypad(vm.pin, vm::onPinChange, vm::onPinSubmit)
       Spacer(Modifier.weight(1f))
-    }
-  }
-}
-
-data class CreatePinBottomSheetScreen(val onConfirm: () -> Unit, val onCancel: () -> Unit) : Screen {
-  @Composable
-  override fun Content() {
-    BottomSheet {
-      BottomSheetHeading("Create a PIN")
-
-      BottomSheetDescription("Creating a PIN is mandatory to sync data.")
-      BottomSheetDescription("This is to ensure that your data is secure between server and devices.")
-
-      BottomSheetButtons {
-        AppButton("Cancel", onCancel, variant = ButtonVariant.Flat)
-        AppButton("Continue", onConfirm, theme = ButtonTheme.Primary)
-      }
     }
   }
 }

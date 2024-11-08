@@ -14,6 +14,7 @@ import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.core.CopyableTextField
 import app.cardnest.screens.home.card.editor.UpdateCardEditorScreen
 import app.cardnest.utils.card.addCardNumberSpaces
+import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
@@ -43,12 +44,7 @@ data class CardViewScreen(val id: String) : Screen {
     }
 
     fun onDeleteClick() {
-      bottomSheetNavigator.show(
-        DeleteCardBottomSheetScreen(
-          onConfirm = { del() },
-          onClose = { bottomSheetNavigator.hide() }
-        )
-      )
+      bottomSheetNavigator.open(DeleteCardBottomSheetScreen(), ::del)
     }
 
     SubScreenRoot(

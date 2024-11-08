@@ -13,6 +13,7 @@ import app.cardnest.screens.NoTransition
 import app.cardnest.screens.user.account.AccountScreen
 import app.cardnest.screens.user.security.SecurityScreen
 import app.cardnest.screens.user.user_interface.UserInterfaceScreen
+import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -33,7 +34,7 @@ object UserScreen : Screen, ScreenTransition by NoTransition() {
     val vm = koinViewModel<UserViewModel> { parametersOf(navigator, bottomSheetNavigator) }
 
     fun onDeleteAllCardsClick() {
-      bottomSheetNavigator.show(DeleteDataBottomSheetScreen(vm::onDeleteAllCards, bottomSheetNavigator::hide))
+      bottomSheetNavigator.open(DeleteDataBottomSheetScreen(), vm::onDeleteAllCards)
     }
 
     TabScreenRoot {

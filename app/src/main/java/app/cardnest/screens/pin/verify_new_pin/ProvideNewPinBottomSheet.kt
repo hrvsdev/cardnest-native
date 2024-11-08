@@ -3,14 +3,13 @@ package app.cardnest.screens.pin.verify_new_pin
 import androidx.compose.runtime.Composable
 import app.cardnest.components.bottomSheet.BottomSheet
 import app.cardnest.components.bottomSheet.BottomSheetButtons
+import app.cardnest.components.bottomSheet.BottomSheetCancelButton
 import app.cardnest.components.bottomSheet.BottomSheetDescription
 import app.cardnest.components.bottomSheet.BottomSheetHeading
-import app.cardnest.components.button.AppButton
-import app.cardnest.components.button.ButtonTheme
-import app.cardnest.components.button.ButtonVariant
+import app.cardnest.components.bottomSheet.BottomSheetPrimaryButton
 import cafe.adriel.voyager.core.screen.Screen
 
-data class ProvideNewPinBottomSheetScreen(val onConfirm: () -> Unit, val onCancel: () -> Unit) : Screen {
+class ProvideNewPinBottomSheetScreen : Screen {
   @Composable
   override fun Content() {
     BottomSheet {
@@ -20,8 +19,8 @@ data class ProvideNewPinBottomSheetScreen(val onConfirm: () -> Unit, val onCance
       BottomSheetDescription("You need to provide the same to decrypt the data.")
 
       BottomSheetButtons {
-        AppButton("Cancel", onCancel, variant = ButtonVariant.Flat)
-        AppButton("Continue", onConfirm, theme = ButtonTheme.Primary)
+        BottomSheetCancelButton()
+        BottomSheetPrimaryButton("Continue")
       }
     }
   }

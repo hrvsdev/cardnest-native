@@ -16,6 +16,7 @@ import app.cardnest.screens.pin.verify_new_pin.ProvideNewPinBottomSheetScreen
 import app.cardnest.screens.pin.verify_new_pin.VerifyNewPinScreen
 import app.cardnest.screens.pin.verify_previous_pin.ProvidePreviousPinBottomSheetScreen
 import app.cardnest.screens.pin.verify_previous_pin.VerifyPreviousPinScreen
+import app.cardnest.utils.extensions.open
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.Navigator
@@ -79,20 +80,17 @@ class AccountViewModel(
   suspend fun setupSync() {
     val result = userManager.setupSync()
     when (result) {
-      SyncResult.CREATE_PIN -> bottomSheetNavigator.show(CreatePinBottomSheetScreen(
-        onConfirm = { onCreatePin() },
-        onCancel = { bottomSheetNavigator.hide() }
-      ))
+      SyncResult.CREATE_PIN -> bottomSheetNavigator.open(CreatePinBottomSheetScreen()) {
+        onCreatePin()
+      }
 
-      SyncResult.PREVIOUS_PIN_REQUIRED -> bottomSheetNavigator.show(ProvidePreviousPinBottomSheetScreen(
-        onConfirm = { onProvidePin(VerifyPreviousPinScreen()) },
-        onCancel = { bottomSheetNavigator.hide() }
-      ))
+      SyncResult.PREVIOUS_PIN_REQUIRED -> bottomSheetNavigator.open(ProvidePreviousPinBottomSheetScreen()) {
+        onProvidePin(VerifyPreviousPinScreen())
+      }
 
-      SyncResult.NEW_PIN_REQUIRED -> bottomSheetNavigator.show(ProvideNewPinBottomSheetScreen(
-        onConfirm = { onProvidePin(VerifyNewPinScreen()) },
-        onCancel = { bottomSheetNavigator.hide() }
-      ))
+      SyncResult.NEW_PIN_REQUIRED -> bottomSheetNavigator.open(ProvideNewPinBottomSheetScreen()) {
+        onProvidePin(VerifyNewPinScreen())
+      }
 
       SyncResult.ERROR -> throw Exception("Error setting up sync")
       SyncResult.SUCCESS -> {}

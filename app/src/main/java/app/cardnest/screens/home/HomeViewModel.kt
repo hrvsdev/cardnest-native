@@ -13,6 +13,7 @@ import app.cardnest.data.preferencesState
 import app.cardnest.data.userState
 import app.cardnest.screens.pin.verify_new_pin.ProvideNewPinBottomSheetScreen
 import app.cardnest.screens.pin.verify_new_pin.VerifyNewPinScreen
+import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import kotlinx.coroutines.Dispatchers
@@ -59,18 +60,13 @@ class HomeViewModel(
   private fun initCards() {
     viewModelScope.launch(Dispatchers.IO) {
       authManager.hasAuthDataChangedOnAnotherDevice().collectLatest {
-        if (it) showProvidePreviousPinBottomSheet() else dataManager.decryptAndCollectCards()
+        if (it) showProvideNewPinBottomSheet() else dataManager.decryptAndCollectCards()
       }
     }
   }
 
-  private fun showProvidePreviousPinBottomSheet() {
-    bottomSheetNavigator.show(
-      ProvideNewPinBottomSheetScreen(
-        onConfirm = { onProvideNewPin() },
-        onCancel = { bottomSheetNavigator.hide() }
-      )
-    )
+  private fun showProvideNewPinBottomSheet() {
+    bottomSheetNavigator.open(ProvideNewPinBottomSheetScreen(), ::onProvideNewPin)
   }
 
   private fun onProvideNewPin() {
