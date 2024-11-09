@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,11 +55,11 @@ fun BoxScope.AppToast() {
     AppToastType.ERROR -> TH_RED
   }
 
-  AnimatedVisibility(state.show, Modifier.align(Alignment.BottomCenter).padding(bottom = 72.dp), enter, exit) {
-    Box(Modifier.height(36.dp).background(TH_BLACK, RoundedCornerShape(10.dp)), Alignment.Center) {
-      Row(Modifier.padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+  AnimatedVisibility(state.show, Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 72.dp), enter, exit) {
+    Box(Modifier.background(TH_BLACK, RoundedCornerShape(10.dp)), Alignment.Center) {
+      Row(Modifier.padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         ToastIcon(state.type)
-        Spacer(Modifier.size(8.dp))
+        Spacer(Modifier.size(10.dp))
         AppText(state.message, color = color)
       }
     }
