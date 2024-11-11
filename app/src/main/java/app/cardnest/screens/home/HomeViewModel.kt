@@ -8,6 +8,7 @@ import app.cardnest.data.actions.Actions
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.card.Card
 import app.cardnest.data.card.CardDataManager
+import app.cardnest.data.card.PaymentNetwork
 import app.cardnest.data.cardsState
 import app.cardnest.data.preferencesState
 import app.cardnest.data.userState
@@ -87,10 +88,10 @@ class HomeViewModel(
     return searchableFields(card).any { it.contains(query.trim(), ignoreCase = true) }
   }
 
-  private fun searchableFields(card: Card) = listOf(
-    card.network.toString(),
-    card.issuer,
-    card.cardholder,
-    card.number,
-  )
+  private fun searchableFields(card: Card) = buildList {
+    add(card.issuer)
+    add(card.cardholder)
+    add(card.number)
+    if (card.network != PaymentNetwork.OTHER) add(card.network.name)
+  }
 }
