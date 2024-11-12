@@ -17,7 +17,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -34,6 +33,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -131,14 +131,10 @@ fun AppTextField(
 }
 
 @Composable
-fun CopyableTextField(
-  text: String,
-  label: String? = null,
-  textToCopy: String = text,
-) {
+fun CopyableTextField(text: String, label: String? = null, textToCopy: String = text) {
   val clipboard = LocalClipboardManager.current
 
-  val textState = rememberTextFieldState(text)
+  val textState = TextFieldState(text, TextRange(text.length))
 
   var hasCopied by remember { mutableStateOf(false) }
   var offsetY by remember { mutableIntStateOf(0) }
