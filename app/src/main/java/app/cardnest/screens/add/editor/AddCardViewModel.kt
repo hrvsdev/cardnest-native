@@ -18,8 +18,10 @@ class AddCardViewModel(private val dataManager: CardDataManager, private val nav
     viewModelScope.launch(Dispatchers.IO) {
       try {
         val id = genId()
-        dataManager.encryptAndAddOrUpdateCard(CardUnencrypted(id, card, System.currentTimeMillis()))
-        navigator.replaceAll(listOf(HomeScreen, CardViewScreen(id)))
+        val cardWithMeta = CardUnencrypted(id, card, System.currentTimeMillis())
+
+        dataManager.encryptAndAddOrUpdateCard(cardWithMeta)
+        navigator.replaceAll(listOf(HomeScreen, CardViewScreen(cardWithMeta)))
       } catch (e: Exception) {
         e.toastAndLog("AddCardViewModel")
       }

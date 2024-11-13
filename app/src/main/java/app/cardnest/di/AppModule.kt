@@ -58,8 +58,8 @@ val appModule = module {
   viewModel { AppViewModel(get(), get(), get(), get()) }
 
   viewModel { HomeViewModel(get(), get(), get(), it.get(), it.get()) }
-  viewModel { CardViewModel(get(), it.get(), it.get()) }
-  viewModel { UpdateCardViewModel(get(), it.get(), it.get()) }
+  viewModel { CardViewModel(get(), it.get()) }
+  viewModel { UpdateCardViewModel(get(), it.get()) }
 
   viewModel { AddCardViewModel(get(), it.get()) }
 

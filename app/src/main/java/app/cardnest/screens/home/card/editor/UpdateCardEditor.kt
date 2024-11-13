@@ -13,26 +13,21 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-data class UpdateCardEditorScreen(val card: CardUnencrypted) : Screen {
+data class UpdateCardEditorScreen(val cardWithMeta: CardUnencrypted) : Screen {
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
 
-    val updateCardVM = koinViewModel<UpdateCardViewModel> { parametersOf(card.id, navigator) }
-    val editorVM = koinViewModel<CardEditorViewModel> { parametersOf(card.data) }
+    val updateCardVM = koinViewModel<UpdateCardViewModel> { parametersOf(cardWithMeta.id, navigator) }
+    val editorVM = koinViewModel<CardEditorViewModel> { parametersOf(cardWithMeta.data) }
 
     fun update() {
       editorVM.onSubmit {
-        updateCardVM.updateCard(card.id, it)
+        updateCardVM.updateCard(cardWithMeta.id, it)
       }
     }
 
-    SubScreenRoot(
-      title = "Edit Card",
-      rightButtonLabel = "Done",
-      onRightButtonClick = ::update,
-      spacedBy = 32.dp
-    ) {
+    SubScreenRoot(title = "Edit Card", rightButtonLabel = "Done", onRightButtonClick = ::update, spacedBy = 32.dp) {
       CardEditor(editorVM)
       AppButton(title = "Update", onClick = ::update)
     }

@@ -56,7 +56,7 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
         cardRecordList.forEachIndexed { index, it ->
           AnimatedVisibility(filteredCardIds.contains(it.id)) {
             Column {
-              Box(Modifier.clickable { navigator.push(CardViewScreen(it.id)) }) {
+              Box(Modifier.clickable { navigator.push(CardViewScreen(it)) }) {
                 CardPreview(it.data, maskCardNumber = maskCardNumber)
               }
 
