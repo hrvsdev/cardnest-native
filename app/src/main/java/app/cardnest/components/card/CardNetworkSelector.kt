@@ -22,8 +22,9 @@ import androidx.compose.ui.unit.dp
 import app.cardnest.R
 import app.cardnest.data.card.PaymentNetwork
 import app.cardnest.ui.theme.AppText
-import app.cardnest.ui.theme.TH_SKY
+import app.cardnest.ui.theme.TH_WHITE
 import app.cardnest.ui.theme.TH_WHITE_07
+import app.cardnest.ui.theme.TH_WHITE_10
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -45,18 +46,14 @@ fun CardNetworkSelector(selectedNetwork: PaymentNetwork, setSelectedNetwork: (Pa
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun FlowRowScope.NetworkButton(
-  network: PaymentNetwork,
-  onClick: (PaymentNetwork) -> Unit,
-  isSelected: Boolean = false
-) {
+fun FlowRowScope.NetworkButton(network: PaymentNetwork, onClick: (PaymentNetwork) -> Unit, isSelected: Boolean = false) {
   Box(
     contentAlignment = Alignment.Center,
     modifier = Modifier
       .weight(1f)
       .height(48.dp)
-      .background(TH_WHITE_07, RoundedCornerShape(10.dp))
-      .border(1.dp, if (isSelected) TH_SKY else TH_WHITE_07, RoundedCornerShape(10.dp))
+      .background(if (isSelected) TH_WHITE_10 else TH_WHITE_07, RoundedCornerShape(10.dp))
+      .border(1.dp, if (isSelected) TH_WHITE else TH_WHITE_07, RoundedCornerShape(10.dp))
       .clickable { onClick(network) }
   ) {
     Image(
