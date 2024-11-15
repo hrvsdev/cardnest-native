@@ -45,7 +45,7 @@ fun TabScreenRoot(content: @Composable ColumnScope.() -> Unit) {
 fun SubScreenRoot(
   title: String,
 
-  leftIconLabel: String? = null,
+  leftIconLabel: String = "Back",
 
   rightButtonLabel: String? = null,
   rightButtonIcon: Painter? = null,
