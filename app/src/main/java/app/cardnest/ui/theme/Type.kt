@@ -66,7 +66,7 @@ fun AppText(
       letterSpacing = letterSpacing,
       textAlign = align,
       fontSize = size.fontSize,
-      lineHeight = if (lineHeight != TextUnit.Unspecified) size.lineHeight else lineHeight,
+      lineHeight = if (lineHeight == TextUnit.Unspecified) size.lineHeight else lineHeight,
       lineHeightStyle = LineHeightStyle(Alignment.Center, Trim.None),
       fontFamily = if (useCardFontFamily) ManropeFamily else LatoFamily
     )
