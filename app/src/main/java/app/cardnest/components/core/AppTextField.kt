@@ -2,6 +2,7 @@ package app.cardnest.components.core
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,12 +12,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -28,6 +33,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -60,7 +67,12 @@ fun AppTextField(
   readOnly: Boolean = false,
 
   inputTransformation: InputTransformation? = null,
+  interactionSource: MutableInteractionSource? = null,
+
+  focusRequester: FocusRequester = FocusRequester(),
+
   keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+  onKeyboardAction: KeyboardActionHandler? = null,
 
   leftIcon: @Composable (() -> Unit)? = null,
   rightIcon: @Composable (() -> Unit)? = null,
@@ -93,8 +105,11 @@ fun AppTextField(
 
       inputTransformation = inputTransformation,
       keyboardOptions = keyboardOptions,
+      onKeyboardAction = onKeyboardAction,
+      interactionSource = interactionSource,
 
       modifier = Modifier
+        .focusRequester(focusRequester)
         .height(48.dp)
         .background(if (isFocused.value) TH_WHITE_10 else TH_WHITE_07, RoundedCornerShape(14.dp))
         .onFocusChanged {
@@ -127,6 +142,76 @@ fun AppTextField(
         error.message, Modifier.padding(start = 8.dp), AppTextSize.SM, color = TH_RED
       )
     }
+  }
+}
+
+@Composable
+fun PasswordTextField(
+  state: TextFieldState,
+  placeholder: String? = null,
+
+  focusRequester: FocusRequester = FocusRequester(),
+  onKeyboardAction: KeyboardActionHandler? = null,
+
+  leftIconId: Int = R.drawable.tabler__lock,
+
+  onFocus: () -> Unit = {},
+  onBlur: () -> Unit = {},
+) {
+  var isFocused by remember { mutableStateOf(false) }
+  var isVisible by remember { mutableStateOf(false) }
+
+  var offsetY by remember { mutableIntStateOf(0) }
+
+  LaunchedEffect(isVisible) {
+    offsetY = 2
+    delay(200)
+    offsetY = 0
+  }
+
+  val iconColor = TH_WHITE_60
+
+  Column(Modifier.fillMaxWidth()) {
+    BasicSecureTextField(
+      state = state,
+      cursorBrush = SolidColor(TH_SKY_80),
+
+      textStyle = TextStyle(TH_WHITE, 16.sp, fontFamily = LatoFamily),
+      onKeyboardAction = onKeyboardAction,
+      textObfuscationMode = if (isVisible) TextObfuscationMode.Visible else TextObfuscationMode.RevealLastTyped,
+
+      modifier = Modifier
+        .focusRequester(focusRequester)
+        .height(48.dp)
+        .background(if (isFocused) TH_WHITE_10 else TH_WHITE_07, RoundedCornerShape(14.dp))
+        .onFocusChanged {
+          isFocused = it.isFocused
+          if (it.isFocused) onFocus() else onBlur()
+        },
+
+      decorator = { innerTextField ->
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Box(Modifier.size(48.dp), Alignment.Center) {
+            Icon(painter = painterResource(leftIconId), contentDescription = "", tint = iconColor)
+          }
+
+          Box(Modifier.weight(1f), Alignment.CenterStart) {
+            if (state.text.isEmpty() && placeholder != null) {
+              AppText(text = placeholder, color = TH_WHITE_60)
+            }
+            innerTextField()
+          }
+
+          IconButton({ isVisible = !isVisible }, Modifier.offset { IntOffset(0, y = offsetY) }) {
+            if (isVisible) {
+              Icon(painterResource(R.drawable.tabler__eye_off), "Hide password", tint = iconColor)
+            } else {
+              Icon(painterResource(R.drawable.tabler__eye), "Reveal password", tint = iconColor)
+            }
+          }
+        }
+      }
+    )
   }
 }
 
