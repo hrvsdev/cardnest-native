@@ -7,13 +7,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.components.button.AppButton
 import app.cardnest.components.containers.ScreenContainer
 import app.cardnest.components.core.PasswordTextField
@@ -35,10 +33,7 @@ class UnlockWithPasswordScreen : Screen {
 
     val vm = koinViewModel<UnlockWithPasswordViewModel> { parametersOf(navigator) }
 
-    val isLoading by vm.isLoading.collectAsStateWithLifecycle()
-    val isPasswordIncorrect by vm.isPasswordIncorrect.collectAsStateWithLifecycle()
-
-    LaunchedEffect(isPasswordIncorrect) { if (isPasswordIncorrect) vm.focusRequester.requestFocus() }
+    LaunchedEffect(vm.isPasswordIncorrect) { if (vm.isPasswordIncorrect) vm.focusRequester.requestFocus() }
 
     ScreenContainer {
       Column(Modifier.fillMaxWidth().padding(top = 64.dp, bottom = 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -57,14 +52,14 @@ class UnlockWithPasswordScreen : Screen {
         PasswordTextField(
           state = vm.state,
           placeholder = "Enter password",
-          isLoading = isLoading,
+          isLoading = vm.isLoading,
           focusRequester = vm.focusRequester,
           onKeyboardAction = { vm.onSubmit() }
         )
 
         Spacer(Modifier.size(8.dp))
 
-        PasswordInfo("Your password is incorrect", PasswordInfoType.ERROR, isPasswordIncorrect)
+        PasswordInfo("Your password is incorrect", PasswordInfoType.ERROR, vm.isPasswordIncorrect)
       }
 
       Spacer(Modifier.weight(1f))

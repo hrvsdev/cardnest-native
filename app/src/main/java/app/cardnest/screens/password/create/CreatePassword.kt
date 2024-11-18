@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
@@ -20,7 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.R
 import app.cardnest.components.button.AppButton
 import app.cardnest.components.containers.SubScreenRoot
@@ -38,11 +36,8 @@ class CreatePasswordScreen : Screen {
   override fun Content() {
     val vm = koinViewModel<CreatePasswordViewModel>()
 
-    val isFocused by vm.isFocused.collectAsStateWithLifecycle()
-    val hasSubmitted by vm.hasSubmitted.collectAsStateWithLifecycle()
-
-    LaunchedEffect(isFocused) { if (isFocused) vm.updateHasSubmitted(false) }
-    LaunchedEffect(hasSubmitted) { if (hasSubmitted) vm.confirmPasswordFocusRequester.requestFocus() }
+    LaunchedEffect(vm.isFocused) { if (vm.isFocused) vm.updateHasSubmitted(false) }
+    LaunchedEffect(vm.hasSubmitted) { if (vm.hasSubmitted) vm.confirmPasswordFocusRequester.requestFocus() }
 
     SubScreenRoot(title = "") {
       Column(Modifier.fillMaxWidth().padding(vertical = 32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -88,7 +83,7 @@ class CreatePasswordScreen : Screen {
         PasswordInfo("Your password includes space(s), which is allowed", PasswordInfoType.WARN, vm.containsSpace)
         PasswordInfo("Your password is strong and secure against brute-force attacks", PasswordInfoType.SUCCESS, vm.isSecure)
 
-        AnimatedVisibility(hasSubmitted) {
+        AnimatedVisibility(vm.hasSubmitted) {
           Box(Modifier.padding(top = 20.dp, bottom = 8.dp)) {
             PasswordTextField(
               state = vm.confirmPasswordState,

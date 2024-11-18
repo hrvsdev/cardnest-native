@@ -3,6 +3,8 @@ package app.cardnest.screens.password.create
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,8 +12,6 @@ import app.cardnest.data.actions.Actions.afterPasswordCreated
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.utils.extensions.toastAndLog
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class CreatePasswordViewModel(private val authManager: AuthManager) : ViewModel() {
@@ -21,8 +21,11 @@ class CreatePasswordViewModel(private val authManager: AuthManager) : ViewModel(
   val focusRequester = FocusRequester()
   val confirmPasswordFocusRequester = FocusRequester()
 
-  val isFocused = MutableStateFlow(false)
-  val hasSubmitted = MutableStateFlow(false)
+  var isFocused by mutableStateOf(false)
+    private set
+
+  var hasSubmitted by mutableStateOf(false)
+    private set
 
   val requirements by derivedStateOf {
     listOf(
@@ -38,7 +41,7 @@ class CreatePasswordViewModel(private val authManager: AuthManager) : ViewModel(
   val isSecure by derivedStateOf { requirements.all { it.second } }
 
   val showRequirements by derivedStateOf { state.text.isNotEmpty() && isSecure.not() }
-  val showDoPasswordsMatchInfo by derivedStateOf { hasSubmitted.value && confirmPasswordState.text.isNotEmpty() }
+  val showDoPasswordsMatchInfo by derivedStateOf { hasSubmitted && confirmPasswordState.text.isNotEmpty() }
 
   val doPasswordsMatch by derivedStateOf { state.text == confirmPasswordState.text }
 
@@ -48,7 +51,7 @@ class CreatePasswordViewModel(private val authManager: AuthManager) : ViewModel(
       return
     }
 
-    hasSubmitted.update { true }
+    hasSubmitted = true
 
     if (!doPasswordsMatch) {
       return
@@ -65,11 +68,11 @@ class CreatePasswordViewModel(private val authManager: AuthManager) : ViewModel(
   }
 
   fun updateIsFocused(value: Boolean) {
-    isFocused.update { value }
+    isFocused = value
   }
 
   fun updateHasSubmitted(value: Boolean) {
-    hasSubmitted.update { value }
+    hasSubmitted = value
   }
 }
 
