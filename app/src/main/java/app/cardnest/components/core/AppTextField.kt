@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.cardnest.R
+import app.cardnest.components.loader.LoadingIcon
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.LatoFamily
@@ -155,6 +156,8 @@ fun PasswordTextField(
 
   leftIconId: Int = R.drawable.tabler__lock,
 
+  isLoading: Boolean = false,
+
   onFocus: () -> Unit = {},
   onBlur: () -> Unit = {},
 ) {
@@ -175,6 +178,8 @@ fun PasswordTextField(
     BasicSecureTextField(
       state = state,
       cursorBrush = SolidColor(TH_SKY_80),
+
+      enabled = isLoading.not(),
 
       textStyle = TextStyle(TH_WHITE, 16.sp, fontFamily = LatoFamily),
       onKeyboardAction = onKeyboardAction,
@@ -202,11 +207,17 @@ fun PasswordTextField(
             innerTextField()
           }
 
-          IconButton({ isVisible = !isVisible }, Modifier.offset { IntOffset(0, y = offsetY) }) {
-            if (isVisible) {
-              Icon(painterResource(R.drawable.tabler__eye_off), "Hide password", tint = iconColor)
-            } else {
-              Icon(painterResource(R.drawable.tabler__eye), "Reveal password", tint = iconColor)
+          if (isLoading) {
+            Box(Modifier.size(48.dp), Alignment.Center) {
+              LoadingIcon(size = 24.dp)
+            }
+          } else {
+            IconButton({ isVisible = !isVisible }, Modifier.offset { IntOffset(0, y = offsetY) }) {
+              if (isVisible) {
+                Icon(painterResource(R.drawable.tabler__eye_off), "Hide password", tint = iconColor)
+              } else {
+                Icon(painterResource(R.drawable.tabler__eye), "Reveal password", tint = iconColor)
+              }
             }
           }
         }
