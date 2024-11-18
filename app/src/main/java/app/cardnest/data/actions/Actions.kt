@@ -17,6 +17,8 @@ class AuthAction() {
 }
 
 object Actions {
+  val afterPasswordCreated = AuthAction()
+
   private var _afterPinCreated: Action = { }
   private var _afterPinVerified: SuspendAction = { }
   private var _onBottomSheetConfirm: Action = { }
