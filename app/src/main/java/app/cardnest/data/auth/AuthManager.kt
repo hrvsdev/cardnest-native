@@ -71,6 +71,41 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     }
   }
 
+  suspend fun setPassword(password: String) {
+    val salt = crypto.generateSalt()
+    val kek = crypto.deriveKey(password.toCharArray(), salt)
+
+    val dek = authState.value.dek ?: crypto.generateKey()
+    val encryptedDek = crypto.encryptData(crypto.keyToString(dek), kek)
+
+    val data = AuthData(
+      salt = salt.encoded,
+      encryptedDek = encryptedDek.encoded,
+      encryptedBiometricsDek = authData.value?.encryptedBiometricsDek,
+      modifiedAt = System.currentTimeMillis()
+    )
+
+    authState.update { it.copy(dek = dek) }
+    repo.setAuthData(data)
+  }
+
+  fun verifyPassword(password: String): Boolean {
+    val authData = authData.value.checkNotNull { "Auth data must not be null when verifying password" }
+    return decryptDek(password, authData) != null
+  }
+
+  fun unlockWithPassword(password: String): Boolean {
+    val authData = authData.value.checkNotNull { "Auth data must not be null when unlocking app" }
+    val dek = decryptDek(password, authData)
+
+    if (dek != null) {
+      authState.update { it.copy(dek = dek) }
+      return true
+    } else {
+      return false
+    }
+  }
+
   suspend fun setPin(pin: String) {
     val salt = crypto.generateSalt()
     val kek = crypto.deriveKey(pin.toCharArray(), salt)
@@ -96,15 +131,31 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
 
   fun verifyPin(pin: String): Boolean {
     val authData = authData.value.checkNotNull { "Auth data must not be null when verifying PIN" }
-    return getDekString(pin, authData) != null
+    return decryptDek(pin, authData) != null
   }
 
   fun unlockWithPin(pin: String): Boolean {
     val authData = authData.value.checkNotNull { "Auth data must not be null when unlocking app" }
-    val dekString = getDekString(pin, authData) ?: return false
-    authState.update { it.copy(pin = pin, dek = crypto.stringToKey(dekString)) }
+    val dek = decryptDek(pin, authData)
 
-    return true
+    if (dek != null) {
+      authState.update { it.copy(pin = pin, dek = dek) }
+      return true
+    } else {
+      return false
+    }
+  }
+
+  fun decryptDek(pin: String, authData: AuthData): SecretKey? {
+    val kek = crypto.deriveKey(pin.toCharArray(), authData.salt.decoded)
+    val dekEncoded = crypto.decryptData(authData.encryptedDek.decoded, kek)
+
+    return if (dekEncoded != null) crypto.stringToKey(dekEncoded) else null
+  }
+
+  fun decryptRemoteDek(remotePin: String): SecretKey? {
+    val authData = remoteAuthData.value.checkNotNull { "Remote auth data must not be null of signed-in user" }
+    return decryptDek(remotePin, authData)
   }
 
   suspend fun syncAuthData() {
@@ -135,12 +186,6 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     }
   }
 
-  fun getRemoteDek(remotePin: String): SecretKey? {
-    val authData = remoteAuthData.value.checkNotNull { "Remote auth data must not be null of signed-in user" }
-    val dekString = getDekString(remotePin, authData) ?: return null
-    return crypto.stringToKey(dekString)
-  }
-
   fun hasAuthDataChangedOnAnotherDevice(): Flow<Boolean> {
     val hasChanged = combine(authData, remoteAuthData, preferencesState) { local, remote, prefs ->
       when {
@@ -150,13 +195,6 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     }
 
     return hasChanged.debounce(500)
-  }
-
-  private fun getDekString(pin: String, authData: AuthData): String? {
-    val kek = crypto.deriveKey(pin.toCharArray(), authData.salt.decoded)
-    val dekString = crypto.decryptData(authData.encryptedDek.decoded, kek)
-
-    return dekString
   }
 
   suspend fun enableBiometrics(ctx: FragmentActivity, scope: CoroutineScope) {
