@@ -1,19 +1,25 @@
 package app.cardnest.components.button
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import app.cardnest.components.loader.LoadingIcon
 import app.cardnest.data.connectionState
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
@@ -34,15 +40,21 @@ fun AppButton(
   theme: ButtonTheme = ButtonTheme.Primary,
   variant: ButtonVariant = ButtonVariant.Solid,
 
+  isLoading: Boolean = false,
+  isDisabled: Boolean = false,
+
   disableIfOffline: Boolean = false,
 ) {
   val ctx = LocalContext.current
   val isDisabledOffline = disableIfOffline && connectionState.collectAsStateWithLifecycle().value.shouldWrite.not()
+  val isVisuallyDisabled = isDisabled || isLoading || isDisabledOffline
+
+  val interactionSource = remember { MutableInteractionSource() }
 
   val containerColor = when (variant) {
     ButtonVariant.Solid -> when (theme) {
-      ButtonTheme.Primary -> if (isDisabledOffline) TH_SKY_20 else TH_SKY
-      ButtonTheme.Danger -> if (isDisabledOffline) TH_RED_20 else TH_RED
+      ButtonTheme.Primary -> if (isVisuallyDisabled) TH_SKY_20 else TH_SKY
+      ButtonTheme.Danger -> if (isVisuallyDisabled) TH_RED_20 else TH_RED
     }
 
     ButtonVariant.Flat -> when (theme) {
@@ -52,7 +64,7 @@ fun AppButton(
   }
 
   val textAndContentColor = when (variant) {
-    ButtonVariant.Solid -> if (isDisabledOffline) TH_WHITE_70 else TH_WHITE
+    ButtonVariant.Solid -> if (isVisuallyDisabled) TH_WHITE_70 else TH_WHITE
     ButtonVariant.Flat -> when (theme) {
       ButtonTheme.Primary -> TH_SKY
       ButtonTheme.Danger -> TH_RED
@@ -62,20 +74,28 @@ fun AppButton(
   fun onButtonClick() {
     if (isDisabledOffline) {
       Toast.makeText(ctx, "You are offline", Toast.LENGTH_SHORT).show()
-    } else {
-      onClick()
+      return
     }
+
+    if (isVisuallyDisabled) {
+      return
+    }
+
+    onClick()
   }
 
-  Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-    Button(
-      onClick = ::onButtonClick,
-      modifier = Modifier
-        .height(48.dp)
-        .fillMaxWidth(),
-      shape = RoundedCornerShape(14.dp),
-      colors = ButtonDefaults.buttonColors(containerColor, contentColor = textAndContentColor)
-    ) {
+  fun Modifier.button() = this.clickable(
+    onClick = ::onButtonClick,
+    interactionSource = interactionSource,
+    indication = ripple(color = { textAndContentColor }),
+    enabled = isDisabled.not() && isLoading.not(),
+    role = Role.Button
+  )
+
+  Box(Modifier.height(48.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(containerColor).button(), Alignment.Center) {
+    if (isLoading) {
+      LoadingIcon(color = textAndContentColor, size = 26.dp)
+    } else {
       AppText(title, size = AppTextSize.MD, weight = FontWeight.Bold, color = textAndContentColor)
     }
   }
