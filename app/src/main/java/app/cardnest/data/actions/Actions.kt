@@ -3,6 +3,19 @@ package app.cardnest.data.actions
 typealias Action = () -> Unit
 typealias SuspendAction = suspend () -> Unit
 
+class AuthAction() {
+  private var action: Action? = null
+
+  operator fun invoke() {
+    action?.invoke()
+    action = null
+  }
+
+  fun set(action: Action) {
+    this.action = action
+  }
+}
+
 object Actions {
   private var _afterPinCreated: Action = { }
   private var _afterPinVerified: SuspendAction = { }
