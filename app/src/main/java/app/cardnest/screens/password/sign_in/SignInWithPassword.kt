@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.components.button.AppButton
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.core.PasswordTextField
@@ -33,6 +35,16 @@ class SignInWithPasswordScreen : Screen {
 
     val vm = koinViewModel<SignInWithPasswordViewModel> { parametersOf(navigator) }
 
+    val hasCreatedPin by vm.hasCreatedPin.collectAsStateWithLifecycle()
+    val hasEnabledBiometrics by vm.hasEnabledBiometrics.collectAsStateWithLifecycle()
+
+    val dataRemoveInfo = when {
+      hasCreatedPin && hasEnabledBiometrics -> "Due to security reasons, your existing PIN and biometrics info will be removed."
+      hasCreatedPin -> "Due to security reasons, your existing PIN info will be removed."
+      hasEnabledBiometrics -> "Due to security reasons, your existing biometrics info will be removed."
+      else -> null
+    }
+
     LaunchedEffect(vm.isPasswordIncorrect) {
       if (vm.isPasswordIncorrect) vm.focusRequester.requestFocus()
     }
@@ -49,25 +61,28 @@ class SignInWithPasswordScreen : Screen {
         )
 
         AppText("Complete sign-in process using your password.", align = TextAlign.Center)
-        AppText("Due to security reasons, your PIN or biometrics will be removed.", align = TextAlign.Center)
+
+        if (dataRemoveInfo != null) {
+          AppText(dataRemoveInfo, align = TextAlign.Center)
+        }
+
+        Spacer(Modifier.size(32.dp))
+        Column {
+          PasswordTextField(
+            state = vm.state,
+            placeholder = "Enter password",
+            isLoading = vm.isLoading,
+            focusRequester = vm.focusRequester,
+            onKeyboardAction = { vm.onSubmit() }
+          )
+
+          Spacer(Modifier.size(8.dp))
+          PasswordInfo("Entered password is incorrect", PasswordInfoType.ERROR, vm.isPasswordIncorrect)
+        }
+
+        Spacer(Modifier.weight(1f))
+        AppButton("Continue", vm::onSubmit, isLoading = vm.isLoading)
       }
-
-      Spacer(Modifier.size(32.dp))
-      Column {
-        PasswordTextField(
-          state = vm.state,
-          placeholder = "Enter password",
-          isLoading = vm.isLoading,
-          focusRequester = vm.focusRequester,
-          onKeyboardAction = { vm.onSubmit() }
-        )
-
-        Spacer(Modifier.size(8.dp))
-        PasswordInfo("Entered password is incorrect", PasswordInfoType.ERROR, vm.isPasswordIncorrect)
-      }
-
-      Spacer(Modifier.weight(1f))
-      AppButton("Continue", vm::onSubmit, isLoading = vm.isLoading)
     }
   }
 }
