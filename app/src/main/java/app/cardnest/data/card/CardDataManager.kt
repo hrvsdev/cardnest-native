@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.serialization.json.Json
 import javax.crypto.SecretKey
@@ -54,29 +53,23 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun mergeAndManageCards() {
-    combine(authState, userState) { a, b -> a to b }.collectLatest {
+    combine(hasAnyAuthData, userState) { a, b -> a to b }.collectLatest { (shouldEncrypt, user) ->
       cardsLoadState.update { it.copy(isReady = false) }
 
-      val dek = it.first.dek
-      val user = it.second
-
-      val mergedCards = buildMap {
-        if (user == null) {
-          val localCards = repo.getLocalCards().first()
-
-          if (dek != null && localCards is CardRecords.Unencrypted) {
-            for ((id, card) in cardsState.value) put(id, encryptToCardEncrypted(card))
-          }
-        } else {
-          val remoteCards = repo.getRemoteCards().first()
-
-          for ((id, card) in cardsState.value) put(id, encryptToCardEncrypted(card))
-          for ((id, card) in remoteCards.cards) put(id, card)
+      when {
+        shouldEncrypt && user == null -> if (repo.getLocalCards().first() is CardRecords.Unencrypted) {
+          val cards = cardsState.value.mapValues { encryptToCardEncrypted(it.value) }
+          repo.setCards(CardRecords.Encrypted(cards.toPersistentMap()))
         }
-      }
 
-      if (mergedCards.isNotEmpty()) {
-        repo.setCards(CardRecords.Encrypted(mergedCards.toPersistentMap()))
+        shouldEncrypt && user != null -> {
+          val cards = cardsState.value.mapValues { encryptToCardEncrypted(it.value) } + repo.getRemoteCards().first().cards
+          repo.setCards(CardRecords.Encrypted(cards.toPersistentMap()))
+        }
+
+        else -> if (repo.getLocalCards().first() is CardRecords.Encrypted) {
+          repo.setCards(CardRecords.Unencrypted(cardsState.value.toPersistentMap()))
+        }
       }
 
       cardsLoadState.update { it.copy(isReady = true) }
