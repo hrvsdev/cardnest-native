@@ -215,12 +215,12 @@ fun PasswordTextField(
             innerTextField()
           }
 
-          if (isLoading) {
+          if (isLoading && isDisabled.not()) {
             Box(Modifier.size(48.dp), Alignment.Center) {
               LoadingIcon(size = 24.dp)
             }
-          } else {
-            IconButton({ isVisible = !isVisible }, Modifier.offset { IntOffset(0, y = offsetY) }, isEnabled) {
+          } else if (isEnabled) {
+            IconButton({ isVisible = !isVisible }, Modifier.offset { IntOffset(0, y = offsetY) }) {
               if (isVisible) {
                 Icon(painterResource(R.drawable.tabler__eye_off), "Hide password", tint = iconColor)
               } else {
