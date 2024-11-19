@@ -90,6 +90,8 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val remotePasswordData = remotePasswordData.value.checkNotNull { "Sign-in with Google first to set password" }
     val dek = decryptDek(password, remotePasswordData.salt, remotePasswordData.encryptedDek)
 
+    resetAuthData()
+
     authState.update { it.copy(dek = dek) }
     repo.setLocalPasswordData(remotePasswordData)
   }
@@ -229,6 +231,12 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     withContext(Dispatchers.Main) {
       prompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
     }
+  }
+
+  suspend fun resetAuthData() {
+    repo.setLocalPasswordData(null)
+    repo.setLocalPinData(null)
+    repo.setLocalBiometricsData(null)
   }
 
   private suspend fun getOrCreateDek(): SecretKey {

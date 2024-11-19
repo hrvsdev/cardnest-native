@@ -102,6 +102,10 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     repo.setCards(cardRecords)
   }
 
+  suspend fun resetCards() {
+    repo.setCards(CardRecords.Unencrypted())
+  }
+
   private fun encryptToCardEncrypted(card: CardUnencrypted): CardEncrypted {
     val dek = authState.value.dek.checkNotNull { "Encryption key is required to encrypt card data" }
     val encryptedData = encryptCard(card.data, dek)

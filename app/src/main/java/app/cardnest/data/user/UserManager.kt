@@ -86,9 +86,15 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
     userState.update { initialUserState.value }
   }
 
-  suspend fun signOut() {
+  suspend fun initialSignOut() {
     authManager.removeLocalPassword()
     Firebase.auth.signOut()
+  }
+
+  suspend fun signOut() {
+    initialSignOut()
+    authManager.resetAuthData()
+    cardDataManager.resetCards()
   }
 
   suspend fun collectUser() {

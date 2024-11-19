@@ -30,7 +30,7 @@ class AccountViewModel(private val userManager: UserManager, private val navigat
     isLoading = true
     viewModelScope.launch {
       try {
-        userManager.signOut()
+        userManager.initialSignOut()
         userManager.signInWithGoogle(ctx).also { continueSignInByPassword(it) }
       } catch (e: Exception) {
         e.toastAndLog("AccountViewModel")
