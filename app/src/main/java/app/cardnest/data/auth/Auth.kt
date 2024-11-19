@@ -5,22 +5,14 @@ import app.cardnest.utils.extensions.encoded
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AuthRecord(
-  val data: AuthData? = null,
-  val initialLocalData: InitialLocalAuthData? = null,
+data class AuthData(
+  val password: PasswordData? = null,
   val pin: PinData? = null,
   val biometrics: BiometricsData? = null,
 )
 
 @Serializable
-data class AuthData(
-  val salt: String,
-  val encryptedDek: EncryptedDataEncoded,
-  val modifiedAt: Long,
-)
-
-@Serializable
-data class InitialLocalAuthData(
+data class PasswordData(
   val salt: String,
   val encryptedDek: EncryptedDataEncoded,
   val modifiedAt: Long,
@@ -45,13 +37,15 @@ data class EncryptedData(val ciphertext: ByteArray, val iv: ByteArray)
 @Serializable
 data class EncryptedDataEncoded(val ciphertext: String, val iv: String)
 
-data class AuthDataRemote(
-  val salt: String,
-  val encryptedDek: EncryptedDataEncoded,
-  val modifiedAt: Long
+data class RemoteAuthData(
+  val password: PasswordData
 )
 
-data class AuthDataRemoteNullable(
+data class RemoteAuthDataNullable(
+  val password: PasswordDataNullable? = null
+)
+
+data class PasswordDataNullable(
   val salt: String? = null,
   val encryptedDek: EncryptedDataEncodedNullable? = null,
   val modifiedAt: Long? = null

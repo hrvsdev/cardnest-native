@@ -3,9 +3,9 @@ package app.cardnest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.auth.AuthManager
-import app.cardnest.data.authData
 import app.cardnest.data.authDataLoadState
 import app.cardnest.data.biometricsData
+import app.cardnest.data.passwordData
 import app.cardnest.data.pinData
 import app.cardnest.data.preferences.PreferencesManager
 import app.cardnest.data.user.UserManager
@@ -26,12 +26,12 @@ class AppViewModel(
   private val prefsManager: PreferencesManager,
   private val connectionManager: ConnectionManager
 ) : ViewModel() {
-  private val initialScreenFlow = combine(authData, pinData, biometricsData) { auth, pin, biometrics ->
+  private val initialScreenFlow = combine(passwordData, pinData, biometricsData) { password, pin, biometrics ->
     authDataLoadState.first { it.hasLocalLoaded }
     when {
       pin != null -> UnlockWithPinScreen()
       biometrics != null -> UnlockWithPasswordScreen()
-      auth != null -> UnlockWithPasswordScreen()
+      password != null -> UnlockWithPasswordScreen()
       else -> HomeScreen
     }
   }

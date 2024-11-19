@@ -2,12 +2,12 @@ package app.cardnest.db.auth
 
 import androidx.datastore.core.DataStore
 import app.cardnest.data.auth.AuthData
-import app.cardnest.data.auth.AuthDataRemote
-import app.cardnest.data.auth.AuthDataRemoteNullable
-import app.cardnest.data.auth.AuthRecord
 import app.cardnest.data.auth.BiometricsData
 import app.cardnest.data.auth.EncryptedDataEncoded
+import app.cardnest.data.auth.PasswordData
 import app.cardnest.data.auth.PinData
+import app.cardnest.data.auth.RemoteAuthData
+import app.cardnest.data.auth.RemoteAuthDataNullable
 import app.cardnest.data.initialUserState
 import app.cardnest.firebase.rtDb
 import app.cardnest.utils.extensions.checkNotNull
@@ -21,10 +21,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-class AuthRepository(private val localDb: DataStore<AuthRecord>) {
+class AuthRepository(private val localDb: DataStore<AuthData>) {
   private val uid get() = initialUserState.value?.uid.checkNotNull { "User must be signed in to perform auth operations" }
 
-  fun getLocalAuthRecord(): Flow<AuthRecord> {
+  fun getLocalAuthData(): Flow<AuthData> {
     try {
       return localDb.data
     } catch (e: Exception) {
@@ -32,7 +32,7 @@ class AuthRepository(private val localDb: DataStore<AuthRecord>) {
     }
   }
 
-  fun getRemoteAuthData(): Flow<AuthData?> = callbackFlow {
+  fun getRemoteAuthData(): Flow<RemoteAuthData?> = callbackFlow {
     val ref = rtDb.getReference("$uid/auth")
     val listener = ref.addValueEventListener(object : ValueEventListener {
       override fun onDataChange(snapshot: DataSnapshot) {
@@ -52,23 +52,8 @@ class AuthRepository(private val localDb: DataStore<AuthRecord>) {
     awaitClose { ref.removeEventListener(listener) }
   }
 
-  suspend fun setAuthData(authData: AuthData) {
-    setLocalAuthData(authData)
-    setRemoteAuthData(authData)
-  }
-
-  suspend fun setLocalAuthData(authData: AuthData?) {
-    localDb.updateData { it.copy(authData) }
-  }
-
-  suspend fun setRemoteAuthData(authData: AuthData) {
-    val ref = rtDb.getReference("$uid/auth")
-    val remoteAuthData = AuthDataRemote(authData.salt, authData.encryptedDek, modifiedAt = authData.modifiedAt)
-    try {
-      ref.setValue(remoteAuthData).await()
-    } catch (e: DatabaseException) {
-      throw Exception("Error saving auth data", e)
-    }
+  suspend fun setLocalPasswordData(data: PasswordData?) {
+    localDb.updateData { it.copy(password = data) }
   }
 
   suspend fun setLocalPinData(data: PinData?) {
@@ -79,21 +64,37 @@ class AuthRepository(private val localDb: DataStore<AuthRecord>) {
     localDb.updateData { it.copy(biometrics = data) }
   }
 
-  private fun getAuthDataFromSnapshot(snapshot: DataSnapshot): AuthData? {
-    val data = snapshot.getValue(AuthDataRemoteNullable::class.java) ?: return null
+  suspend fun setRemotePasswordData(data: PasswordData) {
+    val ref = rtDb.getReference("$uid/auth/password")
+    val data = PasswordData(data.salt, data.encryptedDek, modifiedAt = data.modifiedAt)
+    try {
+      ref.setValue(data).await()
+    } catch (e: DatabaseException) {
+      throw Exception("Error saving auth data", e)
+    }
+  }
 
-    if (data.salt == null || data.encryptedDek == null || data.modifiedAt == null) {
+  private fun getAuthDataFromSnapshot(snapshot: DataSnapshot): RemoteAuthData? {
+    val data = snapshot.getValue(RemoteAuthDataNullable::class.java) ?: return null
+
+    if (data.password == null) {
       throw IllegalStateException("Auth data seems to be corrupted")
     }
 
-    if (data.encryptedDek.ciphertext == null || data.encryptedDek.iv == null) {
+    if (data.password.salt == null || data.password.encryptedDek == null || data.password.modifiedAt == null) {
+      throw IllegalStateException("Password data seems to be corrupted")
+    }
+
+    if (data.password.encryptedDek.ciphertext == null || data.password.encryptedDek.iv == null) {
       throw IllegalStateException("Encrypted encryption key seems to be corrupted")
     }
 
-    return AuthData(
-      salt = data.salt,
-      encryptedDek = EncryptedDataEncoded(data.encryptedDek.ciphertext, data.encryptedDek.iv),
-      modifiedAt = data.modifiedAt,
+    val passwordData = PasswordData(
+      salt = data.password.salt,
+      encryptedDek = EncryptedDataEncoded(data.password.encryptedDek.ciphertext, data.password.encryptedDek.iv),
+      modifiedAt = data.password.modifiedAt,
     )
+
+    return RemoteAuthData(passwordData)
   }
 }

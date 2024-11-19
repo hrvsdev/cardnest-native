@@ -5,14 +5,13 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
-import app.cardnest.data.authData
 import app.cardnest.data.authDataLoadState
 import app.cardnest.data.authState
 import app.cardnest.data.biometricsData
-import app.cardnest.data.initialLocalAuthData
 import app.cardnest.data.initialUserState
+import app.cardnest.data.passwordData
 import app.cardnest.data.pinData
-import app.cardnest.data.remoteAuthData
+import app.cardnest.data.remotePasswordData
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.utils.crypto.CryptoManager
 import app.cardnest.utils.extensions.checkNotNull
@@ -50,9 +49,8 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     .build()
 
   suspend fun collectAuthData() {
-    repo.getLocalAuthRecord().catch { it.toastAndLog("AuthManager") }.collectLatest { d ->
-      authData.update { d.data }
-      initialLocalAuthData.update { d.data }
+    repo.getLocalAuthData().catch { it.toastAndLog("AuthManager") }.collectLatest { d ->
+      passwordData.update { d.password }
       pinData.update { d.pin }
       biometricsData.update { d.biometrics }
 
@@ -64,11 +62,11 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     initialUserState.collectLatest {
       if (it != null) {
         repo.getRemoteAuthData().catch { it.toastAndLog("AuthManager") }.collectLatest { d ->
-          remoteAuthData.update { d }
+          remotePasswordData.update { d?.password }
           authDataLoadState.update { it.copy(hasRemoteLoaded = true) }
         }
       } else {
-        remoteAuthData.update { null }
+        remotePasswordData.update { null }
         authDataLoadState.update { it.copy(hasRemoteLoaded = false) }
       }
     }
@@ -79,27 +77,28 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val dek = crypto.generateKey()
 
     val encryptedDek = encryptDek(password, salt, dek)
-    val data = AuthData(salt.encoded, encryptedDek.encoded, System.currentTimeMillis())
+    val data = PasswordData(salt.encoded, encryptedDek.encoded, System.currentTimeMillis())
 
     authState.update { it.copy(dek = dek) }
-    repo.setAuthData(data)
+    repo.setLocalPasswordData(data)
+    repo.setRemotePasswordData(data)
   }
 
   suspend fun setLocalPassword(password: String) {
-    val authData = remoteAuthData.value.checkNotNull { "Sign-in with Google first to set password" }
-    val dek = decryptDek(password, authData.salt, authData.encryptedDek)
+    val remotePasswordData = remotePasswordData.value.checkNotNull { "Sign-in with Google first to set password" }
+    val dek = decryptDek(password, remotePasswordData.salt, remotePasswordData.encryptedDek)
 
     authState.update { it.copy(dek = dek) }
-    repo.setLocalAuthData(authData)
+    repo.setLocalPasswordData(remotePasswordData)
   }
 
   suspend fun removeLocalPassword() {
-    repo.setLocalAuthData(null)
+    repo.setLocalPasswordData(null)
   }
 
   fun unlockWithPassword(password: String) {
-    val authData = authData.value.checkNotNull { "Complete sign-in process to unlock app" }
-    val dek = decryptDek(password, authData.salt, authData.encryptedDek)
+    val passwordData = passwordData.value.checkNotNull { "Complete sign-in process to unlock app" }
+    val dek = decryptDek(password, passwordData.salt, passwordData.encryptedDek)
 
     authState.update { it.copy(dek = dek) }
   }
@@ -109,7 +108,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val dek = authState.value.dek.let {
       when {
         it != null -> it
-        authData.value != null -> throw IllegalStateException("Restart app and unlock again to create PIN")
+        passwordData.value != null -> throw IllegalStateException("Restart app and unlock again to create PIN")
         else -> throw IllegalStateException("Sign-in first to create PIN")
       }
     }
@@ -141,7 +140,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val dek = authState.value.dek.let {
       when {
         it != null -> it
-        authData.value != null -> throw IllegalStateException("Restart app and unlock again to enable biometrics")
+        passwordData.value != null -> throw IllegalStateException("Restart app and unlock again to enable biometrics")
         else -> throw IllegalStateException("Sign-in first to enable biometrics")
       }
     }

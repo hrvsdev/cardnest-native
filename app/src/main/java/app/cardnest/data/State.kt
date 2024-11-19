@@ -1,17 +1,17 @@
 package app.cardnest.data
 
-import app.cardnest.data.auth.AuthData
 import app.cardnest.data.auth.BiometricsData
+import app.cardnest.data.auth.PasswordData
 import app.cardnest.data.auth.PinData
 import app.cardnest.data.card.CardUnencrypted
 import app.cardnest.data.preferences.Preferences
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import javax.crypto.SecretKey
 
-val authData = MutableStateFlow<AuthData?>(null)
-val remoteAuthData = MutableStateFlow<AuthData?>(null)
+val passwordData = MutableStateFlow<PasswordData?>(null)
+val remotePasswordData = MutableStateFlow<PasswordData?>(null)
 
-val initialLocalAuthData = MutableStateFlow<AuthData?>(null)
 val pinData = MutableStateFlow<PinData?>(null)
 val biometricsData = MutableStateFlow<BiometricsData?>(null)
 
@@ -26,6 +26,10 @@ val cardsState = MutableStateFlow<Map<String, CardUnencrypted>>(emptyMap())
 val preferencesState = MutableStateFlow(Preferences())
 
 val connectionState = MutableStateFlow(Connection())
+
+val hasAnyAuthData = combine(passwordData, pinData, biometricsData) { password, pin, biometrics ->
+  password != null || pin != null || biometrics != null
+}
 
 data class AuthDataLoadState(
   val hasLocalLoaded: Boolean = false,

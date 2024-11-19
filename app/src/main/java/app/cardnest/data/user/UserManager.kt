@@ -8,11 +8,11 @@ import androidx.credentials.exceptions.GetCredentialException
 import app.cardnest.R
 import app.cardnest.data.User
 import app.cardnest.data.auth.AuthManager
-import app.cardnest.data.authData
 import app.cardnest.data.authDataLoadState
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.initialUserState
-import app.cardnest.data.remoteAuthData
+import app.cardnest.data.passwordData
+import app.cardnest.data.remotePasswordData
 import app.cardnest.data.userState
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -70,8 +70,8 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
       }
     }
 
-    val remoteAuthData = authDataLoadState.first { it.hasRemoteLoaded }.let { remoteAuthData.value }
-    val isUserNew = remoteAuthData == null
+    val remotePasswordData = authDataLoadState.first { it.hasRemoteLoaded }.let { remotePasswordData.value }
+    val isUserNew = remotePasswordData == null
 
     return if (isUserNew) SignInResult.CREATE_PASSWORD else SignInResult.ENTER_PASSWORD
   }
@@ -101,10 +101,10 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
       awaitClose { Firebase.auth.removeAuthStateListener { listener } }
     }
 
-    val userIfSignedInWithPasswordFlow = userFlow.combine(authData) { user, authData ->
+    val userIfSignedInWithPasswordFlow = userFlow.combine(passwordData) { user, passwordData ->
       when {
         user == null -> Users(null, null)
-        authData == null -> Users(user, null)
+        passwordData == null -> Users(user, null)
         else -> Users(user, user)
       }
     }

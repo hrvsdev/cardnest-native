@@ -1,9 +1,9 @@
 package app.cardnest.data.card
 
 import app.cardnest.data.auth.EncryptedData
-import app.cardnest.data.authData
 import app.cardnest.data.authState
 import app.cardnest.data.cardsState
+import app.cardnest.data.hasAnyAuthData
 import app.cardnest.data.userState
 import app.cardnest.db.card.CardRepository
 import app.cardnest.utils.crypto.CryptoManager
@@ -16,6 +16,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.serialization.json.Json
@@ -59,7 +60,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun encryptAndAddOrUpdateCard(cardUnencrypted: CardUnencrypted) {
-    val cardData = if (authData.value != null) {
+    val cardData = if (hasAnyAuthData.first()) {
       CardData.Encrypted(encryptToCardEncrypted(cardUnencrypted))
     } else {
       CardData.Unencrypted(cardUnencrypted)
@@ -73,7 +74,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun deleteAllCards() {
-    val cardRecords = if (authData.value == null) CardRecords.Unencrypted() else CardRecords.Encrypted()
+    val cardRecords = if (hasAnyAuthData.first()) CardRecords.Unencrypted() else CardRecords.Encrypted()
     repo.setCards(cardRecords)
   }
 
