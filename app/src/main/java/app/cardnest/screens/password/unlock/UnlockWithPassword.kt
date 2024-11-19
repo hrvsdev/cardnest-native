@@ -63,7 +63,7 @@ class UnlockWithPasswordScreen : Screen {
       }
 
       Spacer(Modifier.weight(1f))
-      AppButton("Continue", vm::onSubmit)
+      AppButton("Continue", vm::onSubmit, isLoading = vm.isLoading)
     }
   }
 }
