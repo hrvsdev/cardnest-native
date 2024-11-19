@@ -8,18 +8,17 @@ import app.cardnest.components.containers.appGradient
 import app.cardnest.components.tabs.TabBar
 import app.cardnest.components.tabs.tabs
 import app.cardnest.components.toast.AppToast
-import app.cardnest.screens.home.HomeScreen
-import app.cardnest.screens.pin.enter.EnterPinScreen
 import app.cardnest.ui.theme.TH_BLACK_00
 import app.cardnest.ui.theme.TH_BLACK_60
+import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import cafe.adriel.voyager.transitions.SlideTransition
 
 @Composable
-fun App(showPinScreen: Boolean) {
+fun App(initialScreen: Screen) {
   BottomSheetNavigator(scrimColor = TH_BLACK_60, sheetBackgroundColor = TH_BLACK_00) {
-    Navigator(if (showPinScreen) EnterPinScreen() else HomeScreen) {
+    Navigator(initialScreen) {
       val showTabBar = it.lastItem in tabs.map { tab -> tab.screen }
 
       Box(Modifier.background(appGradient)) {

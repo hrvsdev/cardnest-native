@@ -1,33 +1,38 @@
 package app.cardnest.screens.pin.create.confirm
 
 import androidx.lifecycle.viewModelScope
-import app.cardnest.data.actions.Actions
+import app.cardnest.components.toast.AppToast
+import app.cardnest.data.actions.Actions.afterPinCreated
 import app.cardnest.data.auth.AuthManager
-import app.cardnest.data.card.CardDataManager
+import app.cardnest.data.pinData
 import app.cardnest.screens.pin.PinBaseViewModel
 import app.cardnest.utils.extensions.toastAndLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ConfirmPinViewModel(
-  private val authManager: AuthManager,
-  private val cardDataManager: CardDataManager,
-  private val actions: Actions,
-  private val enteredPin: String
-) : PinBaseViewModel() {
+class ConfirmPinViewModel(private val authManager: AuthManager, private val enteredPin: String) : PinBaseViewModel() {
   fun onPinSubmit() {
+    val isUpdating = pinData.value != null
     viewModelScope.launch(Dispatchers.IO) {
       try {
-        if (pin.value != enteredPin) throw Exception()
+        checkIfPinsMatch()
+        authManager.createAndSetPin(pin.value)
+        afterPinCreated()
 
-        authManager.setPin(pin.value)
-        cardDataManager.encryptAndSaveCards()
+        if (isUpdating) {
+          AppToast.success("PIN has been updated")
+        }
 
-        actions.afterPinCreated()
       } catch (e: Exception) {
-        onError()
         e.toastAndLog("ConfirmPinViewModel")
+        onError()
       }
+    }
+  }
+
+  private fun checkIfPinsMatch() {
+    if (pin.value != enteredPin) {
+      throw Exception()
     }
   }
 }

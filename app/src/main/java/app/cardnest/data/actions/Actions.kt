@@ -1,41 +1,43 @@
 package app.cardnest.data.actions
 
-typealias Action = () -> Unit
-typealias SuspendAction = suspend () -> Unit
+object Actions {
+  val afterPinCreated = Action()
+  val afterPinVerified = SuspendedAction()
 
-class AuthAction() {
-  private var action: Action? = null
+  val onBottomSheetConfirm = Action()
+}
 
-  operator fun invoke() {
+typealias ActionType = () -> Unit
+typealias SuspendedActionType = suspend () -> Unit
+
+class Action() {
+  private var action: ActionType? = null
+
+  operator fun invoke(clear: Boolean = true) {
     action?.invoke()
-    action = null
+
+    if (clear) {
+      action = null
+    }
   }
 
-  fun set(action: Action) {
+  fun set(action: ActionType) {
     this.action = action
   }
 }
 
-object Actions {
-  val afterPasswordCreated = AuthAction()
+class SuspendedAction() {
+  private var action: SuspendedActionType? = null
 
-  private var _afterPinCreated: Action = { }
-  private var _afterPinVerified: SuspendAction = { }
-  private var _onBottomSheetConfirm: Action = { }
+  suspend operator fun invoke(clear: Boolean = true) {
+    action?.invoke()
 
-  val afterPinCreated get() = _afterPinCreated
-  val afterPinVerified get() = _afterPinVerified
-  val onBottomSheetConfirm get() = _onBottomSheetConfirm
-
-  fun setAfterPinCreated(action: Action) {
-    _afterPinCreated = action
+    if (clear) {
+      action = null
+    }
   }
 
-  fun setAfterPinVerified(action: SuspendAction) {
-    _afterPinVerified = action
-  }
-
-  fun setOnBottomSheetConfirm(action: Action) {
-    _onBottomSheetConfirm = action
+  fun set(action: SuspendedActionType) {
+    this.action = action
   }
 }

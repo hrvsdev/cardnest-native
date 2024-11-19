@@ -3,7 +3,6 @@ package app.cardnest.di
 import app.cardnest.AppViewModel
 import app.cardnest.authDataStore
 import app.cardnest.cardsDataStore
-import app.cardnest.data.actions.Actions
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.card.CardEditorViewModel
@@ -19,13 +18,12 @@ import app.cardnest.screens.home.HomeViewModel
 import app.cardnest.screens.home.card.CardViewModel
 import app.cardnest.screens.home.card.editor.UpdateCardViewModel
 import app.cardnest.screens.password.create.CreatePasswordViewModel
+import app.cardnest.screens.password.sign_in.SignInWithPasswordViewModel
 import app.cardnest.screens.password.unlock.UnlockWithPasswordViewModel
 import app.cardnest.screens.pin.create.confirm.ConfirmPinViewModel
 import app.cardnest.screens.pin.create.create.CreatePinViewModel
-import app.cardnest.screens.pin.enter.EnterPinViewModel
+import app.cardnest.screens.pin.unlock.UnlockWithPinViewModel
 import app.cardnest.screens.pin.verify.VerifyPinViewModel
-import app.cardnest.screens.pin.verify_new_pin.VerifyNewPinViewModel
-import app.cardnest.screens.pin.verify_previous_pin.VerifyPreviousPinViewModel
 import app.cardnest.screens.user.UserViewModel
 import app.cardnest.screens.user.account.AccountViewModel
 import app.cardnest.screens.user.security.SecurityViewModel
@@ -39,7 +37,7 @@ import org.koin.dsl.module
 val appModule = module {
   single { CryptoManager }
 
-  single { UserManager(get(), get(), get()) }
+  single { UserManager(get(), get()) }
 
   single { AuthRepository(androidContext().authDataStore) }
   single { AuthManager(get(), get()) }
@@ -51,7 +49,6 @@ val appModule = module {
   single { PreferencesManager(get()) }
 
   single { ConnectionManager() }
-  single { Actions }
 
   factory { defaultCard() }
 
@@ -59,25 +56,24 @@ val appModule = module {
 
   viewModel { AppViewModel(get(), get(), get(), get()) }
 
-  viewModel { HomeViewModel(get(), get(), get(), it.get(), it.get()) }
+  viewModel { HomeViewModel(get()) }
   viewModel { CardViewModel(get(), it.get()) }
   viewModel { UpdateCardViewModel(get(), it.get()) }
 
   viewModel { AddCardViewModel(get(), it.get()) }
 
-  viewModel { UserViewModel(get(), get(), it.get(), it.get()) }
-  viewModel { AccountViewModel(get(), get(), get(), get(), it.get()) }
-  viewModel { SecurityViewModel(get(), get(), get(), get(), it.get(), it.get()) }
+  viewModel { UserViewModel(get(), it.get(), it.get()) }
+  viewModel { AccountViewModel(get(), it.get()) }
+  viewModel { SecurityViewModel(get(), it.get(), it.get()) }
 
   viewModel { UserInterfaceViewModel(get()) }
 
   viewModel { CreatePinViewModel(it.get()) }
-  viewModel { ConfirmPinViewModel(get(), get(), get(), it.get()) }
-  viewModel { EnterPinViewModel(get(), it.get()) }
-  viewModel { VerifyPinViewModel(get(), get()) }
-  viewModel { VerifyPreviousPinViewModel(get(), get()) }
-  viewModel { VerifyNewPinViewModel(get(), get()) }
+  viewModel { ConfirmPinViewModel(get(), it.get()) }
+  viewModel { UnlockWithPinViewModel(get(), it.get()) }
+  viewModel { VerifyPinViewModel(get()) }
 
-  viewModel { CreatePasswordViewModel(get()) }
+  viewModel { CreatePasswordViewModel(get(), it.get()) }
+  viewModel { SignInWithPasswordViewModel(get(), it.get()) }
   viewModel { UnlockWithPasswordViewModel(get(), it.get()) }
 }

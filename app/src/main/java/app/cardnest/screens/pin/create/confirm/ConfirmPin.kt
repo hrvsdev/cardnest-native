@@ -4,10 +4,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.pin.Keypad
@@ -27,19 +32,29 @@ data class ConfirmPinScreen(val enteredPin: String) : Screen {
     val vm = koinViewModel<ConfirmPinViewModel> { parametersOf(enteredPin) }
 
     SubScreenRoot(title = "") {
-      Spacer(Modifier.weight(1f))
+      Spacer(Modifier.size(32.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(
-          text = "Confirm the PIN",
+          text = "Confirm your PIN",
           modifier = Modifier.padding(bottom = 8.dp),
           size = AppTextSize.XL,
           weight = FontWeight.Bold,
           color = TH_WHITE
         )
 
-        AppText("Please confirm the PIN you entered.")
-        AppText("Remember it as there is no way to recover it.", Modifier.padding(bottom = 32.dp))
+        AppText("It will be used to unlock the app.", align = TextAlign.Center)
+        AppText(
+          align = TextAlign.Center,
+          text = buildAnnotatedString {
+            append("It never gets stored, so it ")
+            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("can't be recovered") }
+            append(".")
+          }
+        )
+      }
 
+      Spacer(Modifier.size(32.dp))
+      Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         PinInput(
           pin = vm.pin.value,
           hasError = vm.hasError.value,
@@ -47,16 +62,17 @@ data class ConfirmPinScreen(val enteredPin: String) : Screen {
         )
 
         AppText(
-          text = if (vm.showErrorMessage.value) "Both PIN don't match" else "",
+          text = if (vm.showErrorMessage.value) "PINs do not match" else "",
           modifier = Modifier.padding(top = 24.dp),
           size = AppTextSize.SM,
           color = TH_RED
         )
       }
 
-      Spacer(Modifier.weight(2f))
-      Keypad(vm.pin, vm::onPinChange, vm::onPinSubmit)
       Spacer(Modifier.weight(1f))
+      Keypad(vm.pin, vm::onPinChange, vm::onPinSubmit)
+
+      Spacer(Modifier.size(48.dp))
     }
   }
 }

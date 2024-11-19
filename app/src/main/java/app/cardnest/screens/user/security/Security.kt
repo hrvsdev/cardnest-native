@@ -29,7 +29,7 @@ class SecurityScreen : Screen {
     val vm = koinViewModel<SecurityViewModel> { parametersOf(navigator, bottomSheetNavigator) }
 
     val hasCreatedPin = vm.hasCreatedPin.collectAsStateWithLifecycle().value
-    val hasBiometricsEnabled = vm.hasBiometricsEnabled.collectAsStateWithLifecycle().value
+    val hasEnabledBiometrics = vm.hasEnabledBiometrics.collectAsStateWithLifecycle().value
 
     fun onRemovePinClick() {
       bottomSheetNavigator.open(RemovePinBottomSheetScreen(), vm::onRemovePin)
@@ -65,7 +65,7 @@ class SecurityScreen : Screen {
           SettingsSwitch(
             title = "Enable biometrics",
             icon = painterResource(R.drawable.tabler__fingerprint_scan),
-            checked = hasBiometricsEnabled,
+            checked = hasEnabledBiometrics,
             onCheckedChange = ::onBiometricsSwitchChange,
             isFirst = true,
             isLast = true,

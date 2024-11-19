@@ -1,4 +1,4 @@
-package app.cardnest.screens.password.unlock
+package app.cardnest.screens.password.sign_in
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.getValue
@@ -6,20 +6,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.focus.FocusRequester
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cardnest.data.auth.AuthManager
-import app.cardnest.data.biometricsData
-import app.cardnest.data.pinData
-import app.cardnest.screens.home.HomeScreen
+import app.cardnest.data.user.UserManager
+import app.cardnest.screens.user.account.AccountScreen
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class UnlockWithPasswordViewModel(private val authManager: AuthManager, private val navigator: Navigator) : ViewModel() {
+class SignInWithPasswordViewModel(private val userManager: UserManager, private val navigator: Navigator) : ViewModel() {
   val state = TextFieldState()
   val focusRequester = FocusRequester()
 
@@ -51,29 +48,11 @@ class UnlockWithPasswordViewModel(private val authManager: AuthManager, private 
     isLoading = true
     viewModelScope.launch(Dispatchers.IO) {
       try {
-        authManager.unlockWithPassword(state.text.toString())
-        navigator.replaceAll(HomeScreen)
+        userManager.continueSignInByEnteringPassword(state.text.toString())
+        navigator.popUntil { it is AccountScreen }
       } catch (e: Exception) {
-        e.toastAndLog("UnlockWithPasswordViewModel")
+        e.toastAndLog("SignInWithPasswordViewModel")
         onError()
-      }
-    }
-  }
-
-  fun getShowPinButton(): Boolean {
-    return pinData.value != null
-  }
-
-  fun getShowBiometricsButton(ctx: FragmentActivity): Boolean {
-    return biometricsData.value != null && authManager.getAreBiometricsAvailable(ctx)
-  }
-
-  fun unlockWithBiometrics(ctx: FragmentActivity) {
-    viewModelScope.launch(Dispatchers.IO) {
-      try {
-        authManager.unlockWithBiometrics(ctx) { navigator.replaceAll(HomeScreen) }
-      } catch (e: Exception) {
-        e.toastAndLog("EnterPinViewModel")
       }
     }
   }

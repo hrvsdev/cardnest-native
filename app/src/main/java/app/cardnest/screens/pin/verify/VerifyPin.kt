@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.pin.Keypad
@@ -26,18 +28,21 @@ class VerifyPinBeforeActionScreen : Screen {
     val vm = koinViewModel<VerifyPinViewModel>()
 
     SubScreenRoot(title = "") {
-      Spacer(Modifier.weight(1f))
+      Spacer(Modifier.size(32.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(
-          text = "Confirm your PIN",
+          text = "Verify your PIN",
           modifier = Modifier.padding(bottom = 8.dp),
           size = AppTextSize.XL,
           weight = FontWeight.Bold,
           color = TH_WHITE
         )
 
-        AppText("Please enter your pin to proceed.", Modifier.padding(bottom = 32.dp))
+        AppText("Continue to proceed using your PIN", align = TextAlign.Center)
+      }
 
+      Spacer(Modifier.size(32.dp))
+      Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         PinInput(
           pin = vm.pin.value,
           hasError = vm.hasError.value,
@@ -52,10 +57,10 @@ class VerifyPinBeforeActionScreen : Screen {
         )
       }
 
-      Spacer(Modifier.weight(2f))
-
-      Keypad(pin = vm.pin, onPinChange = vm::onPinChange, onPinSubmit = vm::onPinSubmit)
       Spacer(Modifier.weight(1f))
+      Keypad(vm.pin, vm::onPinChange, vm::onPinSubmit)
+
+      Spacer(Modifier.size(48.dp))
     }
   }
 }

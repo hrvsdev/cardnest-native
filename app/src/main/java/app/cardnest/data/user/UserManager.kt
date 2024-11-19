@@ -7,13 +7,11 @@ import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import app.cardnest.R
 import app.cardnest.data.User
-import app.cardnest.data.auth.AuthData
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.authData
 import app.cardnest.data.authDataLoadState
-import app.cardnest.data.authState
 import app.cardnest.data.card.CardDataManager
-import app.cardnest.data.preferences.PreferencesManager
+import app.cardnest.data.initialUserState
 import app.cardnest.data.remoteAuthData
 import app.cardnest.data.userState
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -28,19 +26,15 @@ import com.google.firebase.auth.auth
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.tasks.await
 import java.security.MessageDigest
 import java.util.UUID
-import javax.crypto.SecretKey
 
-class UserManager(
-  private val authManager: AuthManager,
-  private val cardDataManager: CardDataManager,
-  private val prefsManager: PreferencesManager
-) {
-  suspend fun signInWithGoogle(ctx: Context) {
+class UserManager(private val authManager: AuthManager, private val cardDataManager: CardDataManager) {
+  suspend fun signInWithGoogle(ctx: Context): SignInResult {
     val credentialManager = CredentialManager.create(ctx)
 
     val googleIdOption = GetGoogleIdOption.Builder()
@@ -75,10 +69,29 @@ class UserManager(
         else -> throw Exception("Error signing in with Google", e)
       }
     }
+
+    val remoteAuthData = authDataLoadState.first { it.hasRemoteLoaded }.let { remoteAuthData.value }
+    val isUserNew = remoteAuthData == null
+
+    return if (isUserNew) SignInResult.CREATE_PASSWORD else SignInResult.ENTER_PASSWORD
+  }
+
+  suspend fun continueSignInByCreatingPassword(password: String) {
+    authManager.createAndSetPassword(password)
+    cardDataManager.encryptAndSaveCards()
+
+    userState.update { initialUserState.value }
+  }
+
+  suspend fun continueSignInByEnteringPassword(password: String) {
+    authManager.setLocalPassword(password)
+    cardDataManager.encryptAndSaveCards()
+
+    userState.update { initialUserState.value }
   }
 
   suspend fun signOut() {
-    prefsManager.setSync(false)
+    authManager.removeLocalPassword()
     Firebase.auth.signOut()
   }
 
@@ -88,58 +101,17 @@ class UserManager(
       awaitClose { Firebase.auth.removeAuthStateListener { listener } }
     }
 
-    userFlow.collectLatest { d -> userState.update { d } }
-  }
-
-  suspend fun setupSync(): SyncResult {
-    val remoteAuthData = authDataLoadState.first { it.hasRemoteLoaded }.let { remoteAuthData.value }
-    val isUserNew = remoteAuthData == null
-
-    val dek = authState.value.dek
-    val pin = authState.value.pin
-
-    if (isUserNew) {
-      return if (dek == null) {
-        SyncResult.CREATE_PIN
-      } else {
-        syncDataAndUpdateState(dek)
+    val userIfSignedInWithPasswordFlow = userFlow.combine(authData) { user, authData ->
+      when {
+        user == null -> Users(null, null)
+        authData == null -> Users(user, null)
+        else -> Users(user, user)
       }
     }
 
-    if (pin == null) return getPreviousOrNewPinRequired(remoteAuthData)
-
-    val remoteDek = authManager.getRemoteDek(pin)
-    val isLocalPinSameAsRemote = remoteDek != null
-
-    return if (isLocalPinSameAsRemote) {
-      syncDataAndUpdateState(remoteDek)
-    } else {
-      getPreviousOrNewPinRequired(remoteAuthData)
-    }
-  }
-
-  suspend fun continueSetupSyncWithDifferentPin(pin: String): SyncResult {
-    val remoteDek = authManager.getRemoteDek(pin) ?: return SyncResult.ERROR
-
-    authManager.syncAuthState(pin, remoteDek)
-    return syncDataAndUpdateState(remoteDek)
-  }
-
-  private suspend fun syncDataAndUpdateState(dek: SecretKey): SyncResult {
-    authManager.syncAuthData()
-    cardDataManager.syncCards(dek)
-
-    prefsManager.setSync(true)
-
-    return SyncResult.SUCCESS
-  }
-
-  private fun getPreviousOrNewPinRequired(remoteAuthData: AuthData): SyncResult {
-    val authData = authData.value
-    return if (authData != null && authData.modifiedAt < remoteAuthData.modifiedAt) {
-      SyncResult.NEW_PIN_REQUIRED
-    } else {
-      SyncResult.PREVIOUS_PIN_REQUIRED
+    userIfSignedInWithPasswordFlow.collectLatest { users ->
+      initialUserState.update { users.initial }
+      userState.update { users.current }
     }
   }
 
@@ -154,3 +126,5 @@ class UserManager(
     return User(uid = uid, name = fullName.split(" ").first(), fullName = fullName)
   }
 }
+
+private data class Users(val initial: User?, val current: User?)

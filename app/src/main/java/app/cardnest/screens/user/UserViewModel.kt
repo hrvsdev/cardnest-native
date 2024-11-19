@@ -3,7 +3,7 @@ package app.cardnest.screens.user
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.components.toast.AppToast
-import app.cardnest.data.actions.Actions
+import app.cardnest.data.actions.Actions.afterPinVerified
 import app.cardnest.data.authData
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
@@ -15,9 +15,8 @@ import kotlinx.coroutines.launch
 
 class UserViewModel(
   private val cardDataManager: CardDataManager,
-  private val actions: Actions,
   private val navigator: Navigator,
-  private val bottomSheetNavigator: BottomSheetNavigator,
+  private val bottomSheetNavigator: BottomSheetNavigator
 ) : ViewModel() {
   suspend fun deleteAllCards() {
     cardDataManager.deleteAllCards()
@@ -33,7 +32,7 @@ class UserViewModel(
       if (authData.value == null) {
         deleteAllCards()
       } else {
-        actions.setAfterPinVerified { deleteAllCards() }
+        afterPinVerified.set { deleteAllCards() }
         navigator.push(VerifyPinBeforeActionScreen())
       }
     }

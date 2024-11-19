@@ -3,12 +3,12 @@ package app.cardnest.utils.crypto
 import android.annotation.SuppressLint
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import android.util.Log
 import app.cardnest.data.auth.EncryptedData
 import java.security.InvalidKeyException
 import java.security.KeyStore
 import java.security.SecureRandom
 import java.util.Base64
+import javax.crypto.AEADBadTagException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -116,7 +116,10 @@ object CryptoManager {
     try {
       return String(cipher.doFinal(cipherText))
     } catch (e: Exception) {
-      throw RuntimeException("Failed to decrypt data", e)
+      when (e) {
+        is AEADBadTagException -> throw AEADBadTagException("Wrong password or data is corrupted")
+        else -> throw RuntimeException("Failed to decrypt data", e)
+      }
     }
   }
 
@@ -125,14 +128,9 @@ object CryptoManager {
     return encryptDataWithCipher(plaintext, cipher)
   }
 
-  fun decryptData(encryptedData: EncryptedData, key: SecretKey): String? {
-    try {
-      val cipher = getInitializedCipherForDecryption(key, encryptedData.iv)
-      return decryptDataWithCipher(encryptedData.ciphertext, cipher)
-    } catch (e: Exception) {
-      Log.e("CryptoManager", "Failed to decrypt data", e)
-      return null
-    }
+  fun decryptData(encryptedData: EncryptedData, key: SecretKey): String {
+    val cipher = getInitializedCipherForDecryption(key, encryptedData.iv)
+    return decryptDataWithCipher(encryptedData.ciphertext, cipher)
   }
 
   @SuppressLint("NewApi")

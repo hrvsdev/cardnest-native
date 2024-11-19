@@ -5,10 +5,10 @@ import app.cardnest.data.auth.AuthData
 import app.cardnest.data.auth.AuthDataRemote
 import app.cardnest.data.auth.AuthDataRemoteNullable
 import app.cardnest.data.auth.AuthRecord
+import app.cardnest.data.auth.BiometricsData
 import app.cardnest.data.auth.EncryptedDataEncoded
-import app.cardnest.data.authData
-import app.cardnest.data.preferencesState
-import app.cardnest.data.userState
+import app.cardnest.data.auth.PinData
+import app.cardnest.data.initialUserState
 import app.cardnest.firebase.rtDb
 import app.cardnest.utils.extensions.checkNotNull
 import app.cardnest.utils.extensions.toastAndLog
@@ -19,18 +19,16 @@ import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository(private val localDb: DataStore<AuthRecord>) {
-  private val uid get() = userState.value?.uid.checkNotNull { "User must be signed in to perform auth operations" }
-  private val isSyncing get() = preferencesState.value.sync.isSyncing
+  private val uid get() = initialUserState.value?.uid.checkNotNull { "User must be signed in to perform auth operations" }
 
-  fun getLocalAuthData(): Flow<AuthData?> {
+  fun getLocalAuthRecord(): Flow<AuthRecord> {
     try {
-      return localDb.data.map { it.data }
+      return localDb.data
     } catch (e: Exception) {
-      throw Exception("Error getting auth data", e)
+      throw Exception("Error getting auth record", e)
     }
   }
 
@@ -56,7 +54,7 @@ class AuthRepository(private val localDb: DataStore<AuthRecord>) {
 
   suspend fun setAuthData(authData: AuthData) {
     setLocalAuthData(authData)
-    if (isSyncing) setRemoteAuthData(authData)
+    setRemoteAuthData(authData)
   }
 
   suspend fun setLocalAuthData(authData: AuthData?) {
@@ -71,6 +69,14 @@ class AuthRepository(private val localDb: DataStore<AuthRecord>) {
     } catch (e: DatabaseException) {
       throw Exception("Error saving auth data", e)
     }
+  }
+
+  suspend fun setLocalPinData(data: PinData?) {
+    localDb.updateData { it.copy(pin = data) }
+  }
+
+  suspend fun setLocalBiometricsData(data: BiometricsData?) {
+    localDb.updateData { it.copy(biometrics = data) }
   }
 
   private fun getAuthDataFromSnapshot(snapshot: DataSnapshot): AuthData? {
@@ -88,7 +94,6 @@ class AuthRepository(private val localDb: DataStore<AuthRecord>) {
       salt = data.salt,
       encryptedDek = EncryptedDataEncoded(data.encryptedDek.ciphertext, data.encryptedDek.iv),
       modifiedAt = data.modifiedAt,
-      encryptedBiometricsDek = authData.value?.encryptedBiometricsDek,
     )
   }
 }

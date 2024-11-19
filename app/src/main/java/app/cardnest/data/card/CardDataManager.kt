@@ -4,7 +4,7 @@ import app.cardnest.data.auth.EncryptedData
 import app.cardnest.data.authData
 import app.cardnest.data.authState
 import app.cardnest.data.cardsState
-import app.cardnest.data.preferencesState
+import app.cardnest.data.userState
 import app.cardnest.db.card.CardRepository
 import app.cardnest.utils.crypto.CryptoManager
 import app.cardnest.utils.extensions.checkNotNull
@@ -16,7 +16,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.serialization.json.Json
@@ -35,7 +34,11 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
             val stateCard = cardsState.value[card.id]
 
             if (stateCard == null || stateCard.modifiedAt < card.modifiedAt) {
-              updatedCards[id] = decryptToCardUnencrypted(card)
+              try {
+                updatedCards[id] = decryptToCardUnencrypted(card)
+              } catch (e: Exception) {
+                e.toastAndLog("CardDataManager")
+              }
             } else {
               updatedCards[id] = stateCard
             }
@@ -55,14 +58,6 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     repo.setCards(CardRecords.Encrypted(cardRecords.toPersistentMap()))
   }
 
-  suspend fun decryptAndSaveCards() {
-    val cardRecords = cardsState.value.mapValues {
-      CardUnencrypted(it.value.id, it.value.data, it.value.modifiedAt)
-    }
-
-    repo.setCards(CardRecords.Unencrypted(cardRecords.toPersistentMap()))
-  }
-
   suspend fun encryptAndAddOrUpdateCard(cardUnencrypted: CardUnencrypted) {
     val cardData = if (authData.value != null) {
       CardData.Encrypted(encryptToCardEncrypted(cardUnencrypted))
@@ -80,38 +75,6 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   suspend fun deleteAllCards() {
     val cardRecords = if (authData.value == null) CardRecords.Unencrypted() else CardRecords.Encrypted()
     repo.setCards(cardRecords)
-  }
-
-  suspend fun syncCards(dek: SecretKey) {
-    val localCardRecords = repo.getLocalCards().first()
-    val remoteCardRecords = repo.getRemoteCards().first()
-
-    val mergedCardRecords = mutableMapOf<String, CardEncrypted>()
-
-    if (localCardRecords is CardRecords.Unencrypted) {
-      for (it in localCardRecords.cards) {
-        val encrypted = encryptCard(it.value.data, dek)
-        mergedCardRecords[it.key] = CardEncrypted(it.value.id, encrypted, it.value.modifiedAt)
-      }
-
-      for (it in remoteCardRecords.cards) {
-        mergedCardRecords[it.key] = it.value
-      }
-    }
-
-    if (localCardRecords is CardRecords.Encrypted) {
-      for (it in localCardRecords.cards) {
-        mergedCardRecords[it.key] = it.value
-      }
-
-      for (it in remoteCardRecords.cards) {
-        val decrypted = decryptCardData(it.value.data, dek)
-        mergedCardRecords[it.key] = encryptToCardEncrypted(CardUnencrypted(it.value.id, decrypted, it.value.modifiedAt))
-      }
-    }
-
-    repo.setLocalCards(CardRecords.Encrypted())
-    repo.setRemoteCards(CardRecords.Encrypted(mergedCardRecords.toPersistentMap()))
   }
 
   private fun encryptToCardEncrypted(card: CardUnencrypted): CardEncrypted {
@@ -137,14 +100,14 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
 
   private fun decryptCardData(cardEncrypted: CardEncryptedData, dek: SecretKey): Card {
     val encryptedData = EncryptedData(cardEncrypted.cipherText.decoded, cardEncrypted.iv.decoded)
-    val decryptedString = crypto.decryptData(encryptedData, dek).checkNotNull { "Invalid or corrupted key or data" }
+    val decryptedString = crypto.decryptData(encryptedData, dek)
 
     return Json.decodeFromString(Card.serializer(), decryptedString)
   }
 
   private fun getDataFlow(): Flow<CardRecords> {
-    return preferencesState.flatMapLatest {
-      if (it.sync.isSyncing) repo.getRemoteCards() else repo.getLocalCards()
+    return userState.flatMapLatest {
+      if (it != null) repo.getRemoteCards() else repo.getLocalCards()
     }
   }
 }

@@ -1,20 +1,25 @@
-package app.cardnest.screens.pin.enter
+package app.cardnest.screens.pin.unlock
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import app.cardnest.components.button.AppButton
+import app.cardnest.components.button.ButtonVariant
 import app.cardnest.components.containers.ScreenContainer
 import app.cardnest.components.pin.Keypad
 import app.cardnest.components.pin.PinInput
+import app.cardnest.screens.password.unlock.UnlockWithPasswordScreen
 import app.cardnest.screens.pin.create.create.PIN_LENGTH
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
@@ -26,25 +31,30 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-class EnterPinScreen : Screen {
+class UnlockWithPinScreen : Screen {
   @Composable
   override fun Content() {
     val ctx = LocalContext.current as FragmentActivity
     val navigator = LocalNavigator.currentOrThrow
 
-    val vm = koinViewModel<EnterPinViewModel> { parametersOf(navigator) }
+    val vm = koinViewModel<UnlockWithPinViewModel> { parametersOf(navigator) }
+
     val canUnlockWithBiometrics = vm.getShowBiometricsButton(ctx)
 
-    fun onUnlockWithBiometricsClick() {
+    fun onUnlockWithPassword() {
+      navigator.replace(UnlockWithPasswordScreen())
+    }
+
+    fun onUnlockWithBiometrics() {
       vm.unlockWithBiometrics(ctx)
     }
 
     LaunchedEffect(canUnlockWithBiometrics) {
-      if (canUnlockWithBiometrics) onUnlockWithBiometricsClick()
+      if (canUnlockWithBiometrics) onUnlockWithBiometrics()
     }
 
     ScreenContainer {
-      Spacer(Modifier.weight(1f))
+      Spacer(Modifier.size(64.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(
           text = "Enter the PIN",
@@ -54,8 +64,11 @@ class EnterPinScreen : Screen {
           color = TH_WHITE
         )
 
-        AppText("Please enter your pin to proceed.", Modifier.padding(bottom = 32.dp))
+        AppText("Unlock the app using your PIN", align = TextAlign.Center)
+      }
 
+      Spacer(Modifier.size(32.dp))
+      Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         PinInput(
           pin = vm.pin.value,
           hasError = vm.hasError.value,
@@ -70,17 +83,23 @@ class EnterPinScreen : Screen {
         )
       }
 
-      Spacer(Modifier.weight(2f))
+      Spacer(Modifier.weight(1f))
 
       Keypad(
         pin = vm.pin,
         onPinChange = vm::onPinChange,
         onPinSubmit = vm::onPinSubmit,
         showBiometricsIcon = canUnlockWithBiometrics,
-        onBiometricsIconClick = ::onUnlockWithBiometricsClick
+        onBiometricsIconClick = ::onUnlockWithBiometrics
       )
 
-      Spacer(Modifier.weight(1f))
+      Spacer(Modifier.size(48.dp))
+      AppButton(
+        title = "Use password instead",
+        onClick = ::onUnlockWithPassword,
+        variant = ButtonVariant.Flat,
+        isDisabled = vm.pin.value.length == PIN_LENGTH
+      )
     }
   }
 }

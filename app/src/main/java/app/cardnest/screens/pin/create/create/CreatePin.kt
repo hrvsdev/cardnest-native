@@ -4,10 +4,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.pin.Keypad
@@ -28,10 +33,11 @@ class CreatePinScreen : Screen {
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
+
     val vm = koinViewModel<CreatePinViewModel> { parametersOf(navigator) }
 
     SubScreenRoot(title = "") {
-      Spacer(Modifier.weight(1f))
+      Spacer(Modifier.size(32.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(
           text = "Create a PIN",
@@ -41,9 +47,19 @@ class CreatePinScreen : Screen {
           color = TH_WHITE
         )
 
-        AppText("Please enter a secure 6-digit PIN.")
-        AppText("Remember it as there is no way to recover it.", Modifier.padding(bottom = 32.dp))
+        AppText("It will be used to unlock the app.", align = TextAlign.Center)
+        AppText(
+          align = TextAlign.Center,
+          text = buildAnnotatedString {
+            append("It never gets stored, so it ")
+            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("can't be recovered") }
+            append(".")
+          }
+        )
+      }
 
+      Spacer(Modifier.size(32.dp))
+      Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         PinInput(
           pin = vm.pin.value,
           hasError = vm.hasError.value,
@@ -58,9 +74,10 @@ class CreatePinScreen : Screen {
         )
       }
 
-      Spacer(Modifier.weight(2f))
-      Keypad(vm.pin, vm::onPinChange, vm::onPinSubmit)
       Spacer(Modifier.weight(1f))
+      Keypad(vm.pin, vm::onPinChange, vm::onPinSubmit)
+
+      Spacer(Modifier.size(48.dp))
     }
   }
 }

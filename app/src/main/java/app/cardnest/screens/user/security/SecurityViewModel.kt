@@ -3,15 +3,14 @@ package app.cardnest.screens.user.security
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cardnest.components.toast.AppToast
-import app.cardnest.data.actions.Actions
+import app.cardnest.data.actions.Actions.afterPinCreated
+import app.cardnest.data.actions.Actions.afterPinVerified
 import app.cardnest.data.auth.AuthManager
-import app.cardnest.data.authData
-import app.cardnest.data.card.CardDataManager
-import app.cardnest.data.preferences.PreferencesManager
-import app.cardnest.data.preferencesState
+import app.cardnest.data.biometricsData
+import app.cardnest.data.pinData
 import app.cardnest.screens.pin.create.create.CreatePinScreen
 import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
+import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import kotlinx.coroutines.Dispatchers
@@ -23,37 +22,31 @@ import kotlinx.coroutines.launch
 
 class SecurityViewModel(
   private val authManager: AuthManager,
-  private val cardDataManager: CardDataManager,
-  private val prefsManager: PreferencesManager,
-  private val actions: Actions,
   private val navigator: Navigator,
-  private val bottomSheetNavigator: BottomSheetNavigator,
+  private val bottomSheetNavigator: BottomSheetNavigator
 ) : ViewModel() {
-  val hasCreatedPin = authData.map { it != null }.stateIn(
+  val hasCreatedPin = pinData.map { it != null }.stateIn(
     scope = viewModelScope,
-    started = SharingStarted.WhileSubscribed(),
+    started = SharingStarted.WhileSubscribed(5000),
     initialValue = false
   )
 
-  val hasBiometricsEnabled = authData.map { it?.encryptedBiometricsDek != null }.stateIn(
+  val hasEnabledBiometrics = biometricsData.map { it != null }.stateIn(
     scope = viewModelScope,
-    started = SharingStarted.WhileSubscribed(),
+    started = SharingStarted.WhileSubscribed(5000),
     initialValue = false
   )
 
   fun onCreatePin() {
     navigator.push(CreatePinScreen())
-    actions.setAfterPinCreated {
+    afterPinCreated.set {
       navigator.popUntil { it is SecurityScreen }
-      if (hasCreatedPin.value) {
-        AppToast.success("PIN has been updated")
-      }
     }
   }
 
   fun onChangePin() {
     navigator.push(VerifyPinBeforeActionScreen())
-    actions.setAfterPinVerified {
+    afterPinVerified.set {
       onCreatePin()
     }
   }
@@ -66,28 +59,24 @@ class SecurityViewModel(
       navigator.push(VerifyPinBeforeActionScreen())
     }
 
-    actions.setAfterPinVerified {
-      if (preferencesState.value.sync.isSyncing) {
-        prefsManager.setSync(false)
-      } else {
-        cardDataManager.decryptAndSaveCards()
-      }
+    afterPinVerified.set {
       authManager.removePin()
-
       navigator.popUntil { it is SecurityScreen }
     }
   }
 
   fun getShowBiometricsSwitch(ctx: FragmentActivity): Boolean {
-    return hasBiometricsEnabled.value || (hasCreatedPin.value && authManager.getAreBiometricsAvailable(ctx))
+    return hasEnabledBiometrics.value || authManager.getAreBiometricsAvailable(ctx)
   }
 
   fun onBiometricsSwitchChange(ctx: FragmentActivity) {
     viewModelScope.launch(Dispatchers.IO) {
-      if (hasBiometricsEnabled.value) {
+      if (hasEnabledBiometrics.value) {
         authManager.disableBiometrics()
-      } else {
+      } else try {
         authManager.enableBiometrics(ctx, viewModelScope)
+      } catch (e: Exception) {
+        e.toastAndLog("SecurityViewModel")
       }
     }
   }
