@@ -157,6 +157,7 @@ fun PasswordTextField(
   leftIconId: Int = R.drawable.tabler__lock,
 
   isLoading: Boolean = false,
+  isDisabled: Boolean = false,
 
   onFocus: () -> Unit = {},
   onBlur: () -> Unit = {},
@@ -166,20 +167,27 @@ fun PasswordTextField(
 
   var offsetY by remember { mutableIntStateOf(0) }
 
+  val isEnabled = isLoading.not() && isDisabled.not()
+  val iconColor = TH_WHITE_60
+
   LaunchedEffect(isVisible) {
     offsetY = 2
     delay(200)
     offsetY = 0
   }
 
-  val iconColor = TH_WHITE_60
+  LaunchedEffect(isEnabled) {
+    if (isEnabled.not()) {
+      isVisible = false
+    }
+  }
 
   Column(Modifier.fillMaxWidth()) {
     BasicSecureTextField(
       state = state,
       cursorBrush = SolidColor(TH_SKY_80),
 
-      enabled = isLoading.not(),
+      enabled = isEnabled,
 
       textStyle = TextStyle(TH_WHITE, 16.sp, fontFamily = LatoFamily),
       onKeyboardAction = onKeyboardAction,
@@ -212,7 +220,7 @@ fun PasswordTextField(
               LoadingIcon(size = 24.dp)
             }
           } else {
-            IconButton({ isVisible = !isVisible }, Modifier.offset { IntOffset(0, y = offsetY) }) {
+            IconButton({ isVisible = !isVisible }, Modifier.offset { IntOffset(0, y = offsetY) }, isEnabled) {
               if (isVisible) {
                 Icon(painterResource(R.drawable.tabler__eye_off), "Hide password", tint = iconColor)
               } else {
