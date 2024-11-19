@@ -22,6 +22,7 @@ val initialUserState = MutableStateFlow<User?>(null)
 val userState = MutableStateFlow<User?>(null)
 
 val cardsState = MutableStateFlow<Map<String, CardUnencrypted>>(emptyMap())
+val cardsLoadState = MutableStateFlow(CardsLoadState())
 
 val preferencesState = MutableStateFlow(Preferences())
 
@@ -38,6 +39,10 @@ data class AuthDataLoadState(
 
 data class AuthState(
   val dek: SecretKey? = null,
+)
+
+data class CardsLoadState(
+  val isReady: Boolean = false,
 )
 
 data class User(

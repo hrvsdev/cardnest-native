@@ -78,15 +78,11 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
 
   suspend fun continueSignInByCreatingPassword(password: String) {
     authManager.createAndSetPassword(password)
-    cardDataManager.encryptAndSaveCards()
-
     userState.update { initialUserState.value }
   }
 
   suspend fun continueSignInByEnteringPassword(password: String) {
     authManager.setLocalPassword(password)
-    cardDataManager.encryptAndSaveCards()
-
     userState.update { initialUserState.value }
   }
 

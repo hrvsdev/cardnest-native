@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentActivity
 import app.cardnest.data.authDataLoadState
 import app.cardnest.data.authState
 import app.cardnest.data.biometricsData
+import app.cardnest.data.hasAnyAuthData
 import app.cardnest.data.initialUserState
 import app.cardnest.data.passwordData
 import app.cardnest.data.pinData
@@ -23,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -74,7 +76,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
 
   suspend fun createAndSetPassword(password: String) {
     val salt = crypto.generateSalt()
-    val dek = crypto.generateKey()
+    val dek = getOrCreateDek()
 
     val encryptedDek = encryptDek(password, salt, dek)
     val data = PasswordData(salt.encoded, encryptedDek.encoded, System.currentTimeMillis())
@@ -105,13 +107,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
 
   suspend fun createAndSetPin(pin: String) {
     val salt = crypto.generateSalt()
-    val dek = authState.value.dek.let {
-      when {
-        it != null -> it
-        passwordData.value != null -> throw IllegalStateException("Restart app and unlock again to create PIN")
-        else -> throw IllegalStateException("Sign-in first to create PIN")
-      }
-    }
+    val dek = getOrCreateDek()
 
     val encryptedDek = encryptDek(pin, salt, dek)
     val data = PinData(salt.encoded, encryptedDek.encoded, System.currentTimeMillis())
@@ -137,13 +133,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
   }
 
   suspend fun enableBiometrics(ctx: FragmentActivity, scope: CoroutineScope) {
-    val dek = authState.value.dek.let {
-      when {
-        it != null -> it
-        passwordData.value != null -> throw IllegalStateException("Restart app and unlock again to enable biometrics")
-        else -> throw IllegalStateException("Sign-in first to enable biometrics")
-      }
-    }
+    val dek = getOrCreateDek()
 
     val androidKey = crypto.getOrCreateAndroidSecretKey()
     val cipher = crypto.getInitializedCipherForEncryption(androidKey)
@@ -153,6 +143,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
         val encryptedDek = crypto.encryptDataWithCipher(crypto.keyToString(dek), cipher)
         val data = BiometricsData(encryptedDek.encoded, System.currentTimeMillis())
 
+        authState.update { it.copy(dek = dek) }
         repo.setLocalBiometricsData(data)
       }
     }
@@ -240,6 +231,22 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     }
   }
 
+  private suspend fun getOrCreateDek(): SecretKey {
+    val dek = authState.value.dek
+
+    if (dek != null) {
+      return dek
+    }
+
+    val hasAnyAuthData = hasAnyAuthData.first()
+
+    if (hasAnyAuthData) {
+      throw IllegalStateException("Restart and unlock app again")
+    }
+
+    return crypto.generateKey()
+  }
+
   private fun encryptDek(secret: String, salt: ByteArray, dek: SecretKey): EncryptedData {
     val kek = crypto.deriveKey(secret.toCharArray(), salt)
     val dekEncoded = crypto.keyToString(dek)
@@ -261,4 +268,3 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     }
   }
 }
-

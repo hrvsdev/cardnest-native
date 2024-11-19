@@ -47,6 +47,10 @@ class HomeViewModel(private val dataManager: CardDataManager) : ViewModel() {
     viewModelScope.launch(Dispatchers.IO) {
       dataManager.decryptAndCollectCards()
     }
+
+    viewModelScope.launch(Dispatchers.IO) {
+      dataManager.mergeAndManageCards()
+    }
   }
 
   private fun filterCard(card: Card, query: CharSequence): Boolean {
