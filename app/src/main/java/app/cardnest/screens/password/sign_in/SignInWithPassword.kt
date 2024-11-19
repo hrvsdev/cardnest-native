@@ -48,7 +48,8 @@ class SignInWithPasswordScreen : Screen {
           color = TH_WHITE
         )
 
-        AppText("Complete sign-in process using your password", align = TextAlign.Center)
+        AppText("Complete sign-in process using your password.", align = TextAlign.Center)
+        AppText("Due to security reasons, your PIN or biometrics will be removed.", align = TextAlign.Center)
       }
 
       Spacer(Modifier.size(32.dp))

@@ -10,12 +10,12 @@ import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
 import app.cardnest.components.settings.SettingsItem
+import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import cafe.adriel.voyager.navigator.internal.BackHandler
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -27,13 +27,20 @@ class AccountScreen : Screen {
     val navigator = LocalNavigator.currentOrThrow
     val bottomSheetNavigator = LocalBottomSheetNavigator.current
 
-    val vm = koinViewModel<AccountViewModel> { parametersOf(navigator, bottomSheetNavigator) }
+    val vm = koinViewModel<AccountViewModel> { parametersOf(navigator) }
 
     val isLoading = vm.isLoading
     val user = vm.user.collectAsStateWithLifecycle().value
 
-    fun onSignInWithGoogleClick() {
+    fun onSignInWithGoogle() {
       vm.signInWithGoogle(ctx)
+    }
+
+    fun onSignOut() {
+      bottomSheetNavigator.open(SignOutBottomSheetScreen()) {
+        bottomSheetNavigator.hide()
+        vm.signOut()
+      }
     }
 
     SubScreenRoot("Account", leftIconLabel = "Settings", spacedBy = 24.dp) {
@@ -49,7 +56,7 @@ class AccountScreen : Screen {
             title = "Sign out of your account",
             icon = painterResource(R.drawable.tabler__logout),
             isLast = true,
-            onClick = vm::signOut
+            onClick = ::onSignOut
           )
         }
       } else {
@@ -60,7 +67,7 @@ class AccountScreen : Screen {
             isFirst = true,
             isLast = true,
             isLoading = isLoading,
-            onClick = ::onSignInWithGoogleClick
+            onClick = ::onSignInWithGoogle
           )
         }
       }

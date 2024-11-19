@@ -14,6 +14,7 @@ import app.cardnest.screens.password.sign_in.SignInWithPasswordScreen
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -42,6 +43,7 @@ class AccountViewModel(private val userManager: UserManager, private val navigat
 
   fun signOut() {
     viewModelScope.launch(Dispatchers.IO) {
+      delay(200)
       userManager.signOut()
     }
   }
