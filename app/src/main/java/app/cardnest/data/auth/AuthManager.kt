@@ -100,6 +100,11 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     repo.setLocalPasswordData(null)
   }
 
+  fun verifyPassword(password: String) {
+    val passwordData = passwordData.value.checkNotNull { "Create password first to verify" }
+    decryptDek(password, passwordData.salt, passwordData.encryptedDek)
+  }
+
   fun unlockWithPassword(password: String) {
     val passwordData = passwordData.value.checkNotNull { "Complete sign-in process to unlock app" }
     val dek = decryptDek(password, passwordData.salt, passwordData.encryptedDek)
