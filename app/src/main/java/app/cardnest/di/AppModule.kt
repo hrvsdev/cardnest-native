@@ -17,6 +17,7 @@ import app.cardnest.screens.add.editor.AddCardViewModel
 import app.cardnest.screens.home.HomeViewModel
 import app.cardnest.screens.home.card.CardViewModel
 import app.cardnest.screens.home.card.editor.UpdateCardViewModel
+import app.cardnest.screens.password.change.ChangePasswordViewModel
 import app.cardnest.screens.password.create.CreatePasswordViewModel
 import app.cardnest.screens.password.sign_in.SignInWithPasswordViewModel
 import app.cardnest.screens.password.unlock.UnlockWithPasswordViewModel
@@ -76,4 +77,5 @@ val appModule = module {
   viewModel { CreatePasswordViewModel(get(), it.get()) }
   viewModel { SignInWithPasswordViewModel(get(), it.get()) }
   viewModel { UnlockWithPasswordViewModel(get(), it.get()) }
+  viewModel { ChangePasswordViewModel(get(), it.get()) }
 }
