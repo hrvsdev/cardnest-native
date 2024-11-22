@@ -7,7 +7,9 @@ import app.cardnest.data.actions.Actions.afterPinCreated
 import app.cardnest.data.actions.Actions.afterPinVerified
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.biometricsData
+import app.cardnest.data.passwordData
 import app.cardnest.data.pinData
+import app.cardnest.screens.password.change.ChangePasswordScreen
 import app.cardnest.screens.pin.create.create.CreatePinScreen
 import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
 import app.cardnest.utils.extensions.toastAndLog
@@ -25,6 +27,12 @@ class SecurityViewModel(
   private val navigator: Navigator,
   private val bottomSheetNavigator: BottomSheetNavigator
 ) : ViewModel() {
+  val hasCreatedPassword = passwordData.map { it != null }.stateIn(
+    scope = viewModelScope,
+    started = SharingStarted.WhileSubscribed(5000),
+    initialValue = false
+  )
+
   val hasCreatedPin = pinData.map { it != null }.stateIn(
     scope = viewModelScope,
     started = SharingStarted.WhileSubscribed(5000),
@@ -36,6 +44,10 @@ class SecurityViewModel(
     started = SharingStarted.WhileSubscribed(5000),
     initialValue = false
   )
+
+  fun onChangePassword() {
+    navigator.push(ChangePasswordScreen())
+  }
 
   fun onCreatePin() {
     navigator.push(CreatePinScreen())

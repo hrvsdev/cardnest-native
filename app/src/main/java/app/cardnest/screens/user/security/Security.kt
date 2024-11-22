@@ -28,6 +28,7 @@ class SecurityScreen : Screen {
 
     val vm = koinViewModel<SecurityViewModel> { parametersOf(navigator, bottomSheetNavigator) }
 
+    val hasCreatedPassword = vm.hasCreatedPassword.collectAsStateWithLifecycle().value
     val hasCreatedPin = vm.hasCreatedPin.collectAsStateWithLifecycle().value
     val hasEnabledBiometrics = vm.hasEnabledBiometrics.collectAsStateWithLifecycle().value
 
@@ -40,7 +41,19 @@ class SecurityScreen : Screen {
     }
 
     SubScreenRoot("Security", leftIconLabel = "Settings", spacedBy = 24.dp) {
-      SettingsGroup("PIN", if (hasCreatedPin) null else CREATE_PASSWORD_DESC) {
+      if (hasCreatedPassword) {
+        SettingsGroup("Password", PASSWORD_DESC) {
+          SettingsButton(
+            title = "Change password",
+            icon = painterResource(R.drawable.tabler__lock_password),
+            isFirst = true,
+            isLast = true,
+            onClick = vm::onChangePassword,
+          )
+        }
+      }
+
+      SettingsGroup("PIN", if (hasCreatedPin) null else if (hasCreatedPassword) CREATE_PIN_DESC_IF_PASSWORD_EXIST else CREATE_PIN_DESC) {
         if (hasCreatedPin) {
           SettingsButton(
             title = "Change PIN",
@@ -74,7 +87,7 @@ class SecurityScreen : Screen {
       }
 
       if (hasCreatedPin) {
-        SettingsGroup("Danger zone", REMOVE_PASSWORD_DESC) {
+        SettingsGroup("Danger zone", REMOVE_PIN_DESC) {
           SettingsButton(
             title = "Remove app password",
             icon = painterResource(R.drawable.tabler__lock_open_off),
@@ -89,11 +102,8 @@ class SecurityScreen : Screen {
   }
 }
 
-const val CREATE_PASSWORD_DESC =
-  "Creating a PIN will make your data private and secure. You will need to enter the PIN every time you open the app."
-
-const val BIOMETRICS_DESC =
-  "Use your fingerprint, face or iris to unlock the app."
-
-const val REMOVE_PASSWORD_DESC =
-  "Removing your app PIN will turn sync off and make all your data accessible to anyone who has access to your device."
+const val PASSWORD_DESC = "Password is used to encrypt your data and keep it private and secure."
+const val CREATE_PIN_DESC = "Create a PIN to make your data private and secure. You will be asked to unlock the app with the PIN."
+const val CREATE_PIN_DESC_IF_PASSWORD_EXIST = "Create a PIN to unlock the app with a 6-digit code instead of your password."
+const val BIOMETRICS_DESC = "Use your fingerprint, face or iris to unlock the app."
+const val REMOVE_PIN_DESC = "Removing your app PIN will turn sync off and make all your data accessible to anyone who has access to your device."
