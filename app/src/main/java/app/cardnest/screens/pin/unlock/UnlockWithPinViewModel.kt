@@ -4,6 +4,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.biometricsData
+import app.cardnest.data.passwordData
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.pin.PinBaseViewModel
 import app.cardnest.utils.extensions.toastAndLog
@@ -22,6 +23,10 @@ class UnlockWithPinViewModel(private val authManager: AuthManager, private val n
         onError()
       }
     }
+  }
+
+  fun getShowPasswordButton(): Boolean {
+    return passwordData.value != null
   }
 
   fun getShowBiometricsButton(ctx: FragmentActivity): Boolean {

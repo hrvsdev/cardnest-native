@@ -30,7 +30,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-class UnlockWithPasswordScreen : Screen {
+data class UnlockWithPasswordScreen(private val shouldPreferBiometrics: Boolean = true) : Screen {
   @Composable
   override fun Content() {
     val ctx = LocalContext.current as FragmentActivity
@@ -41,8 +41,15 @@ class UnlockWithPasswordScreen : Screen {
     val canUnlockWithPin = vm.getShowPinButton()
     val canUnlockWithBiometrics = vm.getShowBiometricsButton(ctx)
 
+    val unlockInfo = when {
+      canUnlockWithPin && canUnlockWithBiometrics -> "Unlock using your biometrics, password or PIN"
+      canUnlockWithPin -> "Unlock using your password or PIN"
+      canUnlockWithBiometrics -> "Unlock using your biometrics or password"
+      else -> "Unlock using your password"
+    }
+
     fun onUnlockWithPin() {
-      navigator.push(UnlockWithPinScreen())
+      navigator.replace(UnlockWithPinScreen(shouldPreferBiometrics = false))
     }
 
     fun onUnlockWithBiometrics() {
@@ -50,7 +57,11 @@ class UnlockWithPasswordScreen : Screen {
     }
 
     LaunchedEffect(Unit) {
-      if (canUnlockWithBiometrics && canUnlockWithPin.not()) onUnlockWithBiometrics()
+      if (canUnlockWithBiometrics && shouldPreferBiometrics) {
+        onUnlockWithBiometrics()
+      } else {
+        vm.focusRequester.requestFocus()
+      }
     }
 
     LaunchedEffect(vm.isPasswordIncorrect) {
@@ -61,14 +72,14 @@ class UnlockWithPasswordScreen : Screen {
       Spacer(Modifier.size(64.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(
-          text = "Enter your password",
+          text = "Unlock CardNest",
           modifier = Modifier.padding(bottom = 8.dp),
           size = AppTextSize.XL,
           weight = FontWeight.Bold,
           color = TH_WHITE
         )
 
-        AppText("Unlock the app using your password", align = TextAlign.Center)
+        AppText(unlockInfo, align = TextAlign.Center)
       }
 
       Spacer(Modifier.size(32.dp))
@@ -89,7 +100,7 @@ class UnlockWithPasswordScreen : Screen {
 
       when {
         canUnlockWithPin && canUnlockWithBiometrics -> {
-          AppButton("Use PIN or biometrics instead", ::onUnlockWithPin, variant = ButtonVariant.Flat)
+          AppButton("Use biometrics or PIN instead", ::onUnlockWithPin, variant = ButtonVariant.Flat)
         }
 
         canUnlockWithPin -> {

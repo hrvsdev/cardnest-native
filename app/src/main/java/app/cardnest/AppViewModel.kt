@@ -10,6 +10,7 @@ import app.cardnest.data.pinData
 import app.cardnest.data.preferences.PreferencesManager
 import app.cardnest.data.user.UserManager
 import app.cardnest.firebase.ConnectionManager
+import app.cardnest.screens.biometrics.unlock.UnlockWithBiometricsScreen
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.password.unlock.UnlockWithPasswordScreen
 import app.cardnest.screens.pin.unlock.UnlockWithPinScreen
@@ -30,8 +31,8 @@ class AppViewModel(
     authDataLoadState.first { it.hasLocalLoaded }
     when {
       pin != null -> UnlockWithPinScreen()
-      biometrics != null -> UnlockWithPasswordScreen()
       password != null -> UnlockWithPasswordScreen()
+      biometrics != null -> UnlockWithBiometricsScreen()
       else -> HomeScreen
     }
   }

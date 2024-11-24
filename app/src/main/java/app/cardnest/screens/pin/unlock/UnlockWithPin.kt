@@ -31,7 +31,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-class UnlockWithPinScreen : Screen {
+data class UnlockWithPinScreen(private val shouldPreferBiometrics: Boolean = true) : Screen {
   @Composable
   override fun Content() {
     val ctx = LocalContext.current as FragmentActivity
@@ -39,32 +39,42 @@ class UnlockWithPinScreen : Screen {
 
     val vm = koinViewModel<UnlockWithPinViewModel> { parametersOf(navigator) }
 
+    val canUnlockWithPassword = vm.getShowPasswordButton()
     val canUnlockWithBiometrics = vm.getShowBiometricsButton(ctx)
 
+    val unlockInfo = when {
+      canUnlockWithPassword && canUnlockWithBiometrics -> "Unlock using your biometrics, PIN or password"
+      canUnlockWithPassword -> "Unlock using your PIN or password"
+      canUnlockWithBiometrics -> "Unlock using your biometrics or PIN"
+      else -> "Unlock using your PIN"
+    }
+
     fun onUnlockWithPassword() {
-      navigator.replace(UnlockWithPasswordScreen())
+      navigator.push(UnlockWithPasswordScreen(shouldPreferBiometrics = false))
     }
 
     fun onUnlockWithBiometrics() {
       vm.unlockWithBiometrics(ctx)
     }
 
-    LaunchedEffect(canUnlockWithBiometrics) {
-      if (canUnlockWithBiometrics) onUnlockWithBiometrics()
+    LaunchedEffect(Unit) {
+      if (canUnlockWithBiometrics && shouldPreferBiometrics) {
+        onUnlockWithBiometrics()
+      }
     }
 
     ScreenContainer {
       Spacer(Modifier.size(64.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(
-          text = "Enter the PIN",
+          text = "Unlock CardNest",
           modifier = Modifier.padding(bottom = 8.dp),
           size = AppTextSize.XL,
           weight = FontWeight.Bold,
           color = TH_WHITE
         )
 
-        AppText("Unlock the app using your PIN", align = TextAlign.Center)
+        AppText(unlockInfo, align = TextAlign.Center)
       }
 
       Spacer(Modifier.size(32.dp))
@@ -94,12 +104,14 @@ class UnlockWithPinScreen : Screen {
       )
 
       Spacer(Modifier.size(48.dp))
-      AppButton(
-        title = "Use password instead",
-        onClick = ::onUnlockWithPassword,
-        variant = ButtonVariant.Flat,
-        isDisabled = vm.pin.value.length == PIN_LENGTH
-      )
+      if (canUnlockWithPassword) {
+        AppButton(
+          title = "Use password instead",
+          onClick = ::onUnlockWithPassword,
+          variant = ButtonVariant.Flat,
+          isDisabled = vm.pin.value.length == PIN_LENGTH
+        )
+      }
     }
   }
 }
