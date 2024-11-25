@@ -62,16 +62,20 @@ fun SubScreenHeader(
     Box(Modifier.height(48.dp).fillMaxWidth()) {
       AppText(title, Modifier.align(Alignment.Center), color = TH_WHITE, weight = FontWeight.Bold)
       Row(Modifier.fillMaxSize(), Arrangement.SpaceBetween) {
-        Row(Modifier.fillMaxHeight().clickable(onClick = navigator::pop).padding(start = 16.dp, end = 16.dp)) {
-          Icon(
-            painter = painterResource(id = R.drawable.tabler__chevron_left),
-            contentDescription = null,
-            modifier = Modifier.size(20.dp).align(Alignment.CenterVertically).padding(top = 1.dp),
-            tint = TH_SKY,
-          )
+        Box {
+          if (navigator.canPop) {
+            Row(Modifier.fillMaxHeight().clickable(onClick = navigator::pop).padding(start = 16.dp, end = 16.dp)) {
+              Icon(
+                painter = painterResource(id = R.drawable.tabler__chevron_left),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp).align(Alignment.CenterVertically).padding(top = 1.dp),
+                tint = TH_SKY,
+              )
 
-          Spacer(Modifier.size(4.dp))
-          AppText(leftIconLabel, Modifier.align(Alignment.CenterVertically), color = TH_SKY)
+              Spacer(Modifier.size(4.dp))
+              AppText(leftIconLabel, Modifier.align(Alignment.CenterVertically), color = TH_SKY)
+            }
+          }
         }
 
         Row(Modifier.fillMaxHeight().clickable(onClick = ::onRightButtonClickWithOfflineCheck).padding(start = 16.dp, end = 20.dp)) {
