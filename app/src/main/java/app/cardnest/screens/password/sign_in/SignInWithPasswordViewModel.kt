@@ -48,13 +48,8 @@ class SignInWithPasswordViewModel(private val userManager: UserManager, private 
   }
 
   fun onSubmit() {
-    if (state.text.length < 12) {
+    if (state.text.length < 12 || isPasswordIncorrect) {
       onError()
-      return
-    }
-
-    if (isPasswordIncorrect) {
-      focusRequester.requestFocus()
       return
     }
 
@@ -71,6 +66,8 @@ class SignInWithPasswordViewModel(private val userManager: UserManager, private 
   }
 
   private fun onError() {
+    focusRequester.requestFocus()
+
     isPasswordIncorrect = true
     isLoading = false
   }

@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -19,11 +20,14 @@ import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.core.PasswordTextField
 import app.cardnest.components.password.PasswordInfo
 import app.cardnest.components.password.PasswordInfoType
+import app.cardnest.screens.password.sign_in.help.ForgotPasswordBottomSheetScreen
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
+import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -31,25 +35,27 @@ import org.koin.core.parameter.parametersOf
 class SignInWithPasswordScreen : Screen {
   @Composable
   override fun Content() {
+    val focusManager = LocalFocusManager.current
     val navigator = LocalNavigator.currentOrThrow
+    val bottomSheetNavigator = LocalBottomSheetNavigator.current
 
     val vm = koinViewModel<SignInWithPasswordViewModel> { parametersOf(navigator) }
 
     val hasCreatedPin by vm.hasCreatedPin.collectAsStateWithLifecycle()
     val hasEnabledBiometrics by vm.hasEnabledBiometrics.collectAsStateWithLifecycle()
 
-    val dataRemoveInfo = when {
-      hasCreatedPin && hasEnabledBiometrics -> "Due to security reasons, your existing PIN and biometrics info will be removed."
-      hasCreatedPin -> "Due to security reasons, your existing PIN info will be removed."
-      hasEnabledBiometrics -> "Due to security reasons, your existing biometrics info will be removed."
-      else -> null
+    fun onForgotPassword() {
+      focusManager.clearFocus()
+      bottomSheetNavigator.open(ForgotPasswordBottomSheetScreen()) {
+        bottomSheetNavigator.hide()
+      }
     }
 
     LaunchedEffect(vm.isPasswordIncorrect) {
       if (vm.isPasswordIncorrect) vm.focusRequester.requestFocus()
     }
 
-    SubScreenRoot("") {
+    SubScreenRoot(title = "", rightButtonLabel = "Forgot password?", onRightButtonClick = ::onForgotPassword) {
       Spacer(Modifier.size(32.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(
@@ -62,8 +68,8 @@ class SignInWithPasswordScreen : Screen {
 
         AppText("Complete sign-in process using your password.", align = TextAlign.Center)
 
-        if (dataRemoveInfo != null) {
-          AppText(dataRemoveInfo, align = TextAlign.Center)
+        if (hasCreatedPin || hasEnabledBiometrics) {
+          AppText("Due to security reasons, you will have to set-up PIN or biometrics again.", align = TextAlign.Center)
         }
 
         Spacer(Modifier.size(32.dp))
