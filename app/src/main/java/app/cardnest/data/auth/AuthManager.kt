@@ -47,7 +47,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     .setTitle("CardNest is locked")
     .setDescription("Use your fingerprint, face or iris to unlock CardNest")
     .setAllowedAuthenticators(allowedAuthenticators)
-    .setNegativeButtonText("Use PIN")
+    .setNegativeButtonText("Cancel")
     .build()
 
   suspend fun collectAuthData() {
