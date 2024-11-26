@@ -32,6 +32,10 @@ class SecurityScreen : Screen {
     val hasCreatedPin = vm.hasCreatedPin.collectAsStateWithLifecycle().value
     val hasEnabledBiometrics = vm.hasEnabledBiometrics.collectAsStateWithLifecycle().value
 
+    val CREATE_PIN_DESC = if (hasEnabledBiometrics || hasCreatedPassword) CREATE_PIN_DESC_IF_BIOMETRICS_OR_PASSWORD_EXIST else CREATE_PIN_DESC_IF_NONE_EXIST
+    val REMOVE_PIN_DESC = if (hasEnabledBiometrics || hasCreatedPassword) REMOVE_PIN_DESC_IF_BIOMETRICS_OR_PASSWORD_EXIST else REMOVE_PIN_DESC_IF_NONE_EXIST
+    val DISABLE_BIOMETRICS_DESC = if (hasCreatedPin || hasCreatedPassword) DISABLE_BIOMETRICS_DESC_IF_PIN_OR_PASSWORD_EXIST else DISABLE_BIOMETRICS_DESC_IF_NONE_EXIST
+
     fun onRemovePinClick() {
       bottomSheetNavigator.open(RemovePinBottomSheetScreen(), vm::onRemovePin)
     }
@@ -53,13 +57,19 @@ class SecurityScreen : Screen {
         }
       }
 
-      SettingsGroup("PIN", if (hasCreatedPin) null else if (hasCreatedPassword) CREATE_PIN_DESC_IF_PASSWORD_EXIST else CREATE_PIN_DESC) {
+      SettingsGroup("PIN", if (hasCreatedPin) REMOVE_PIN_DESC else CREATE_PIN_DESC) {
         if (hasCreatedPin) {
           SettingsButton(
             title = "Change PIN",
             icon = painterResource(R.drawable.tabler__password_mobile_phone),
             onClick = vm::onChangePin,
             isFirst = true,
+          )
+
+          SettingsButton(
+            title = "Remove PIN",
+            icon = painterResource(R.drawable.tabler__lock_open_off),
+            onClick = ::onRemovePinClick,
             isLast = true,
           )
         } else {
@@ -74,7 +84,7 @@ class SecurityScreen : Screen {
       }
 
       if (vm.getShowBiometricsSwitch(ctx)) {
-        SettingsGroup("Biometrics", BIOMETRICS_DESC) {
+        SettingsGroup("Biometrics", if (hasEnabledBiometrics) DISABLE_BIOMETRICS_DESC else ENABLE_BIOMETRICS_DESC) {
           SettingsSwitch(
             title = "Enable biometrics",
             icon = painterResource(R.drawable.tabler__fingerprint_scan),
@@ -85,25 +95,19 @@ class SecurityScreen : Screen {
           )
         }
       }
-
-      if (hasCreatedPin) {
-        SettingsGroup("Danger zone", REMOVE_PIN_DESC) {
-          SettingsButton(
-            title = "Remove app password",
-            icon = painterResource(R.drawable.tabler__lock_open_off),
-            onClick = ::onRemovePinClick,
-            isDanger = true,
-            isFirst = true,
-            isLast = true,
-          )
-        }
-      }
     }
   }
 }
 
-const val PASSWORD_DESC = "Password is used to encrypt your data and keep it private and secure."
-const val CREATE_PIN_DESC = "Create a PIN to make your data private and secure. You will be asked to unlock the app with the PIN."
-const val CREATE_PIN_DESC_IF_PASSWORD_EXIST = "Create a PIN to unlock the app with a 6-digit code instead of your password."
-const val BIOMETRICS_DESC = "Use your fingerprint, face or iris to unlock the app."
-const val REMOVE_PIN_DESC = "Removing your app PIN will turn sync off and make all your data accessible to anyone who has access to your device."
+const val PASSWORD_DESC = "Your password encrypts your data to ensure privacy and security."
+
+const val CREATE_PIN_DESC_IF_BIOMETRICS_OR_PASSWORD_EXIST = "Create a PIN to unlock the app along with biometrics or password."
+const val CREATE_PIN_DESC_IF_NONE_EXIST = "Create a PIN to secure your data and enable app access."
+
+const val REMOVE_PIN_DESC_IF_BIOMETRICS_OR_PASSWORD_EXIST = "Removing the PIN will require biometrics or password to unlock the app."
+const val REMOVE_PIN_DESC_IF_NONE_EXIST = "Removing the PIN will reduce security and make your data accessible to anyone with your device."
+
+const val ENABLE_BIOMETRICS_DESC = "Enable biometrics for fast and secure access to the app."
+
+const val DISABLE_BIOMETRICS_DESC_IF_PIN_OR_PASSWORD_EXIST = "Disabling biometrics will require a PIN or password to unlock the app."
+const val DISABLE_BIOMETRICS_DESC_IF_NONE_EXIST = "Disabling biometrics will reduce security and make your data accessible to anyone with your device."
