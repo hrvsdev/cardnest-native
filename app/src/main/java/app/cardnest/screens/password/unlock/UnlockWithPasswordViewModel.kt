@@ -9,9 +9,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.cardnest.components.toast.AppToast
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.biometricsData
-import app.cardnest.data.pinData
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
@@ -38,13 +38,8 @@ class UnlockWithPasswordViewModel(private val authManager: AuthManager, private 
   }
 
   fun onSubmit() {
-    if (state.text.length < 12) {
+    if (state.text.length < 12 || isPasswordIncorrect) {
       onError()
-      return
-    }
-
-    if (isPasswordIncorrect) {
-      focusRequester.requestFocus()
       return
     }
 
@@ -60,27 +55,34 @@ class UnlockWithPasswordViewModel(private val authManager: AuthManager, private 
     }
   }
 
-  fun getShowPinButton(): Boolean {
-    return pinData.value != null
+  fun getHasEnabledBiometrics(): Boolean {
+    return biometricsData.value != null
   }
 
-  fun getShowBiometricsButton(ctx: FragmentActivity): Boolean {
-    return biometricsData.value != null && authManager.getAreBiometricsAvailable(ctx)
+  fun getAreBiometricsAvailable(ctx: FragmentActivity): Boolean {
+    return authManager.getAreBiometricsAvailable(ctx)
   }
 
   fun unlockWithBiometrics(ctx: FragmentActivity) {
+    if (getAreBiometricsAvailable(ctx).not()) {
+      AppToast.error("Biometrics are not available, please unlock using your password.")
+      return
+    }
+
     viewModelScope.launch(Dispatchers.IO) {
       try {
         authManager.unlockWithBiometrics(ctx) { navigator.replaceAll(HomeScreen) }
       } catch (e: Exception) {
-        e.toastAndLog("EnterPinViewModel")
+        e.toastAndLog("UnlockWithPasswordViewModel")
       }
     }
   }
 
   private fun onError() {
-    isPasswordIncorrect = true
     isLoading = false
+    isPasswordIncorrect = true
+
+    focusRequester.requestFocus()
   }
 }
 

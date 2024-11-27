@@ -16,21 +16,25 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import app.cardnest.components.button.AppButton
 import app.cardnest.components.button.ButtonVariant
-import app.cardnest.components.containers.ScreenContainer
+import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.core.PasswordTextField
 import app.cardnest.components.password.PasswordInfo
 import app.cardnest.components.password.PasswordInfoType
-import app.cardnest.screens.pin.unlock.UnlockWithPinScreen
+import app.cardnest.screens.password.unlock.help.UnlockWithPasswordHelpScreen
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
+import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
+import cafe.adriel.voyager.core.lifecycle.LifecycleEffectOnce
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.stack.StackEvent
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-data class UnlockWithPasswordScreen(private val shouldPreferBiometrics: Boolean = true) : Screen {
+class UnlockWithPasswordScreen : Screen {
+  @OptIn(ExperimentalVoyagerApi::class)
   @Composable
   override fun Content() {
     val ctx = LocalContext.current as FragmentActivity
@@ -38,26 +42,18 @@ data class UnlockWithPasswordScreen(private val shouldPreferBiometrics: Boolean 
 
     val vm = koinViewModel<UnlockWithPasswordViewModel> { parametersOf(navigator) }
 
-    val canUnlockWithPin = vm.getShowPinButton()
-    val canUnlockWithBiometrics = vm.getShowBiometricsButton(ctx)
+    val hasEnabledBiometrics = vm.getHasEnabledBiometrics()
 
-    val unlockInfo = when {
-      canUnlockWithPin && canUnlockWithBiometrics -> "Unlock using your biometrics, password or PIN"
-      canUnlockWithPin -> "Unlock using your password or PIN"
-      canUnlockWithBiometrics -> "Unlock using your biometrics or password"
-      else -> "Unlock using your password"
-    }
-
-    fun onUnlockWithPin() {
-      navigator.replace(UnlockWithPinScreen(shouldPreferBiometrics = false))
+    fun onHelp() {
+      navigator.push(UnlockWithPasswordHelpScreen())
     }
 
     fun onUnlockWithBiometrics() {
       vm.unlockWithBiometrics(ctx)
     }
 
-    LaunchedEffect(Unit) {
-      if (canUnlockWithBiometrics && shouldPreferBiometrics) {
+    LifecycleEffectOnce {
+      if (navigator.lastEvent != StackEvent.Push && hasEnabledBiometrics && vm.getAreBiometricsAvailable(ctx)) {
         onUnlockWithBiometrics()
       } else {
         vm.focusRequester.requestFocus()
@@ -68,8 +64,8 @@ data class UnlockWithPasswordScreen(private val shouldPreferBiometrics: Boolean 
       if (vm.isPasswordIncorrect) vm.focusRequester.requestFocus()
     }
 
-    ScreenContainer {
-      Spacer(Modifier.size(64.dp))
+    SubScreenRoot(title = "", rightButtonLabel = "Help", onRightButtonClick = ::onHelp) {
+      Spacer(Modifier.size(32.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(
           text = "Unlock CardNest",
@@ -79,7 +75,11 @@ data class UnlockWithPasswordScreen(private val shouldPreferBiometrics: Boolean 
           color = TH_WHITE
         )
 
-        AppText(unlockInfo, align = TextAlign.Center)
+        if (hasEnabledBiometrics) {
+          AppText("Unlock using your biometrics or password.", align = TextAlign.Center)
+        } else {
+          AppText("Unlock using your password.", align = TextAlign.Center)
+        }
       }
 
       Spacer(Modifier.size(32.dp))
@@ -98,18 +98,8 @@ data class UnlockWithPasswordScreen(private val shouldPreferBiometrics: Boolean 
 
       Spacer(Modifier.weight(1f))
 
-      when {
-        canUnlockWithPin && canUnlockWithBiometrics -> {
-          AppButton("Use biometrics or PIN instead", ::onUnlockWithPin, variant = ButtonVariant.Flat)
-        }
-
-        canUnlockWithPin -> {
-          AppButton("Use PIN instead", ::onUnlockWithPin, variant = ButtonVariant.Flat)
-        }
-
-        canUnlockWithBiometrics -> {
-          AppButton("Use biometrics instead", ::onUnlockWithBiometrics, variant = ButtonVariant.Flat)
-        }
+      if (hasEnabledBiometrics) {
+        AppButton("Use biometrics instead", ::onUnlockWithBiometrics, variant = ButtonVariant.Flat)
       }
 
       Spacer(Modifier.size(12.dp))
