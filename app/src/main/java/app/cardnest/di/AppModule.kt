@@ -22,6 +22,7 @@ import app.cardnest.screens.password.change.ChangePasswordViewModel
 import app.cardnest.screens.password.create.CreatePasswordViewModel
 import app.cardnest.screens.password.sign_in.SignInWithPasswordViewModel
 import app.cardnest.screens.password.unlock.UnlockWithPasswordViewModel
+import app.cardnest.screens.password.unlock.help.UnlockWithPasswordHelpViewModel
 import app.cardnest.screens.pin.create.confirm.ConfirmPinViewModel
 import app.cardnest.screens.pin.create.create.CreatePinViewModel
 import app.cardnest.screens.pin.unlock.UnlockWithPinViewModel
@@ -78,6 +79,7 @@ val appModule = module {
   viewModel { CreatePasswordViewModel(get(), it.get()) }
   viewModel { SignInWithPasswordViewModel(get(), it.get()) }
   viewModel { UnlockWithPasswordViewModel(get(), it.get()) }
+  viewModel { UnlockWithPasswordHelpViewModel(get()) }
   viewModel { ChangePasswordViewModel(get(), it.get()) }
 
   viewModel { UnlockWithBiometricsViewModel(get(), it.get()) }
