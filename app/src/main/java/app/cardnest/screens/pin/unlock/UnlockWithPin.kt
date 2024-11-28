@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -14,24 +13,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
-import app.cardnest.components.button.AppButton
-import app.cardnest.components.button.ButtonVariant
-import app.cardnest.components.containers.ScreenContainer
+import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.pin.Keypad
 import app.cardnest.components.pin.PinInput
-import app.cardnest.screens.password.unlock.UnlockWithPasswordScreen
 import app.cardnest.screens.pin.create.create.PIN_LENGTH
+import app.cardnest.screens.pin.unlock.help.UnlockWithPinHelpScreen
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_RED
 import app.cardnest.ui.theme.TH_WHITE
+import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
+import cafe.adriel.voyager.core.lifecycle.LifecycleEffectOnce
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-data class UnlockWithPinScreen(private val shouldPreferBiometrics: Boolean = true) : Screen {
+class UnlockWithPinScreen : Screen {
+  @OptIn(ExperimentalVoyagerApi::class)
   @Composable
   override fun Content() {
     val ctx = LocalContext.current as FragmentActivity
@@ -39,32 +39,24 @@ data class UnlockWithPinScreen(private val shouldPreferBiometrics: Boolean = tru
 
     val vm = koinViewModel<UnlockWithPinViewModel> { parametersOf(navigator) }
 
-    val canUnlockWithPassword = vm.getShowPasswordButton()
-    val canUnlockWithBiometrics = vm.getShowBiometricsButton(ctx)
-
-    val unlockInfo = when {
-      canUnlockWithPassword && canUnlockWithBiometrics -> "Unlock using your biometrics, PIN or password"
-      canUnlockWithPassword -> "Unlock using your PIN or password"
-      canUnlockWithBiometrics -> "Unlock using your biometrics or PIN"
-      else -> "Unlock using your PIN"
-    }
-
-    fun onUnlockWithPassword() {
-      navigator.push(UnlockWithPasswordScreen(shouldPreferBiometrics = false))
-    }
+    val hasEnabledBiometrics = vm.getHasEnabledBiometrics()
 
     fun onUnlockWithBiometrics() {
       vm.unlockWithBiometrics(ctx)
     }
 
-    LaunchedEffect(Unit) {
-      if (canUnlockWithBiometrics && shouldPreferBiometrics) {
+    fun onHelp() {
+      navigator.push(UnlockWithPinHelpScreen())
+    }
+
+    LifecycleEffectOnce {
+      if (hasEnabledBiometrics && vm.getAreBiometricsAvailable(ctx)) {
         onUnlockWithBiometrics()
       }
     }
 
-    ScreenContainer {
-      Spacer(Modifier.size(64.dp))
+    SubScreenRoot(title = "", rightButtonLabel = "Help", onRightButtonClick = ::onHelp) {
+      Spacer(Modifier.size(32.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(
           text = "Unlock CardNest",
@@ -74,7 +66,11 @@ data class UnlockWithPinScreen(private val shouldPreferBiometrics: Boolean = tru
           color = TH_WHITE
         )
 
-        AppText(unlockInfo, align = TextAlign.Center)
+        if (hasEnabledBiometrics) {
+          AppText("Unlock using your biometrics or PIN.", align = TextAlign.Center)
+        } else {
+          AppText("Unlock using your PIN.", align = TextAlign.Center)
+        }
       }
 
       Spacer(Modifier.size(32.dp))
@@ -99,19 +95,11 @@ data class UnlockWithPinScreen(private val shouldPreferBiometrics: Boolean = tru
         pin = vm.pin,
         onPinChange = vm::onPinChange,
         onPinSubmit = vm::onPinSubmit,
-        showBiometricsIcon = canUnlockWithBiometrics,
+        showBiometricsIcon = hasEnabledBiometrics,
         onBiometricsIconClick = ::onUnlockWithBiometrics
       )
 
       Spacer(Modifier.size(48.dp))
-      if (canUnlockWithPassword) {
-        AppButton(
-          title = "Use password instead",
-          onClick = ::onUnlockWithPassword,
-          variant = ButtonVariant.Flat,
-          isDisabled = vm.pin.value.length == PIN_LENGTH
-        )
-      }
     }
   }
 }
