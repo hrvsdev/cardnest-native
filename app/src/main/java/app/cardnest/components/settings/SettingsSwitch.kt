@@ -4,9 +4,9 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.components.core.AppSwitch
 import app.cardnest.data.connectionState
+import app.cardnest.utils.extensions.collectValue
 
 @Composable
 fun SettingsSwitch(
@@ -19,7 +19,7 @@ fun SettingsSwitch(
   disableIfOffline: Boolean = false,
 ) {
   val ctx = LocalContext.current
-  val isDisabledOffline = disableIfOffline && connectionState.collectAsStateWithLifecycle().value.shouldWrite.not()
+  val isDisabledOffline = disableIfOffline && connectionState.collectValue().shouldWrite.not()
 
   fun onCheckedChangeWithOfflineCheck(checked: Boolean) {
     if (isDisabledOffline) {

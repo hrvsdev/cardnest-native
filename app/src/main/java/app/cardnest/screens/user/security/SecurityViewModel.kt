@@ -12,14 +12,13 @@ import app.cardnest.data.pinData
 import app.cardnest.screens.password.change.ChangePasswordScreen
 import app.cardnest.screens.pin.create.create.CreatePinScreen
 import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
+import app.cardnest.utils.extensions.stateInViewModel
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SecurityViewModel(
@@ -27,23 +26,9 @@ class SecurityViewModel(
   private val navigator: Navigator,
   private val bottomSheetNavigator: BottomSheetNavigator
 ) : ViewModel() {
-  val hasCreatedPassword = passwordData.map { it != null }.stateIn(
-    scope = viewModelScope,
-    started = SharingStarted.WhileSubscribed(5000),
-    initialValue = false
-  )
-
-  val hasCreatedPin = pinData.map { it != null }.stateIn(
-    scope = viewModelScope,
-    started = SharingStarted.WhileSubscribed(5000),
-    initialValue = false
-  )
-
-  val hasEnabledBiometrics = biometricsData.map { it != null }.stateIn(
-    scope = viewModelScope,
-    started = SharingStarted.WhileSubscribed(5000),
-    initialValue = false
-  )
+  val hasCreatedPassword = passwordData.map { it != null }.stateInViewModel(false)
+  val hasCreatedPin = pinData.map { it != null }.stateInViewModel(false)
+  val hasEnabledBiometrics = biometricsData.map { it != null }.stateInViewModel(false)
 
   fun onChangePassword() {
     navigator.push(ChangePasswordScreen())
@@ -93,3 +78,4 @@ class SecurityViewModel(
     }
   }
 }
+

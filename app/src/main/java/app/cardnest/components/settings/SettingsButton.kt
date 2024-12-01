@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.R
 import app.cardnest.components.loader.LoadingIcon
 import app.cardnest.data.connectionState
@@ -18,6 +17,7 @@ import app.cardnest.ui.theme.TH_RED_40
 import app.cardnest.ui.theme.TH_RED_60
 import app.cardnest.ui.theme.TH_WHITE_35
 import app.cardnest.ui.theme.TH_WHITE_50
+import app.cardnest.utils.extensions.collectValue
 
 @Composable
 fun SettingsButton(
@@ -31,7 +31,7 @@ fun SettingsButton(
   onClick: () -> Unit,
 ) {
   val ctx = LocalContext.current
-  val isDisabledOffline = disableIfOffline && connectionState.collectAsStateWithLifecycle().value.shouldWrite.not()
+  val isDisabledOffline = disableIfOffline && connectionState.collectValue().shouldWrite.not()
 
   val isDisabled = isDisabledOffline || isLoading
 

@@ -7,14 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.components.button.AppButton
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.core.PasswordTextField
@@ -24,6 +22,7 @@ import app.cardnest.screens.password.sign_in.help.ForgotPasswordBottomSheetScree
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
+import app.cardnest.utils.extensions.collectValue
 import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -41,8 +40,8 @@ class SignInWithPasswordScreen : Screen {
 
     val vm = koinViewModel<SignInWithPasswordViewModel> { parametersOf(navigator) }
 
-    val hasCreatedPin by vm.hasCreatedPin.collectAsStateWithLifecycle()
-    val hasEnabledBiometrics by vm.hasEnabledBiometrics.collectAsStateWithLifecycle()
+    val hasCreatedPin = vm.hasCreatedPin.collectValue()
+    val hasEnabledBiometrics = vm.hasEnabledBiometrics.collectValue()
 
     fun onForgotPassword() {
       focusManager.clearFocus()

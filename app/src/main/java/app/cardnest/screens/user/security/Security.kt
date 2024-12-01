@@ -5,12 +5,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.R
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
 import app.cardnest.components.settings.SettingsSwitch
+import app.cardnest.utils.extensions.collectValue
 import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -28,9 +28,9 @@ class SecurityScreen : Screen {
 
     val vm = koinViewModel<SecurityViewModel> { parametersOf(navigator, bottomSheetNavigator) }
 
-    val hasCreatedPassword = vm.hasCreatedPassword.collectAsStateWithLifecycle().value
-    val hasCreatedPin = vm.hasCreatedPin.collectAsStateWithLifecycle().value
-    val hasEnabledBiometrics = vm.hasEnabledBiometrics.collectAsStateWithLifecycle().value
+    val hasCreatedPassword = vm.hasCreatedPassword.collectValue()
+    val hasCreatedPin = vm.hasCreatedPin.collectValue()
+    val hasEnabledBiometrics = vm.hasEnabledBiometrics.collectValue()
 
     val CREATE_PIN_DESC = if (hasEnabledBiometrics || hasCreatedPassword) CREATE_PIN_DESC_IF_BIOMETRICS_OR_PASSWORD_EXIST else CREATE_PIN_DESC_IF_NONE_EXIST
     val REMOVE_PIN_DESC = if (hasEnabledBiometrics || hasCreatedPassword) REMOVE_PIN_DESC_IF_BIOMETRICS_OR_PASSWORD_EXIST else REMOVE_PIN_DESC_IF_NONE_EXIST

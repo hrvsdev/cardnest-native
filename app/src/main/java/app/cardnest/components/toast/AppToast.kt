@@ -22,13 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.R
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_BLACK
 import app.cardnest.ui.theme.TH_GREEN
 import app.cardnest.ui.theme.TH_RED
 import app.cardnest.ui.theme.TH_SKY
+import app.cardnest.utils.extensions.collectValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -37,7 +37,7 @@ private val toastState = MutableStateFlow(AppToastData())
 
 @Composable
 fun BoxScope.AppToast() {
-  val state = toastState.collectAsStateWithLifecycle().value
+  val state = toastState.collectValue()
 
   LaunchedEffect(state) {
     if (state.show) {

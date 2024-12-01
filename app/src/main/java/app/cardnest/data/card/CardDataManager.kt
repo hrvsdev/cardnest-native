@@ -4,11 +4,12 @@ import app.cardnest.data.auth.EncryptedData
 import app.cardnest.data.authState
 import app.cardnest.data.cardsLoadState
 import app.cardnest.data.cardsState
-import app.cardnest.data.hasAnyAuthData
+import app.cardnest.data.hasEnabledAuth
 import app.cardnest.data.userState
 import app.cardnest.db.card.CardRepository
 import app.cardnest.utils.crypto.CryptoManager
 import app.cardnest.utils.extensions.checkNotNull
+import app.cardnest.utils.extensions.combineCollectLatest
 import app.cardnest.utils.extensions.decoded
 import app.cardnest.utils.extensions.encoded
 import app.cardnest.utils.extensions.toastAndLog
@@ -17,7 +18,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
@@ -53,7 +53,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun mergeAndManageCards() {
-    combine(hasAnyAuthData, userState) { a, b -> a to b }.collectLatest { (shouldEncrypt, user) ->
+    combineCollectLatest(hasEnabledAuth, userState) { shouldEncrypt, user ->
       cardsLoadState.update { it.copy(isReady = false) }
 
       when {
@@ -77,7 +77,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun encryptAndAddOrUpdateCard(cardUnencrypted: CardUnencrypted) {
-    val cardData = if (hasAnyAuthData.first()) {
+    val cardData = if (hasEnabledAuth.first()) {
       CardData.Encrypted(encryptToCardEncrypted(cardUnencrypted))
     } else {
       CardData.Unencrypted(cardUnencrypted)
@@ -91,7 +91,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun deleteAllCards() {
-    val cardRecords = if (hasAnyAuthData.first()) CardRecords.Unencrypted() else CardRecords.Encrypted()
+    val cardRecords = if (hasEnabledAuth.first()) CardRecords.Unencrypted() else CardRecords.Encrypted()
     repo.setCards(cardRecords)
   }
 

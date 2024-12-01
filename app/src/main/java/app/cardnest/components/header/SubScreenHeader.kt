@@ -24,13 +24,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.R
 import app.cardnest.data.connectionState
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_SKY
 import app.cardnest.ui.theme.TH_WHITE
 import app.cardnest.ui.theme.TH_WHITE_10
+import app.cardnest.utils.extensions.collectValue
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 
@@ -48,7 +48,7 @@ fun SubScreenHeader(
   val ctx = LocalContext.current
   val navigator = LocalNavigator.currentOrThrow
 
-  val isDisabledOffline = disableIfOffline && connectionState.collectAsStateWithLifecycle().value.shouldWrite.not()
+  val isDisabledOffline = disableIfOffline && connectionState.collectValue().shouldWrite.not()
 
   fun onRightButtonClickWithOfflineCheck() {
     if (isDisabledOffline) {

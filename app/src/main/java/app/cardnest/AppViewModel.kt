@@ -14,11 +14,9 @@ import app.cardnest.screens.biometrics.unlock.UnlockWithBiometricsScreen
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.password.unlock.UnlockWithPasswordScreen
 import app.cardnest.screens.pin.unlock.UnlockWithPinScreen
+import app.cardnest.utils.extensions.combineStateInViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class AppViewModel(
@@ -27,7 +25,7 @@ class AppViewModel(
   private val prefsManager: PreferencesManager,
   private val connectionManager: ConnectionManager
 ) : ViewModel() {
-  private val initialScreenFlow = combine(passwordData, pinData, biometricsData) { password, pin, biometrics ->
+  val initialScreen = combineStateInViewModel(passwordData, pinData, biometricsData, null) { password, pin, biometrics ->
     authDataLoadState.first { it.hasLocalLoaded }
     when {
       pin != null -> UnlockWithPinScreen()
@@ -36,8 +34,6 @@ class AppViewModel(
       else -> HomeScreen
     }
   }
-
-  val initialScreen = initialScreenFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
   init {
     initUser()

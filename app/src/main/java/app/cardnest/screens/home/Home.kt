@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.components.card.CardPreview
 import app.cardnest.components.containers.ScreenContainer
 import app.cardnest.components.containers.TabScreenRoot
@@ -22,6 +21,7 @@ import app.cardnest.screens.NoTransition
 import app.cardnest.screens.home.card.CardViewScreen
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_WHITE_60
+import app.cardnest.utils.extensions.collectValue
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -38,10 +38,10 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
 
     val vm = koinViewModel<HomeViewModel>()
 
-    val userName = vm.userName.collectAsStateWithLifecycle().value
-    val cardRecordList = vm.cardRecordList.collectAsStateWithLifecycle().value
-    val filteredCardIds = vm.filteredCardIds.collectAsStateWithLifecycle().value
-    val maskCardNumber = vm.maskCardNumber.collectAsStateWithLifecycle().value
+    val userName = vm.userName.collectValue()
+    val cardRecordList = vm.cardRecordList.collectValue()
+    val filteredCardIds = vm.filteredCardIds.collectValue()
+    val maskCardNumber = vm.maskCardNumber.collectValue()
 
     val totalNoOfCards = cardRecordList.size
     val noOfResults = filteredCardIds.size

@@ -12,13 +12,12 @@ import app.cardnest.data.biometricsData
 import app.cardnest.data.pinData
 import app.cardnest.data.user.UserManager
 import app.cardnest.screens.user.account.AccountScreen
+import app.cardnest.utils.extensions.stateInViewModel
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SignInWithPasswordViewModel(private val userManager: UserManager, private val navigator: Navigator) : ViewModel() {
@@ -31,13 +30,8 @@ class SignInWithPasswordViewModel(private val userManager: UserManager, private 
   var isPasswordIncorrect by mutableStateOf(false)
     private set
 
-  val hasCreatedPin = pinData.map { it != null }.stateIn(
-    viewModelScope, SharingStarted.WhileSubscribed(5000), false
-  )
-
-  val hasEnabledBiometrics = biometricsData.map { it != null }.stateIn(
-    viewModelScope, SharingStarted.WhileSubscribed(5000), false
-  )
+  val hasCreatedPin = pinData.map { it != null }.stateInViewModel(false)
+  val hasEnabledBiometrics = biometricsData.map { it != null }.stateInViewModel(false)
 
   init {
     viewModelScope.launch(Dispatchers.IO) {

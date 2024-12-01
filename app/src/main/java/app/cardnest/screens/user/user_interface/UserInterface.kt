@@ -3,11 +3,11 @@ package app.cardnest.screens.user.user_interface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.R
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.settings.SettingsGroup
 import app.cardnest.components.settings.SettingsSwitch
+import app.cardnest.utils.extensions.collectValue
 import cafe.adriel.voyager.core.screen.Screen
 import org.koin.androidx.compose.koinViewModel
 
@@ -16,7 +16,7 @@ class UserInterfaceScreen : Screen {
   override fun Content() {
     val vm = koinViewModel<UserInterfaceViewModel>()
 
-    val maskCardNumber = vm.maskCardNumber.collectAsStateWithLifecycle().value
+    val maskCardNumber = vm.maskCardNumber.collectValue()
 
     SubScreenRoot("User Interface", leftIconLabel = "Settings", spacedBy = 24.dp) {
       SettingsGroup("Card", MASK_CARD_DESC) {

@@ -14,6 +14,7 @@ import app.cardnest.data.initialUserState
 import app.cardnest.data.passwordData
 import app.cardnest.data.remotePasswordData
 import app.cardnest.data.userState
+import app.cardnest.utils.extensions.combineCollectLatest
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
@@ -25,8 +26,6 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.tasks.await
@@ -103,15 +102,13 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
       awaitClose { Firebase.auth.removeAuthStateListener { listener } }
     }
 
-    val userIfSignedInWithPasswordFlow = userFlow.combine(passwordData) { user, passwordData ->
-      when {
+    combineCollectLatest(userFlow, passwordData) { user, passwordData ->
+      val users = when {
         user == null -> Users(null, null)
         passwordData == null -> Users(user, null)
         else -> Users(user, user)
       }
-    }
 
-    userIfSignedInWithPasswordFlow.collectLatest { users ->
       initialUserState.update { users.initial }
       userState.update { users.current }
     }

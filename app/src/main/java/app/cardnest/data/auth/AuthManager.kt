@@ -8,7 +8,7 @@ import androidx.fragment.app.FragmentActivity
 import app.cardnest.data.authDataLoadState
 import app.cardnest.data.authState
 import app.cardnest.data.biometricsData
-import app.cardnest.data.hasAnyAuthData
+import app.cardnest.data.hasEnabledAuth
 import app.cardnest.data.initialUserState
 import app.cardnest.data.passwordData
 import app.cardnest.data.pinData
@@ -251,7 +251,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
       return dek
     }
 
-    val hasAnyAuthData = hasAnyAuthData.first()
+    val hasAnyAuthData = hasEnabledAuth.first()
 
     if (hasAnyAuthData) {
       throw IllegalStateException("Restart and unlock app again")

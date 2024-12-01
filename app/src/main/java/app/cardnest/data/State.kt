@@ -28,7 +28,7 @@ val preferencesState = MutableStateFlow(Preferences())
 
 val connectionState = MutableStateFlow(Connection())
 
-val hasAnyAuthData = combine(passwordData, pinData, biometricsData) { password, pin, biometrics ->
+val hasEnabledAuth = combine(passwordData, pinData, biometricsData) { password, pin, biometrics ->
   password != null || pin != null || biometrics != null
 }
 

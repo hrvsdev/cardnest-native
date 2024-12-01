@@ -16,7 +16,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.components.loader.LoadingIcon
 import app.cardnest.components.toast.AppToast
 import app.cardnest.data.connectionState
@@ -30,6 +29,7 @@ import app.cardnest.ui.theme.TH_SKY_10
 import app.cardnest.ui.theme.TH_SKY_20
 import app.cardnest.ui.theme.TH_WHITE
 import app.cardnest.ui.theme.TH_WHITE_70
+import app.cardnest.utils.extensions.collectValue
 
 @Composable
 fun AppButton(
@@ -43,7 +43,7 @@ fun AppButton(
   isDisabledIfOffline: Boolean = false,
   isDisabled: Boolean = false,
 ) {
-  val isOffline = isDisabledIfOffline && connectionState.collectAsStateWithLifecycle().value.shouldWrite.not()
+  val isOffline = isDisabledIfOffline && connectionState.collectValue().shouldWrite.not()
 
   val isFullyDisabled = isDisabled || isLoading
   val isVisuallyDisabled = isFullyDisabled || isOffline

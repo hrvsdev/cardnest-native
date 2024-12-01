@@ -4,12 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.R
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
 import app.cardnest.components.settings.SettingsItem
+import app.cardnest.utils.extensions.collectValue
 import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
@@ -30,7 +30,7 @@ class AccountScreen : Screen {
     val vm = koinViewModel<AccountViewModel> { parametersOf(navigator) }
 
     val isLoading = vm.isLoading
-    val user = vm.user.collectAsStateWithLifecycle().value
+    val user = vm.user.collectValue()
 
     fun onSignInWithGoogle() {
       vm.signInWithGoogle(ctx)

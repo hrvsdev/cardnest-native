@@ -11,21 +11,18 @@ import app.cardnest.data.user.UserManager
 import app.cardnest.data.userState
 import app.cardnest.screens.password.create.CreatePasswordScreen
 import app.cardnest.screens.password.sign_in.SignInWithPasswordScreen
+import app.cardnest.utils.extensions.stateInViewModel
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class AccountViewModel(private val userManager: UserManager, private val navigator: Navigator) : ViewModel() {
   var isLoading by mutableStateOf(false)
     private set
 
-  val user = userState.stateIn(
-    scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = null
-  )
+  val user = userState.stateInViewModel(null)
 
   fun signInWithGoogle(ctx: Context) {
     isLoading = true
