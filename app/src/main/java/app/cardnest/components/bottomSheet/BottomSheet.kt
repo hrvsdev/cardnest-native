@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,6 +51,11 @@ fun BottomSheetHeading(title: String) {
 
 @Composable
 fun BottomSheetDescription(description: String) {
+  AppText(text = description, align = TextAlign.Center)
+}
+
+@Composable
+fun BottomSheetDescription(description: AnnotatedString) {
   AppText(text = description, align = TextAlign.Center)
 }
 
