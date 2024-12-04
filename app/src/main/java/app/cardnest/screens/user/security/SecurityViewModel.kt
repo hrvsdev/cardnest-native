@@ -12,6 +12,7 @@ import app.cardnest.data.pinData
 import app.cardnest.screens.password.change.ChangePasswordScreen
 import app.cardnest.screens.pin.create.create.CreatePinScreen
 import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
+import app.cardnest.utils.extensions.open
 import app.cardnest.utils.extensions.stateInViewModel
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
@@ -58,6 +59,11 @@ class SecurityViewModel(
 
     afterPinVerified.set {
       authManager.removePin()
+
+      if (hasCreatedPassword.value.not()) {
+        authManager.disableBiometrics()
+      }
+
       navigator.popUntil { it is SecurityScreen }
     }
   }
@@ -68,14 +74,43 @@ class SecurityViewModel(
 
   fun onBiometricsSwitchChange(ctx: FragmentActivity) {
     viewModelScope.launch(Dispatchers.IO) {
-      if (hasEnabledBiometrics.value) {
-        authManager.disableBiometrics()
-      } else try {
-        authManager.enableBiometrics(ctx, viewModelScope)
-      } catch (e: Exception) {
-        e.toastAndLog("SecurityViewModel")
+      when {
+        hasEnabledBiometrics.value -> disableBiometrics()
+        checkIfBiometricsBackupIsAvailable() -> enableBiometrics(ctx)
+        else -> showEnableBiometricsBottomSheet(ctx)
+      }
+    }
+  }
+
+  private suspend fun enableBiometrics(ctx: FragmentActivity) {
+    try {
+      authManager.enableBiometrics(ctx, viewModelScope)
+    } catch (e: Exception) {
+      e.toastAndLog("SecurityViewModel")
+    }
+  }
+
+  private suspend fun disableBiometrics() {
+    authManager.disableBiometrics()
+  }
+
+  private fun checkIfBiometricsBackupIsAvailable(): Boolean {
+    return hasCreatedPassword.value || hasCreatedPin.value
+  }
+
+  private fun showEnableBiometricsBottomSheet(ctx: FragmentActivity) {
+    bottomSheetNavigator.open(EnableBiometricsBottomSheetScreen()) {
+      viewModelScope.launch(Dispatchers.IO) {
+        bottomSheetNavigator.hide()
+        delay(200)
+
+        navigator.push(CreatePinScreen())
+      }
+
+      afterPinCreated.set {
+        enableBiometrics(ctx)
+        navigator.popUntil { it is SecurityScreen }
       }
     }
   }
 }
-

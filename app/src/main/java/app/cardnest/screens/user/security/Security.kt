@@ -34,7 +34,6 @@ class SecurityScreen : Screen {
 
     val CREATE_PIN_DESC = if (hasEnabledBiometrics || hasCreatedPassword) CREATE_PIN_DESC_IF_BIOMETRICS_OR_PASSWORD_EXIST else CREATE_PIN_DESC_IF_NONE_EXIST
     val REMOVE_PIN_DESC = if (hasEnabledBiometrics || hasCreatedPassword) REMOVE_PIN_DESC_IF_BIOMETRICS_OR_PASSWORD_EXIST else REMOVE_PIN_DESC_IF_NONE_EXIST
-    val DISABLE_BIOMETRICS_DESC = if (hasCreatedPin || hasCreatedPassword) DISABLE_BIOMETRICS_DESC_IF_PIN_OR_PASSWORD_EXIST else DISABLE_BIOMETRICS_DESC_IF_NONE_EXIST
 
     fun onRemovePinClick() {
       bottomSheetNavigator.open(RemovePinBottomSheetScreen(), vm::onRemovePin)
@@ -102,12 +101,10 @@ class SecurityScreen : Screen {
 const val PASSWORD_DESC = "Your password encrypts your data to ensure privacy and security."
 
 const val CREATE_PIN_DESC_IF_BIOMETRICS_OR_PASSWORD_EXIST = "Create a PIN to unlock the app along with biometrics or password."
-const val CREATE_PIN_DESC_IF_NONE_EXIST = "Create a PIN to secure your data and enable app access."
+const val CREATE_PIN_DESC_IF_NONE_EXIST = "Create a PIN to secure your data. Your PIN encrypts your data to ensure privacy and security."
 
 const val REMOVE_PIN_DESC_IF_BIOMETRICS_OR_PASSWORD_EXIST = "Removing the PIN will require biometrics or password to unlock the app."
 const val REMOVE_PIN_DESC_IF_NONE_EXIST = "Removing the PIN will reduce security and make your data accessible to anyone with your device."
 
 const val ENABLE_BIOMETRICS_DESC = "Enable biometrics for fast and secure access to the app."
-
-const val DISABLE_BIOMETRICS_DESC_IF_PIN_OR_PASSWORD_EXIST = "Disabling biometrics will require a PIN or password to unlock the app."
-const val DISABLE_BIOMETRICS_DESC_IF_NONE_EXIST = "Disabling biometrics will reduce security and make your data accessible to anyone with your device."
+const val DISABLE_BIOMETRICS_DESC = "Disabling biometrics will require a PIN or password to unlock the app."

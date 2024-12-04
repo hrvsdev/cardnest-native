@@ -1,7 +1,7 @@
 package app.cardnest.data.actions
 
 object Actions {
-  val afterPinCreated = Action()
+  val afterPinCreated = SuspendedAction()
   val afterPinVerified = SuspendedAction()
 
   val onBottomSheetConfirm = Action()
