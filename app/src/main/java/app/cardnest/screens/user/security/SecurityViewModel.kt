@@ -19,7 +19,9 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SecurityViewModel(
@@ -29,7 +31,11 @@ class SecurityViewModel(
 ) : ViewModel() {
   val hasCreatedPassword = passwordData.map { it != null }.stateInViewModel(false)
   val hasCreatedPin = pinData.map { it != null }.stateInViewModel(false)
-  val hasEnabledBiometrics = biometricsData.map { it != null }.stateInViewModel(false)
+  val hasEnabledBiometrics = biometricsData.map { it != null }.stateIn(
+    scope = viewModelScope,
+    started = SharingStarted.WhileSubscribed(5000),
+    initialValue = false
+  )
 
   fun onChangePassword() {
     navigator.push(ChangePasswordScreen())
@@ -50,21 +56,23 @@ class SecurityViewModel(
   }
 
   fun onRemovePin() {
-    viewModelScope.launch(Dispatchers.IO) {
-      bottomSheetNavigator.hide()
-      delay(200)
+    bottomSheetNavigator.open(RemovePinBottomSheetScreen(hasCreatedPassword.value, hasEnabledBiometrics.value)) {
+      viewModelScope.launch(Dispatchers.IO) {
+        bottomSheetNavigator.hide()
+        delay(200)
 
-      navigator.push(VerifyPinBeforeActionScreen())
-    }
-
-    afterPinVerified.set {
-      authManager.removePin()
-
-      if (hasCreatedPassword.value.not()) {
-        authManager.disableBiometrics()
+        navigator.push(VerifyPinBeforeActionScreen())
       }
 
-      navigator.popUntil { it is SecurityScreen }
+      afterPinVerified.set {
+        authManager.removePin()
+
+        if (hasCreatedPassword.value.not()) {
+          authManager.disableBiometrics()
+        }
+
+        navigator.popUntil { it is SecurityScreen }
+      }
     }
   }
 
