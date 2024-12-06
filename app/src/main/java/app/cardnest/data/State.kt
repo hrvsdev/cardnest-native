@@ -28,8 +28,8 @@ val preferencesState = MutableStateFlow(Preferences())
 
 val connectionState = MutableStateFlow(Connection())
 
-val hasEnabledAuth = combine(passwordData, pinData, biometricsData) { password, pin, biometrics ->
-  password != null || pin != null || biometrics != null
+val hasEnabledAuth = combine(passwordData, pinData) { password, pin ->
+  password != null || pin != null
 }
 
 data class AuthDataLoadState(
@@ -43,6 +43,7 @@ data class AuthState(
 
 data class CardsLoadState(
   val isReady: Boolean = false,
+  val hasLoaded: Boolean = false,
 )
 
 data class User(
