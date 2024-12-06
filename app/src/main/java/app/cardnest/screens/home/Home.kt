@@ -17,6 +17,7 @@ import app.cardnest.components.containers.ScreenContainer
 import app.cardnest.components.containers.TabScreenRoot
 import app.cardnest.components.header.HeaderSearch
 import app.cardnest.components.header.HeaderTitle
+import app.cardnest.components.loader.LoadingIcon
 import app.cardnest.screens.NoTransition
 import app.cardnest.screens.home.card.CardViewScreen
 import app.cardnest.ui.theme.AppText
@@ -42,6 +43,7 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
     val cardRecordList = vm.cardRecordList.collectValue()
     val filteredCardIds = vm.filteredCardIds.collectValue()
     val maskCardNumber = vm.maskCardNumber.collectValue()
+    val loadState = vm.loadState.collectValue()
 
     val totalNoOfCards = cardRecordList.size
     val noOfResults = filteredCardIds.size
@@ -62,7 +64,11 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
           }
         }
 
-        if (totalNoOfCards == 0) {
+        if (loadState.isReady.not() || loadState.hasLoaded.not()) {
+          Box(Modifier.fillMaxWidth(), Alignment.Center) {
+            LoadingIcon(size = 24.dp)
+          }
+        } else if (totalNoOfCards == 0) {
           Box(Modifier.fillMaxWidth(), Alignment.Center) {
             AppText("No cards found", Modifier.padding(top = 32.dp), color = TH_WHITE_60)
           }
