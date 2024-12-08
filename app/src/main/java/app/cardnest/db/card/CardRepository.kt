@@ -55,12 +55,8 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
   }
 
   suspend fun setCards(cards: CardRecords) {
-    if (isSyncing) {
-      setLocalCards(CardRecords.Encrypted())
-      setRemoteCards(cards)
-    } else {
-      setLocalCards(cards)
-    }
+    if (isSyncing) setRemoteCards(cards)
+    setLocalCards(cards)
   }
 
   suspend fun setLocalCards(cards: CardRecords) {
@@ -82,7 +78,8 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
   }
 
   suspend fun addOrUpdateCard(card: CardData) {
-    if (isSyncing) addOrUpdateRemoteCard(card) else addOrUpdateLocalCard(card)
+    if (isSyncing) addOrUpdateRemoteCard(card)
+    addOrUpdateLocalCard(card)
   }
 
   suspend fun addOrUpdateLocalCard(card: CardData) {
@@ -115,7 +112,8 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
   }
 
   suspend fun deleteCard(id: String) {
-    if (isSyncing) deleteRemoteCard(id) else deleteLocalCard(id)
+    if (isSyncing) deleteRemoteCard(id)
+    deleteLocalCard(id)
   }
 
   suspend fun deleteLocalCard(id: String) {
