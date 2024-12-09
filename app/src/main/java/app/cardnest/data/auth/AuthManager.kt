@@ -90,10 +90,10 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val remotePasswordData = remotePasswordData.value.checkNotNull { "Sign-in with Google first to set password" }
     val dek = decryptDek(password, remotePasswordData.salt, remotePasswordData.encryptedDek)
 
-    resetAuthData()
-
     authState.update { it.copy(dek = dek) }
     repo.setLocalPasswordData(remotePasswordData)
+    repo.setLocalPinData(null)
+    repo.setLocalBiometricsData(null)
   }
 
   suspend fun removeLocalPassword() {
