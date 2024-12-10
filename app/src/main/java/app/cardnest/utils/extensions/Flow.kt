@@ -11,11 +11,36 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
+val defaultSharing get() = SharingStarted.WhileSubscribed(5000)
+
+fun <T> Flow<T>.exists(): Flow<Boolean> {
+  return map { it != null }
+}
+
+fun <T> Flow<T>.zipWithNext(): Flow<Pair<T, T>> = flow {
+  var last: Any? = INTERNAL_NULL_VALUE
+
+  collect {
+    if (last !== INTERNAL_NULL_VALUE) {
+      @Suppress("UNCHECKED_CAST") emit(last as T to it)
+    }
+
+    last = it
+  }
+}
+
 context(ViewModel)
-fun <T> Flow<T>.stateInViewModel(initialValue: T, started: SharingStarted = SharingStarted.WhileSubscribed(5000)): StateFlow<T> {
+fun <T> Flow<T>.stateInViewModel(initialValue: T, started: SharingStarted = defaultSharing): StateFlow<T> {
   return stateIn(scope = viewModelScope, started = started, initialValue = initialValue)
+}
+
+context(ViewModel)
+fun <T> Flow<T>.existsStateInViewModel(initialValue: Boolean = false, started: SharingStarted = defaultSharing): StateFlow<Boolean> {
+  return exists().stateInViewModel(initialValue, started)
 }
 
 context(ViewModel)
@@ -23,7 +48,7 @@ fun <T1, T2, R> combineStateInViewModel(
   flow: Flow<T1>,
   flow2: Flow<T2>,
   initialValue: R,
-  started: SharingStarted = SharingStarted.WhileSubscribed(5000),
+  started: SharingStarted = defaultSharing,
   transform: suspend (T1, T2) -> R
 ): StateFlow<R> {
   return combine(flow, flow2, transform).stateInViewModel(initialValue, started)
@@ -35,7 +60,7 @@ fun <T1, T2, T3, R> combineStateInViewModel(
   flow2: Flow<T2>,
   flow3: Flow<T3>,
   initialValue: R,
-  started: SharingStarted = SharingStarted.WhileSubscribed(5000),
+  started: SharingStarted = defaultSharing,
   transform: suspend (T1, T2, T3) -> R
 ): StateFlow<R> {
   return combine(flow, flow2, flow3, transform).stateInViewModel(initialValue, started)
@@ -54,3 +79,5 @@ fun <T> StateFlow<T>.collectValue(): T {
   return collectAsStateWithLifecycle().value
 }
 
+@Suppress("ClassName")
+private object INTERNAL_NULL_VALUE
