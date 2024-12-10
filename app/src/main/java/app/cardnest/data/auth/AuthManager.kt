@@ -21,10 +21,13 @@ import app.cardnest.utils.extensions.encoded
 import app.cardnest.utils.extensions.toastAndLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -32,7 +35,7 @@ import javax.crypto.AEADBadTagException
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
 
-@OptIn(FlowPreview::class)
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class AuthManager(private val repo: AuthRepository, private val crypto: CryptoManager) {
   private val allowedAuthenticators = BIOMETRIC_STRONG
 
@@ -61,16 +64,20 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
   }
 
   suspend fun collectRemoteAuthData() {
-    initialUserState.collectLatest {
+    val remoteAuthDataFlow = initialUserState.flatMapLatest {
+      authDataLoadState.update { it.copy(hasRemoteLoaded = false) }
+      remotePasswordData.update { null }
+
       if (it != null) {
-        repo.getRemoteAuthData().catch { it.toastAndLog("AuthManager") }.collectLatest { d ->
-          remotePasswordData.update { d?.password }
-          authDataLoadState.update { it.copy(hasRemoteLoaded = true) }
-        }
+        repo.getRemoteAuthData().catch { it.toastAndLog("AuthManager") }
       } else {
-        remotePasswordData.update { null }
-        authDataLoadState.update { it.copy(hasRemoteLoaded = false) }
+        emptyFlow()
       }
+    }
+
+    remoteAuthDataFlow.collectLatest { d ->
+      remotePasswordData.update { d?.password }
+      authDataLoadState.update { it.copy(hasRemoteLoaded = true) }
     }
   }
 
@@ -94,10 +101,6 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     repo.setLocalPasswordData(remotePasswordData)
     repo.setLocalPinData(null)
     repo.setLocalBiometricsData(null)
-  }
-
-  suspend fun removeLocalPassword() {
-    repo.setLocalPasswordData(null)
   }
 
   fun verifyPassword(password: String) {
@@ -238,7 +241,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     }
   }
 
-  suspend fun resetAuthData() {
+  suspend fun resetLocalAuthData() {
     repo.setLocalPasswordData(null)
     repo.setLocalPinData(null)
     repo.setLocalBiometricsData(null)
