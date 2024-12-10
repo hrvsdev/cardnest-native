@@ -74,6 +74,15 @@ class AuthRepository(private val localDb: DataStore<AuthData>) {
     }
   }
 
+  suspend fun removeRemotePasswordData() {
+    val ref = rtDb.getReference("$uid/auth/password")
+    try {
+      ref.removeValue().await()
+    } catch (e: DatabaseException) {
+      throw Exception("Error removing auth data", e)
+    }
+  }
+
   private fun getAuthDataFromSnapshot(snapshot: DataSnapshot): RemoteAuthData? {
     val data = snapshot.getValue(RemoteAuthDataNullable::class.java) ?: return null
 

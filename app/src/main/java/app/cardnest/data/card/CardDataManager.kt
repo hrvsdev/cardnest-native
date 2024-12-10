@@ -97,6 +97,10 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     repo.setLocalCards(CardRecords.Unencrypted())
   }
 
+  suspend fun resetRemoteCards() {
+    repo.setRemoteCards(CardRecords.Encrypted())
+  }
+
   private suspend fun encryptCards() {
     val cards = cardsState.value.mapValues { encryptToCardEncrypted(it.value) }
     repo.setCards(CardRecords.Encrypted(cards.toPersistentMap()))

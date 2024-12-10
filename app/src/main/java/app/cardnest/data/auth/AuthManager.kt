@@ -247,6 +247,10 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     repo.setLocalBiometricsData(null)
   }
 
+  suspend fun resetRemoteAuthData() {
+    repo.removeRemotePasswordData()
+  }
+
   private suspend fun getOrCreateDek(): SecretKey {
     val dek = authState.value.dek
 
