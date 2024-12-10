@@ -19,6 +19,7 @@ import app.cardnest.utils.extensions.combineCollectLatest
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -35,13 +36,66 @@ import java.util.UUID
 
 class UserManager(private val authManager: AuthManager, private val cardDataManager: CardDataManager) {
   suspend fun signInWithGoogle(ctx: Context): SignInResult {
+    try {
+      Firebase.auth.signOut()
+      Firebase.auth.signInWithCredential(getGoogleAuthCredential(ctx)).await()
+    } catch (e: FirebaseAuthException) {
+      throw when (e) {
+        is FirebaseAuthInvalidUserException -> Exception("User is deleted or disabled", e)
+        is FirebaseAuthInvalidCredentialsException -> Exception("Invalid credentials", e)
+        else -> Exception("Error signing in with Google", e)
+      }
+    }
+
+    val remotePasswordData = authDataLoadState.first { it.hasRemoteLoaded }.let { remotePasswordData.value }
+    val isUserNew = remotePasswordData == null
+
+    return if (isUserNew) SignInResult.CREATE_PASSWORD else SignInResult.ENTER_PASSWORD
+  }
+
+  suspend fun continueSignInByCreatingPassword(password: String) {
+    authManager.createAndSetPassword(password)
+
+    cardsLoadState.update { it.copy(isMerging = true) }
+    cardDataManager.mergeCards()
+  }
+
+  suspend fun continueSignInByEnteringPassword(password: String) {
+    authManager.setLocalPassword(password)
+
+    cardsLoadState.update { it.copy(isMerging = true) }
+    cardDataManager.mergeCards()
+  }
+
+  suspend fun signOut() {
+    deleteLocalData()
+    Firebase.auth.signOut()
+  }
+
+  suspend fun collectUser() {
+    val userFlow = callbackFlow {
+      val listener = Firebase.auth.addAuthStateListener { trySend(it.currentUser?.toUser()) }
+      awaitClose { Firebase.auth.removeAuthStateListener { listener } }
+    }
+
+    combineCollectLatest(userFlow, passwordData) { user, passwordData ->
+      initialUserState.update { user }
+      userState.update { if (passwordData == null) null else user }
+    }
+  }
+
+  private suspend fun getGoogleAuthCredential(ctx: Context): AuthCredential {
     val credentialManager = CredentialManager.create(ctx)
+
+    val rawNonce = UUID.randomUUID().toString().toByteArray()
+    val digest = MessageDigest.getInstance("SHA-256").digest(rawNonce)
+    val nonce = digest.joinToString("") { "%02x".format(it) }
 
     val googleIdOption = GetGoogleIdOption.Builder()
       .setFilterByAuthorizedAccounts(false)
       .setServerClientId(ctx.getString(R.string.google_auth_client_id))
       .setAutoSelectEnabled(false)
-      .setNonce(generateNonce())
+      .setNonce(nonce)
       .build()
 
     val request = GetCredentialRequest.Builder()
@@ -56,75 +110,14 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
     }
 
     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)
-    val authCredential = googleIdTokenCredential.idToken
+    val googleAuthCredential = GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
 
-    val googleCredential = GoogleAuthProvider.getCredential(authCredential, null)
-
-    try {
-      Firebase.auth.signInWithCredential(googleCredential).await()
-    } catch (e: FirebaseAuthException) {
-      when (e) {
-        is FirebaseAuthInvalidUserException -> throw Exception("User is deleted or disabled", e)
-        is FirebaseAuthInvalidCredentialsException -> throw Exception("Invalid credentials", e)
-        else -> throw Exception("Error signing in with Google", e)
-      }
-    }
-
-    val remotePasswordData = authDataLoadState.first { it.hasRemoteLoaded }.let { remotePasswordData.value }
-    val isUserNew = remotePasswordData == null
-
-    return if (isUserNew) SignInResult.CREATE_PASSWORD else SignInResult.ENTER_PASSWORD
+    return googleAuthCredential
   }
 
-  suspend fun continueSignInByCreatingPassword(password: String) {
-    authManager.createAndSetPassword(password)
-
-    cardsLoadState.update { it.copy(isMerging = true) }
-    userState.update { initialUserState.value }
-    cardDataManager.mergeCards()
-  }
-
-  suspend fun continueSignInByEnteringPassword(password: String) {
-    authManager.setLocalPassword(password)
-
-    cardsLoadState.update { it.copy(isMerging = true) }
-    userState.update { initialUserState.value }
-    cardDataManager.mergeCards()
-  }
-
-  suspend fun initialSignOut() {
-    authManager.removeLocalPassword()
-    Firebase.auth.signOut()
-  }
-
-  suspend fun signOut() {
-    initialSignOut()
-    authManager.resetAuthData()
-    cardDataManager.resetCards()
-  }
-
-  suspend fun collectUser() {
-    val userFlow = callbackFlow {
-      val listener = Firebase.auth.addAuthStateListener { trySend(it.currentUser?.toUser()) }
-      awaitClose { Firebase.auth.removeAuthStateListener { listener } }
-    }
-
-    combineCollectLatest(userFlow, passwordData) { user, passwordData ->
-      val users = when {
-        user == null -> Users(null, null)
-        passwordData == null -> Users(user, null)
-        else -> Users(user, user)
-      }
-
-      initialUserState.update { users.initial }
-      userState.update { users.current }
-    }
-  }
-
-  private fun generateNonce(): String {
-    val rawNonce = UUID.randomUUID().toString().toByteArray()
-    val digest = MessageDigest.getInstance("SHA-256").digest(rawNonce)
-    return digest.joinToString("") { "%02x".format(it) }
+  private suspend fun deleteLocalData() {
+    authManager.resetLocalAuthData()
+    cardDataManager.resetLocalCards()
   }
 
   private fun FirebaseUser.toUser(): User {
@@ -132,5 +125,3 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
     return User(uid = uid, name = fullName.split(" ").first(), fullName = fullName)
   }
 }
-
-private data class Users(val initial: User?, val current: User?)

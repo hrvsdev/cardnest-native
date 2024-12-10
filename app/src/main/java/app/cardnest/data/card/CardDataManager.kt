@@ -93,8 +93,8 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     repo.setCards(cardRecords)
   }
 
-  suspend fun resetCards() {
-    repo.setCards(CardRecords.Unencrypted())
+  suspend fun resetLocalCards() {
+    repo.setLocalCards(CardRecords.Unencrypted())
   }
 
   private suspend fun encryptCards() {
