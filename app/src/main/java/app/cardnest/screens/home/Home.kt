@@ -1,6 +1,10 @@
 package app.cardnest.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +22,7 @@ import app.cardnest.components.containers.TabScreenRoot
 import app.cardnest.components.header.HeaderSearch
 import app.cardnest.components.header.HeaderTitle
 import app.cardnest.components.loader.LoadingIcon
+import app.cardnest.data.card.CardUnencrypted
 import app.cardnest.screens.NoTransition
 import app.cardnest.screens.home.card.CardViewScreen
 import app.cardnest.ui.theme.AppText
@@ -35,8 +40,6 @@ import org.koin.androidx.compose.koinViewModel
 object HomeScreen : Screen, ScreenTransition by NoTransition() {
   @Composable
   override fun Content() {
-    val navigator = LocalNavigator.currentOrThrow
-
     val vm = koinViewModel<HomeViewModel>()
 
     val userName = vm.userName.collectValue()
@@ -52,28 +55,46 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
       HeaderTitle(if (userName != null) "Hey, $userName" else "Home")
       HeaderSearch(vm.queryState, noOfResults, totalNoOfCards)
       ScreenContainer {
-        cardRecordList.forEachIndexed { index, it ->
-          AnimatedVisibility(filteredCardIds.contains(it.id)) {
-            Column {
-              Box(Modifier.clickable { navigator.push(CardViewScreen(it)) }) {
-                CardPreview(it.data, maskCardNumber = maskCardNumber)
-              }
-
-              Spacer(Modifier.size(16.dp))
-            }
-          }
-        }
-
-        if (loadState.isMerging || loadState.hasLoaded.not()) {
-          Box(Modifier.fillMaxWidth(), Alignment.Center) {
-            LoadingIcon(size = 24.dp)
-          }
-        } else if (totalNoOfCards == 0) {
-          Box(Modifier.fillMaxWidth(), Alignment.Center) {
-            AppText("No cards found", Modifier.padding(top = 32.dp), color = TH_WHITE_60)
-          }
+        when {
+          loadState.isMerging || loadState.hasLoaded.not() -> Loading()
+          totalNoOfCards == 0 -> NoCardsFoundMessage()
+          else -> CardList(cardRecordList, filteredCardIds, maskCardNumber)
         }
       }
     }
+  }
+}
+
+@Composable
+private fun CardList(list: List<CardUnencrypted>, filteredIds: List<String>, maskCardNumber: Boolean) {
+  val navigator = LocalNavigator.currentOrThrow
+
+  val enter = fadeIn() + expandVertically()
+  val exit = fadeOut() + shrinkVertically()
+
+  list.forEach {
+    AnimatedVisibility(filteredIds.contains(it.id), enter = enter, exit = exit) {
+      Column {
+        Box(Modifier.clickable { navigator.push(CardViewScreen(it)) }) {
+          CardPreview(it.data, maskCardNumber = maskCardNumber)
+        }
+
+        Spacer(Modifier.size(16.dp))
+      }
+    }
+  }
+}
+
+@Composable
+private fun Loading() {
+  Box(Modifier.fillMaxWidth(), Alignment.Center) {
+    LoadingIcon(size = 24.dp)
+  }
+}
+
+@Composable
+private fun NoCardsFoundMessage() {
+  Box(Modifier.fillMaxWidth(), Alignment.Center) {
+    AppText("No cards found", Modifier.padding(top = 32.dp), color = TH_WHITE_60)
   }
 }
