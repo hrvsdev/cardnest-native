@@ -55,6 +55,7 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
 
   suspend fun continueSignInByCreatingPassword(password: String) {
     authManager.createAndSetPassword(password)
+    userState.first { it != null }
 
     cardsLoadState.update { it.copy(isMerging = true) }
     cardDataManager.mergeCards()
@@ -62,6 +63,7 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
 
   suspend fun continueSignInByEnteringPassword(password: String) {
     authManager.setLocalPassword(password)
+    userState.first { it != null }
 
     cardsLoadState.update { it.copy(isMerging = true) }
     cardDataManager.mergeCards()
