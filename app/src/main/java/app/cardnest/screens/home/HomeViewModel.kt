@@ -41,7 +41,7 @@ class HomeViewModel(private val dataManager: CardDataManager) : ViewModel() {
     }
 
     viewModelScope.launch(Dispatchers.IO) {
-      dataManager.mergeAndManageCards()
+      dataManager.checkAndEncryptOrDecryptCards()
     }
   }
 

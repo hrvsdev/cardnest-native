@@ -9,10 +9,10 @@ import app.cardnest.data.userState
 import app.cardnest.db.card.CardRepository
 import app.cardnest.utils.crypto.CryptoManager
 import app.cardnest.utils.extensions.checkNotNull
-import app.cardnest.utils.extensions.combineCollectLatest
 import app.cardnest.utils.extensions.decoded
 import app.cardnest.utils.extensions.encoded
 import app.cardnest.utils.extensions.toastAndLog
+import app.cardnest.utils.extensions.zipWithNext
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -49,31 +49,29 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
       }
 
       cardsState.update { updatedCards }
+      cardsLoadState.update { it.copy(hasLoaded = true) }
     }
   }
 
-  suspend fun mergeAndManageCards() {
-    combineCollectLatest(hasEnabledAuth, userState) { shouldEncrypt, user ->
-      cardsLoadState.update { it.copy(isReady = false) }
+  suspend fun checkAndEncryptOrDecryptCards() {
+    hasEnabledAuth.zipWithNext().collectLatest { (previous, current) ->
+      if (userState.value == null) {
+        val shouldEncrypt = previous == false && current == true
+        val shouldDecrypt = previous == true && current == false
 
-      when {
-        shouldEncrypt && user == null -> if (repo.getLocalCards().first() is CardRecords.Unencrypted) {
-          val cards = cardsState.value.mapValues { encryptToCardEncrypted(it.value) }
-          repo.setCards(CardRecords.Encrypted(cards.toPersistentMap()))
-        }
-
-        shouldEncrypt && user != null -> {
-          val cards = cardsState.value.mapValues { encryptToCardEncrypted(it.value) } + repo.getRemoteCards().first().cards
-          repo.setCards(CardRecords.Encrypted(cards.toPersistentMap()))
-        }
-
-        else -> if (repo.getLocalCards().first() is CardRecords.Encrypted) {
-          repo.setCards(CardRecords.Unencrypted(cardsState.value.toPersistentMap()))
+        when {
+          shouldEncrypt -> encryptCards()
+          shouldDecrypt -> decryptCards()
         }
       }
-
-      cardsLoadState.update { it.copy(isReady = true) }
     }
+  }
+
+  suspend fun mergeCards() {
+    val cards = cardsState.value.mapValues { encryptToCardEncrypted(it.value) } + repo.getRemoteCards().first().cards
+    repo.setCards(CardRecords.Encrypted(cards.toPersistentMap()))
+
+    cardsLoadState.update { it.copy(isMerging = false) }
   }
 
   suspend fun encryptAndAddOrUpdateCard(cardUnencrypted: CardUnencrypted) {
@@ -97,6 +95,16 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
 
   suspend fun resetCards() {
     repo.setCards(CardRecords.Unencrypted())
+  }
+
+  private suspend fun encryptCards() {
+    val cards = cardsState.value.mapValues { encryptToCardEncrypted(it.value) }
+    repo.setCards(CardRecords.Encrypted(cards.toPersistentMap()))
+  }
+
+  private suspend fun decryptCards() {
+    val cards = cardsState.value.mapValues { it.value }
+    repo.setCards(CardRecords.Unencrypted(cards.toPersistentMap()))
   }
 
   private fun encryptToCardEncrypted(card: CardUnencrypted): CardEncrypted {
@@ -129,7 +137,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
 
   private fun getDataFlow(): Flow<CardRecords> {
     return userState.flatMapLatest {
-      cardsLoadState.first { it.isReady }
+      cardsLoadState.first { it.isMerging.not() } // Waits for merging to finish
       if (it != null) repo.getRemoteCards() else repo.getLocalCards()
     }
   }

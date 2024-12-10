@@ -10,6 +10,7 @@ import app.cardnest.data.User
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.authDataLoadState
 import app.cardnest.data.card.CardDataManager
+import app.cardnest.data.cardsLoadState
 import app.cardnest.data.initialUserState
 import app.cardnest.data.passwordData
 import app.cardnest.data.remotePasswordData
@@ -77,12 +78,18 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
 
   suspend fun continueSignInByCreatingPassword(password: String) {
     authManager.createAndSetPassword(password)
+
+    cardsLoadState.update { it.copy(isMerging = true) }
     userState.update { initialUserState.value }
+    cardDataManager.mergeCards()
   }
 
   suspend fun continueSignInByEnteringPassword(password: String) {
     authManager.setLocalPassword(password)
+
+    cardsLoadState.update { it.copy(isMerging = true) }
     userState.update { initialUserState.value }
+    cardDataManager.mergeCards()
   }
 
   suspend fun initialSignOut() {

@@ -42,7 +42,7 @@ data class AuthState(
 )
 
 data class CardsLoadState(
-  val isReady: Boolean = false,
+  val isMerging: Boolean = false,
   val hasLoaded: Boolean = false,
 )
 

@@ -64,7 +64,7 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
           }
         }
 
-        if (loadState.isReady.not() || loadState.hasLoaded.not()) {
+        if (loadState.isMerging || loadState.hasLoaded.not()) {
           Box(Modifier.fillMaxWidth(), Alignment.Center) {
             LoadingIcon(size = 24.dp)
           }
