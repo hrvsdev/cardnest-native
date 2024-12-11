@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.cardnest.components.toast.AppToast
 import app.cardnest.data.user.SignInResult
 import app.cardnest.data.user.UserManager
 import app.cardnest.data.userState
@@ -19,20 +20,23 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class AccountViewModel(private val userManager: UserManager, private val navigator: Navigator) : ViewModel() {
-  var isLoading by mutableStateOf(false)
+  var isSigningIn by mutableStateOf(false)
+    private set
+
+  var isDeleting by mutableStateOf(false)
     private set
 
   val user = userState.stateInViewModel(null)
 
   fun signInWithGoogle(ctx: Context) {
-    isLoading = true
-    viewModelScope.launch {
+    isSigningIn = true
+    viewModelScope.launch(Dispatchers.IO) {
       try {
         userManager.signInWithGoogle(ctx).also { continueSignInByPassword(it) }
       } catch (e: Exception) {
         e.toastAndLog("AccountViewModel")
       } finally {
-        isLoading = false
+        isSigningIn = false
       }
     }
   }
@@ -41,6 +45,20 @@ class AccountViewModel(private val userManager: UserManager, private val navigat
     viewModelScope.launch(Dispatchers.IO) {
       delay(200)
       userManager.signOut()
+    }
+  }
+
+  fun deleteUser(ctx: Context) {
+    isDeleting = true
+    viewModelScope.launch(Dispatchers.IO) {
+      try {
+        userManager.deleteUser(ctx)
+        AppToast.success("Account has been deleted")
+      } catch (e: Exception) {
+        e.toastAndLog("AccountViewModel")
+      } finally {
+        isDeleting = false
+      }
     }
   }
 

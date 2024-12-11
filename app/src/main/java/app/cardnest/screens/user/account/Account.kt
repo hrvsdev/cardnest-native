@@ -29,8 +29,10 @@ class AccountScreen : Screen {
 
     val vm = koinViewModel<AccountViewModel> { parametersOf(navigator) }
 
-    val isLoading = vm.isLoading
     val user = vm.user.collectValue()
+
+    val isSigningIn = vm.isSigningIn
+    val isDeleting = vm.isDeleting
 
     fun onSignInWithGoogle() {
       vm.signInWithGoogle(ctx)
@@ -40,6 +42,13 @@ class AccountScreen : Screen {
       bottomSheetNavigator.open(SignOutBottomSheetScreen()) {
         bottomSheetNavigator.hide()
         vm.signOut()
+      }
+    }
+
+    fun onDeleteUser() {
+      bottomSheetNavigator.open(DeleteAccountBottomSheetScreen()) {
+        bottomSheetNavigator.hide()
+        vm.deleteUser(ctx)
       }
     }
 
@@ -59,6 +68,18 @@ class AccountScreen : Screen {
             onClick = ::onSignOut
           )
         }
+
+        SettingsGroup("Danger Zone", DELETE_ACCOUNT_DESC) {
+          SettingsButton(
+            title = "Delete account",
+            icon = painterResource(R.drawable.tabler__trash),
+            isDanger = true,
+            isFirst = true,
+            isLast = true,
+            isLoading = isDeleting,
+            onClick = ::onDeleteUser
+          )
+        }
       } else {
         SettingsGroup("Sign in", SIGN_IN_GOOGLE_DESC) {
           SettingsButton(
@@ -66,7 +87,7 @@ class AccountScreen : Screen {
             icon = painterResource(R.drawable.tabler__brand_google),
             isFirst = true,
             isLast = true,
-            isLoading = isLoading,
+            isLoading = isSigningIn,
             onClick = ::onSignInWithGoogle
           )
         }
@@ -77,3 +98,5 @@ class AccountScreen : Screen {
 
 const val SIGN_IN_GOOGLE_DESC = "Sign in with your account to sync you data across devices."
 const val SIGN_OUT_DESC = "Sign out of your account to remove your data from this device."
+
+const val DELETE_ACCOUNT_DESC = "Delete your account to remove your data and account from this device and the server forever."

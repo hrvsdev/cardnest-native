@@ -15,6 +15,7 @@ import app.cardnest.data.initialUserState
 import app.cardnest.data.passwordData
 import app.cardnest.data.remotePasswordData
 import app.cardnest.data.userState
+import app.cardnest.utils.extensions.checkNotNull
 import app.cardnest.utils.extensions.combineCollectLatest
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -74,6 +75,28 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
     Firebase.auth.signOut()
   }
 
+  suspend fun deleteUser(ctx: Context) {
+    try {
+      Firebase.auth.currentUser?.reauthenticate(getGoogleAuthCredential(ctx))?.await()
+    } catch (e: FirebaseAuthException) {
+      throw when (e) {
+        is FirebaseAuthInvalidUserException -> Exception("User is deleted or disabled", e)
+        is FirebaseAuthInvalidCredentialsException -> Exception("Invalid credentials for selected account", e)
+        else -> Exception("Error re-authenticating user", e)
+      }
+    }
+
+    val currentUser = Firebase.auth.currentUser.checkNotNull { "Sign-in first to delete user" }
+
+    try {
+      deleteRemoteData()
+      deleteLocalData()
+      currentUser.delete().await()
+    } catch (e: FirebaseAuthException) {
+      throw Exception("Error deleting user", e)
+    }
+  }
+
   suspend fun collectUser() {
     val userFlow = callbackFlow {
       val listener = Firebase.auth.addAuthStateListener { trySend(it.currentUser?.toUser()) }
@@ -118,8 +141,13 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
   }
 
   private suspend fun deleteLocalData() {
-    authManager.resetLocalAuthData()
     cardDataManager.resetLocalCards()
+    authManager.resetLocalAuthData()
+  }
+
+  private suspend fun deleteRemoteData() {
+    cardDataManager.resetRemoteCards()
+    authManager.resetRemoteAuthData()
   }
 
   private fun FirebaseUser.toUser(): User {
