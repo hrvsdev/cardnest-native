@@ -76,7 +76,15 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     }
 
     remoteAuthDataFlow.collectLatest { d ->
-      remotePasswordData.update { d?.password }
+      if (d != null) {
+        val localModifiedAt = passwordData.value?.modifiedAt
+        if (localModifiedAt != null && d.password.modifiedAt > localModifiedAt) {
+          passwordData.update { d.password }
+        }
+
+        remotePasswordData.update { d.password }
+      }
+
       authDataLoadState.update { it.copy(hasRemoteLoaded = true) }
     }
   }
