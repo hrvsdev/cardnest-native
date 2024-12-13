@@ -1,6 +1,5 @@
 package app.cardnest.db.card
 
-import android.util.Log
 import androidx.datastore.core.DataStore
 import app.cardnest.data.card.CardData
 import app.cardnest.data.card.CardEncrypted
@@ -64,7 +63,6 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
   }
 
   suspend fun setRemoteCards(cards: CardRecords) {
-    Log.e("CardRepository", "Setting remote cards")
     if (cards is CardRecords.Encrypted) {
       val ref = rtDb.getReference("$uid/cards")
       try {

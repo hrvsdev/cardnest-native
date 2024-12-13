@@ -37,7 +37,11 @@ class HomeViewModel(private val dataManager: CardDataManager) : ViewModel() {
 
   private fun initCards() {
     viewModelScope.launch(Dispatchers.IO) {
-      dataManager.decryptAndCollectCards()
+      dataManager.collectAndDecryptCards()
+    }
+
+    viewModelScope.launch(Dispatchers.IO) {
+      dataManager.collectRemoteCards()
     }
 
     viewModelScope.launch(Dispatchers.IO) {
