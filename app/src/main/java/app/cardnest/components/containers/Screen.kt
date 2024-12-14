@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import app.cardnest.components.header.HeaderActionButton
 import app.cardnest.components.header.SubScreenHeader
 import app.cardnest.ui.theme.TH_BLACK
 import app.cardnest.ui.theme.TH_DARKER_BLUE
@@ -50,13 +51,19 @@ fun SubScreenRoot(
   rightButtonLabel: String? = null,
   rightButtonIcon: Painter? = null,
   onRightButtonClick: () -> Unit = {},
+  isLoading: Boolean = false,
 
   spacedBy: Dp? = null,
 
   content: @Composable ColumnScope.() -> Unit
 ) {
   Column(Modifier.fillMaxHeight()) {
-    SubScreenHeader(title, leftIconLabel, rightButtonLabel, rightButtonIcon, onRightButtonClick)
+    SubScreenHeader(title, leftIconLabel) {
+      if (rightButtonLabel != null) {
+        HeaderActionButton(rightButtonLabel, rightButtonIcon, isLoading, onRightButtonClick)
+      }
+    }
+
     ScreenContainer(
       spacedBy,
       content = content,
@@ -67,7 +74,6 @@ fun SubScreenRoot(
     )
   }
 }
-
 
 @Composable
 fun ScreenContainer(
