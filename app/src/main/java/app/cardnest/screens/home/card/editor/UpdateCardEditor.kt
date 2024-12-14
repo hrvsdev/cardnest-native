@@ -27,9 +27,15 @@ data class UpdateCardEditorScreen(val cardWithMeta: CardUnencrypted) : Screen {
       }
     }
 
-    SubScreenRoot(title = "Edit Card", rightButtonLabel = "Done", onRightButtonClick = ::update, spacedBy = 32.dp) {
+    SubScreenRoot(
+      title = "Edit Card",
+      rightButtonLabel = "Done",
+      onRightButtonClick = ::update,
+      isLoading = updateCardVM.isUpdating,
+      spacedBy = 32.dp
+    ) {
       CardEditor(editorVM)
-      AppButton(title = "Update", onClick = ::update)
+      AppButton(title = "Update", onClick = ::update, isLoading = updateCardVM.isUpdating)
     }
   }
 }

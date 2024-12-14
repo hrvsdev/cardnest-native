@@ -30,10 +30,11 @@ class AddCardEditorScreen : Screen {
       title = "New Card",
       rightButtonLabel = "Done",
       onRightButtonClick = ::saveCard,
+      isLoading = addCardVM.isAdding,
       spacedBy = 32.dp
     ) {
       CardEditor(editorVM)
-      AppButton(title = "Save", onClick = ::saveCard)
+      AppButton(title = "Save", onClick = ::saveCard, isLoading = addCardVM.isAdding)
     }
   }
 }

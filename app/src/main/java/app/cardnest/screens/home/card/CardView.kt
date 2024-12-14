@@ -68,7 +68,7 @@ data class CardViewScreen(val cardWithMeta: CardUnencrypted) : Screen {
         }
       }
 
-      AppButton(title = "Delete", onClick = ::onDeleteClick, ButtonTheme.Danger)
+      AppButton(title = "Delete", onClick = ::onDeleteClick, theme = ButtonTheme.Danger, isLoading = viewModel.isDeleting)
     }
   }
 }
