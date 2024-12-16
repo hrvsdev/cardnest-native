@@ -8,18 +8,18 @@ import app.cardnest.data.card.CardEncryptedNullable
 import app.cardnest.data.card.CardRecords
 import app.cardnest.data.userState
 import app.cardnest.firebase.rtDb
+import app.cardnest.utils.TIMEOUT_TIME
 import app.cardnest.utils.extensions.checkNotNull
-import app.cardnest.utils.extensions.toastAndLog
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseException
 import com.google.firebase.database.ValueEventListener
-import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeout
 
 class CardRepository(private val localDb: DataStore<CardRecords>) {
   private val uid get() = userState.value?.uid.checkNotNull { "User must be signed in to perform card operations" }
@@ -40,8 +40,7 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
         try {
           trySend(getCardRecordsFromSnapshot(snapshot))
         } catch (e: Exception) {
-          trySend(CardRecords.Encrypted(persistentMapOf()))
-          e.toastAndLog("CardRepository")
+          close(Exception(e))
         }
       }
 
@@ -66,8 +65,10 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
     if (cards is CardRecords.Encrypted) {
       val ref = rtDb.getReference("$uid/cards")
       try {
-        ref.setValue(cards.cards).await()
-      } catch (e: DatabaseException) {
+        withTimeout(TIMEOUT_TIME) {
+          ref.setValue(cards.cards).await()
+        }
+      } catch (e: Exception) {
         throw Exception("Error saving cards", e)
       }
     } else {
@@ -100,7 +101,9 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
     if (card is CardData.Encrypted) {
       val ref = rtDb.getReference("$uid/cards/${card.encrypted.id}")
       try {
-        ref.setValue(card.encrypted).await()
+        withTimeout(TIMEOUT_TIME) {
+          ref.setValue(card.encrypted).await()
+        }
       } catch (e: DatabaseException) {
         throw Exception("Error saving card", e)
       }
@@ -126,7 +129,9 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
   suspend fun deleteRemoteCard(id: String) {
     val ref = rtDb.getReference("$uid/cards/$id")
     try {
-      ref.removeValue().await()
+      withTimeout(TIMEOUT_TIME) {
+        ref.removeValue().await()
+      }
     } catch (e: DatabaseException) {
       throw Exception("Error deleting card", e)
     }

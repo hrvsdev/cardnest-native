@@ -10,6 +10,7 @@ import app.cardnest.data.auth.RemoteAuthData
 import app.cardnest.data.auth.RemoteAuthDataNullable
 import app.cardnest.data.initialUserState
 import app.cardnest.firebase.rtDb
+import app.cardnest.utils.TIMEOUT_TIME
 import app.cardnest.utils.extensions.checkNotNull
 import app.cardnest.utils.extensions.toastAndLog
 import com.google.firebase.database.DataSnapshot
@@ -20,6 +21,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeout
 
 class AuthRepository(private val localDb: DataStore<AuthData>) {
   private val uid get() = initialUserState.value?.uid.checkNotNull { "User must be signed in to perform auth operations" }
@@ -68,7 +70,9 @@ class AuthRepository(private val localDb: DataStore<AuthData>) {
     val ref = rtDb.getReference("$uid/auth/password")
     val data = PasswordData(data.salt, data.encryptedDek, modifiedAt = data.modifiedAt)
     try {
-      ref.setValue(data).await()
+      withTimeout(TIMEOUT_TIME) {
+        ref.setValue(data).await()
+      }
     } catch (e: DatabaseException) {
       throw Exception("Error saving auth data", e)
     }
@@ -77,7 +81,9 @@ class AuthRepository(private val localDb: DataStore<AuthData>) {
   suspend fun removeRemotePasswordData() {
     val ref = rtDb.getReference("$uid/auth/password")
     try {
-      ref.removeValue().await()
+      withTimeout(TIMEOUT_TIME) {
+        ref.removeValue().await()
+      }
     } catch (e: DatabaseException) {
       throw Exception("Error removing auth data", e)
     }
