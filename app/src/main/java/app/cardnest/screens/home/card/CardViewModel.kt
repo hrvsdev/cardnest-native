@@ -20,6 +20,8 @@ class CardViewModel(private val dataManager: CardDataManager, private val naviga
     if (isDeleting) return
 
     viewModelScope.launch(Dispatchers.IO) {
+      delay(200)
+
       val isDeletingJob = launch {
         delay(200)
         isDeleting = true
