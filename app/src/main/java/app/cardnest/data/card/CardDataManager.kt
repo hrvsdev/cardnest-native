@@ -17,8 +17,6 @@ import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
@@ -28,7 +26,12 @@ import javax.crypto.SecretKey
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardDataManager(private val repo: CardRepository, private val crypto: CryptoManager) {
   suspend fun collectAndDecryptCards() {
-    repo.getLocalCards().distinctUntilChanged().catch { it.toastAndLog("CardDataManager") }.collectLatest {
+    val dataFlow = userState.flatMapLatest {
+      cardsLoadState.first { it.isMerging.not() }
+      if (it != null) repo.getRemoteCards() else repo.getLocalCards()
+    }
+
+    dataFlow.catch { it.toastAndLog("CardDataManager") }.collectLatest {
       val updatedCards: MutableMap<String, CardUnencrypted> = mutableMapOf()
 
       when (it) {
@@ -51,18 +54,6 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
 
       cardsState.update { updatedCards }
       cardsLoadState.update { it.copy(hasLoaded = true) }
-    }
-  }
-
-  suspend fun collectRemoteCards() {
-    val remoteCardsFlow = userState.flatMapLatest {
-      if (it != null) repo.getRemoteCards().catch { it.toastAndLog("CardDataManager") } else emptyFlow()
-    }
-
-    remoteCardsFlow.distinctUntilChanged().collectLatest {
-      if (cardsLoadState.value.isMerging.not()) {
-        repo.setLocalCards(it)
-      }
     }
   }
 
@@ -101,7 +92,9 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
 
   suspend fun mergeCards() {
     val cards = cardsState.value.mapValues { encryptToCardEncrypted(it.value) } + repo.getRemoteCards().first().cards
-    repo.setCards(CardRecords.Encrypted(cards.toPersistentMap()))
+
+    repo.setRemoteCards(CardRecords.Encrypted(cards.toPersistentMap()))
+    repo.setLocalCards(CardRecords.Encrypted(cards.toPersistentMap()))
 
     cardsLoadState.update { it.copy(isMerging = false) }
   }
@@ -110,7 +103,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     repo.setLocalCards(CardRecords.Unencrypted())
   }
 
-  suspend fun resetRemoteCards() {
+  fun resetRemoteCards() {
     repo.setRemoteCards(CardRecords.Encrypted())
   }
 

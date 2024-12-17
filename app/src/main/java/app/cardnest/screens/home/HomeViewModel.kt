@@ -41,10 +41,6 @@ class HomeViewModel(private val dataManager: CardDataManager) : ViewModel() {
     }
 
     viewModelScope.launch(Dispatchers.IO) {
-      dataManager.collectRemoteCards()
-    }
-
-    viewModelScope.launch(Dispatchers.IO) {
       dataManager.checkAndEncryptOrDecryptCards()
     }
   }

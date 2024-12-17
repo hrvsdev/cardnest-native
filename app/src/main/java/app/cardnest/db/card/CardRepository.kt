@@ -8,18 +8,14 @@ import app.cardnest.data.card.CardEncryptedNullable
 import app.cardnest.data.card.CardRecords
 import app.cardnest.data.userState
 import app.cardnest.firebase.rtDb
-import app.cardnest.utils.TIMEOUT_TIME
 import app.cardnest.utils.extensions.checkNotNull
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseException
 import com.google.firebase.database.ValueEventListener
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withTimeout
 
 class CardRepository(private val localDb: DataStore<CardRecords>) {
   private val uid get() = userState.value?.uid.checkNotNull { "User must be signed in to perform card operations" }
@@ -53,23 +49,24 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
   }
 
   suspend fun setCards(cards: CardRecords) {
-    if (isSyncing) setRemoteCards(cards)
-    setLocalCards(cards)
+    if (isSyncing) {
+      setRemoteCards(cards)
+    } else {
+      setLocalCards(cards)
+    }
   }
 
   suspend fun setLocalCards(cards: CardRecords) {
     localDb.updateData { cards }
   }
 
-  suspend fun setRemoteCards(cards: CardRecords) {
+  fun setRemoteCards(cards: CardRecords) {
     if (cards is CardRecords.Encrypted) {
-      val ref = rtDb.getReference("$uid/cards")
       try {
-        withTimeout(TIMEOUT_TIME) {
-          ref.setValue(cards.cards).await()
-        }
+        val ref = rtDb.getReference("$uid/cards")
+        ref.setValue(cards.cards)
       } catch (e: Exception) {
-        throw Exception("Error saving cards", e)
+        throw Exception("Error setting remote cards", e)
       }
     } else {
       throw IllegalArgumentException("Unencrypted card records cannot be saved in remote database")
@@ -77,8 +74,11 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
   }
 
   suspend fun addOrUpdateCard(card: CardData) {
-    if (isSyncing) addOrUpdateRemoteCard(card)
-    addOrUpdateLocalCard(card)
+    if (isSyncing) {
+      addOrUpdateRemoteCard(card)
+    } else {
+      addOrUpdateLocalCard(card)
+    }
   }
 
   suspend fun addOrUpdateLocalCard(card: CardData) {
@@ -97,15 +97,13 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
     }
   }
 
-  suspend fun addOrUpdateRemoteCard(card: CardData) {
+  fun addOrUpdateRemoteCard(card: CardData) {
     if (card is CardData.Encrypted) {
-      val ref = rtDb.getReference("$uid/cards/${card.encrypted.id}")
       try {
-        withTimeout(TIMEOUT_TIME) {
-          ref.setValue(card.encrypted).await()
-        }
-      } catch (e: DatabaseException) {
-        throw Exception("Error saving card", e)
+        val ref = rtDb.getReference("$uid/cards/${card.encrypted.id}")
+        ref.setValue(card.encrypted)
+      } catch (e: Exception) {
+        throw Exception("Error adding or updating remote card", e)
       }
     } else {
       throw IllegalArgumentException("Unencrypted card can't be saved in remote database")
@@ -113,8 +111,11 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
   }
 
   suspend fun deleteCard(id: String) {
-    if (isSyncing) deleteRemoteCard(id)
-    deleteLocalCard(id)
+    if (isSyncing) {
+      deleteRemoteCard(id)
+    } else {
+      deleteLocalCard(id)
+    }
   }
 
   suspend fun deleteLocalCard(id: String) {
@@ -126,14 +127,12 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
     }
   }
 
-  suspend fun deleteRemoteCard(id: String) {
-    val ref = rtDb.getReference("$uid/cards/$id")
+  fun deleteRemoteCard(id: String) {
     try {
-      withTimeout(TIMEOUT_TIME) {
-        ref.removeValue().await()
-      }
-    } catch (e: DatabaseException) {
-      throw Exception("Error deleting card", e)
+      val ref = rtDb.getReference("$uid/cards/$id")
+      ref.removeValue()
+    } catch (e: Exception) {
+      throw Exception("Error deleting remote card", e)
     }
   }
 

@@ -255,7 +255,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     repo.setLocalBiometricsData(null)
   }
 
-  suspend fun resetRemoteAuthData() {
+  fun resetRemoteAuthData() {
     repo.removeRemotePasswordData()
   }
 
