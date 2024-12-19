@@ -46,8 +46,8 @@ data class VerifyPasswordScreen(private val buttonLabel: String = "Continue") : 
       }
     }
 
-    LaunchedEffect(vm.isPasswordIncorrect) {
-      if (vm.isPasswordIncorrect) vm.focusRequester.requestFocus()
+    LaunchedEffect(vm.isCurrentPasswordIncorrect) {
+      if (vm.isCurrentPasswordIncorrect) vm.currentPasswordFocusRequester.requestFocus()
     }
 
     SubScreenRoot(title = "", rightButtonLabel = "Forgot password?", onRightButtonClick = ::onForgotPassword) {
@@ -66,19 +66,19 @@ data class VerifyPasswordScreen(private val buttonLabel: String = "Continue") : 
         Spacer(Modifier.size(32.dp))
         Column {
           PasswordTextField(
-            state = vm.state,
+            state = vm.currentPasswordState,
             placeholder = "Enter password",
-            isLoading = vm.isLoading,
-            focusRequester = vm.focusRequester,
+            isLoading = vm.isVerifying,
+            focusRequester = vm.currentPasswordFocusRequester,
             onKeyboardAction = { vm.onSubmit() }
           )
 
           Spacer(Modifier.size(8.dp))
-          PasswordInfo("Entered password is incorrect", PasswordInfoType.ERROR, vm.isPasswordIncorrect)
+          PasswordInfo("Entered password is incorrect", PasswordInfoType.ERROR, vm.isCurrentPasswordIncorrect)
         }
 
         Spacer(Modifier.weight(1f))
-        AppButton(buttonLabel, vm::onSubmit, isLoading = vm.isLoading)
+        AppButton(buttonLabel, vm::onSubmit, isLoading = vm.isVerifying)
       }
     }
   }

@@ -41,8 +41,8 @@ class CreatePasswordScreen : Screen {
 
     val vm = koinViewModel<CreatePasswordViewModel> { parametersOf(navigator) }
 
-    LaunchedEffect(vm.hasSubmitted) {
-      if (vm.hasSubmitted) vm.confirmPasswordFocusRequester.requestFocus()
+    LaunchedEffect(vm.hasNewPasswordSubmitted) {
+      if (vm.hasNewPasswordSubmitted) vm.confirmPasswordFocusRequester.requestFocus()
     }
 
     SubScreenRoot(title = "") {
@@ -78,26 +78,26 @@ class CreatePasswordScreen : Screen {
       Spacer(Modifier.size(32.dp))
       Column {
         PasswordTextField(
-          state = vm.state,
+          state = vm.newPasswordState,
           placeholder = "Enter password",
-          isDisabled = vm.isLoading,
-          focusRequester = vm.focusRequester,
-          onFocus = { vm.updateIsFocused(true) },
-          onBlur = { vm.updateIsFocused(false) },
+          isDisabled = vm.isCreating,
+          focusRequester = vm.newPasswordFocusRequester,
+          onFocus = { vm.updateIsNewPasswordFocused(true) },
+          onBlur = { vm.updateIsNewPasswordFocused(false) },
           onKeyboardAction = { vm.onSubmit() }
         )
 
         Spacer(Modifier.size(8.dp))
 
-        PasswordInfo("Entered password includes space(s), which is allowed", PasswordInfoType.WARN, vm.containsSpace)
-        PasswordInfo("Entered password is strong and secure against brute-force attacks", PasswordInfoType.SUCCESS, vm.isSecure)
+        PasswordInfo("Entered password includes space(s), which is allowed", PasswordInfoType.WARN, vm.doesNewPasswordContainsSpace)
+        PasswordInfo("Entered password is strong and secure against brute-force attacks", PasswordInfoType.SUCCESS, vm.isNewPasswordSecure)
 
-        AnimatedVisibility(vm.hasSubmitted) {
+        AnimatedVisibility(vm.hasNewPasswordSubmitted) {
           Box(Modifier.padding(top = 20.dp, bottom = 8.dp)) {
             PasswordTextField(
               state = vm.confirmPasswordState,
               placeholder = "Confirm password",
-              isDisabled = vm.isLoading,
+              isDisabled = vm.isCreating,
               focusRequester = vm.confirmPasswordFocusRequester,
               leftIconId = R.drawable.tabler__lock_check,
               onKeyboardAction = { vm.onSubmit() }
@@ -119,7 +119,7 @@ class CreatePasswordScreen : Screen {
       }
 
       Spacer(Modifier.weight(1f))
-      AppButton("Continue", vm::onSubmit, isLoading = vm.isLoading)
+      AppButton("Continue", vm::onSubmit, isLoading = vm.isCreating)
     }
   }
 }

@@ -22,7 +22,6 @@ import app.cardnest.screens.password.sign_in.help.ForgotPasswordBottomSheetScree
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
-import app.cardnest.utils.extensions.collectValue
 import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -40,9 +39,6 @@ class SignInWithPasswordScreen : Screen {
 
     val vm = koinViewModel<SignInWithPasswordViewModel> { parametersOf(navigator) }
 
-    val hasCreatedPin = vm.hasCreatedPin.collectValue()
-    val hasEnabledBiometrics = vm.hasEnabledBiometrics.collectValue()
-
     fun onForgotPassword() {
       focusManager.clearFocus()
       bottomSheetNavigator.open(ForgotPasswordBottomSheetScreen()) {
@@ -50,8 +46,8 @@ class SignInWithPasswordScreen : Screen {
       }
     }
 
-    LaunchedEffect(vm.isPasswordIncorrect) {
-      if (vm.isPasswordIncorrect) vm.focusRequester.requestFocus()
+    LaunchedEffect(vm.isCurrentPasswordIncorrect) {
+      if (vm.isCurrentPasswordIncorrect) vm.currentPasswordFocusRequester.requestFocus()
     }
 
     SubScreenRoot(title = "", rightButtonLabel = "Forgot password?", onRightButtonClick = ::onForgotPassword) {
@@ -66,27 +62,24 @@ class SignInWithPasswordScreen : Screen {
         )
 
         AppText("Complete sign-in process using your password.", align = TextAlign.Center)
-
-        if (hasCreatedPin || hasEnabledBiometrics) {
-          AppText("Due to security reasons, you will have to set-up PIN or biometrics again.", align = TextAlign.Center)
-        }
+        AppText("For security reasons, you will have to set-up PIN or biometrics again.", align = TextAlign.Center)
 
         Spacer(Modifier.size(32.dp))
         Column {
           PasswordTextField(
-            state = vm.state,
+            state = vm.currentPasswordState,
             placeholder = "Enter password",
-            isLoading = vm.isLoading,
-            focusRequester = vm.focusRequester,
+            isLoading = vm.isVerifying,
+            focusRequester = vm.currentPasswordFocusRequester,
             onKeyboardAction = { vm.onSubmit() }
           )
 
           Spacer(Modifier.size(8.dp))
-          PasswordInfo("Entered password is incorrect", PasswordInfoType.ERROR, vm.isPasswordIncorrect)
+          PasswordInfo("Entered password is incorrect", PasswordInfoType.ERROR, vm.isCurrentPasswordIncorrect)
         }
 
         Spacer(Modifier.weight(1f))
-        AppButton("Continue", vm::onSubmit, isLoading = vm.isLoading)
+        AppButton("Continue", vm::onSubmit, isLoading = vm.isVerifying)
       }
     }
   }

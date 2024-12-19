@@ -7,9 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.focus.FocusRequester
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.auth.AuthManager
+import app.cardnest.screens.password.NewPasswordBaseViewModel
 import app.cardnest.screens.user.account.AccountScreen
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
@@ -17,16 +17,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class ChangePasswordViewModel(private val authManager: AuthManager, private val navigator: Navigator) : ViewModel() {
+class ChangePasswordViewModel(private val authManager: AuthManager, private val navigator: Navigator) : NewPasswordBaseViewModel() {
   val currentPasswordState = TextFieldState()
-  val newPasswordState = TextFieldState()
-  val confirmPasswordState = TextFieldState()
-
   val currentPasswordFocusRequester = FocusRequester()
-  val newPasswordFocusRequester = FocusRequester()
-  val confirmPasswordFocusRequester = FocusRequester()
 
-  var isLoading by mutableStateOf(false)
+  var isVerifying by mutableStateOf(false)
     private set
 
   var isCurrentPasswordIncorrect by mutableStateOf(false)
@@ -35,31 +30,7 @@ class ChangePasswordViewModel(private val authManager: AuthManager, private val 
   var isVerified by mutableStateOf(false)
     private set
 
-  var isNewPasswordFocused by mutableStateOf(false)
-    private set
-
-  var hasNewPasswordSubmitted by mutableStateOf(false)
-    private set
-
-  val requirements by derivedStateOf {
-    listOf(
-      Pair("12 characters or more", newPasswordState.text.length >= 12),
-      Pair("At least 1 uppercase letter", newPasswordState.text.any { it.isUpperCase() }),
-      Pair("At least 1 lowercase letter", newPasswordState.text.any { it.isLowerCase() }),
-      Pair("At least 1 number", newPasswordState.text.any { it.isDigit() }),
-      Pair("At least 1 special character", newPasswordState.text.any { it.isLetterOrDigit().not() })
-    )
-  }
-
   val isNewPasswordEqualToCurrentPassword by derivedStateOf { newPasswordState.text.isNotEmpty() && newPasswordState.text == currentPasswordState.text }
-
-  val doesNewPasswordContainsSpace by derivedStateOf { newPasswordState.text.contains(" ") }
-  val isNewPasswordSecure by derivedStateOf { requirements.all { it.second } && isNewPasswordEqualToCurrentPassword.not() }
-
-  val showRequirements by derivedStateOf { newPasswordState.text.isNotEmpty() && isNewPasswordSecure.not() && isNewPasswordEqualToCurrentPassword.not() }
-  val showDoPasswordsMatchInfo by derivedStateOf { hasNewPasswordSubmitted && confirmPasswordState.text.isNotEmpty() }
-
-  val doPasswordsMatch by derivedStateOf { newPasswordState.text == confirmPasswordState.text }
 
   init {
     viewModelScope.launch(Dispatchers.IO) {
@@ -67,31 +38,20 @@ class ChangePasswordViewModel(private val authManager: AuthManager, private val 
         if (isCurrentPasswordIncorrect) isCurrentPasswordIncorrect = false
       }
     }
-
-    viewModelScope.launch(Dispatchers.IO) {
-      snapshotFlow { isNewPasswordFocused }.collectLatest {
-        if (isNewPasswordFocused) hasNewPasswordSubmitted = false
-      }
-    }
   }
 
   fun onSubmit() {
     if (isVerified) {
-      onNewPasswordSubmit()
+      onCreatePassword()
       return
     }
 
-    if (currentPasswordState.text.length < 12) {
+    if (currentPasswordState.text.length < 12 || isCurrentPasswordIncorrect) {
       onCurrentPasswordError()
       return
     }
 
-    if (isCurrentPasswordIncorrect) {
-      currentPasswordFocusRequester.requestFocus()
-      return
-    }
-
-    isLoading = true
+    isVerifying = true
     viewModelScope.launch(Dispatchers.IO) {
       try {
         authManager.verifyPassword(currentPasswordState.text.toString())
@@ -100,46 +60,27 @@ class ChangePasswordViewModel(private val authManager: AuthManager, private val 
         e.toastAndLog("ChangePasswordViewModel")
         onCurrentPasswordError()
       } finally {
-        isLoading = false
+        isVerifying = false
       }
     }
   }
 
-  private fun onNewPasswordSubmit() {
-    if (isNewPasswordSecure.not()) {
+  private fun onCreatePassword() {
+    if (isNewPasswordEqualToCurrentPassword) {
       newPasswordFocusRequester.requestFocus()
       return
     }
 
-    hasNewPasswordSubmitted = true
-
-    if (doPasswordsMatch.not()) {
-      return
+    onNewPasswordSubmit("ChangePasswordViewModel") {
+      authManager.createAndSetPassword(it)
+      navigator.popUntil { it is AccountScreen }
     }
-
-    isLoading = true
-    viewModelScope.launch(Dispatchers.IO) {
-      try {
-        authManager.createAndSetPassword(newPasswordState.text.toString())
-        navigator.popUntil { it is AccountScreen }
-      } catch (e: Exception) {
-        e.toastAndLog("ChangePasswordViewModel")
-        onNewPasswordError()
-      }
-    }
-  }
-
-  fun updateIsNewPasswordFocused(value: Boolean) {
-    isNewPasswordFocused = value
   }
 
   private fun onCurrentPasswordError() {
+    currentPasswordFocusRequester.requestFocus()
     isCurrentPasswordIncorrect = true
-    isLoading = false
-  }
-
-  private fun onNewPasswordError() {
-    isLoading = false
+    isVerifying = false
   }
 }
 

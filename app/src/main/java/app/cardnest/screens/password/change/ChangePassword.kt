@@ -88,7 +88,7 @@ class ChangePasswordScreen : Screen {
         PasswordTextField(
           state = vm.currentPasswordState,
           placeholder = "Enter current password",
-          isLoading = vm.isLoading,
+          isLoading = vm.isVerifying,
           isDisabled = vm.isVerified,
           focusRequester = vm.currentPasswordFocusRequester,
           leftIconId = R.drawable.tabler__lock_password,
@@ -105,7 +105,7 @@ class ChangePasswordScreen : Screen {
             PasswordTextField(
               state = vm.newPasswordState,
               placeholder = "Enter new password",
-              isDisabled = vm.isLoading,
+              isDisabled = vm.isCreating,
               focusRequester = vm.newPasswordFocusRequester,
               onFocus = { vm.updateIsNewPasswordFocused(true) },
               onBlur = { vm.updateIsNewPasswordFocused(false) },
@@ -117,15 +117,25 @@ class ChangePasswordScreen : Screen {
         Spacer(Modifier.size(8.dp))
 
         PasswordInfo("Entered password is equal to current password", PasswordInfoType.ERROR, vm.isNewPasswordEqualToCurrentPassword)
-        PasswordInfo("Entered password includes space(s), which is allowed", PasswordInfoType.WARN, vm.doesNewPasswordContainsSpace)
-        PasswordInfo("Entered password is strong and secure against brute-force attacks", PasswordInfoType.SUCCESS, vm.isNewPasswordSecure)
+
+        PasswordInfo(
+          text = "Entered password includes space(s), which is allowed",
+          type = PasswordInfoType.WARN,
+          isVisible = vm.doesNewPasswordContainsSpace && vm.isNewPasswordEqualToCurrentPassword.not()
+        )
+
+        PasswordInfo(
+          text = "Entered password is strong and secure against brute-force attacks",
+          type = PasswordInfoType.SUCCESS,
+          isVisible = vm.isNewPasswordSecure && vm.isNewPasswordEqualToCurrentPassword.not()
+        )
 
         AnimatedVisibility(vm.hasNewPasswordSubmitted) {
           Box(Modifier.padding(top = 20.dp, bottom = 8.dp)) {
             PasswordTextField(
               state = vm.confirmPasswordState,
               placeholder = "Confirm new password",
-              isDisabled = vm.isLoading,
+              isDisabled = vm.isCreating,
               focusRequester = vm.confirmPasswordFocusRequester,
               leftIconId = R.drawable.tabler__lock_check,
               onKeyboardAction = { vm.onSubmit() }
@@ -147,7 +157,7 @@ class ChangePasswordScreen : Screen {
       }
 
       Spacer(Modifier.weight(1f))
-      AppButton("Continue", vm::onSubmit, isLoading = vm.isLoading)
+      AppButton("Continue", vm::onSubmit, isLoading = vm.isVerifying || vm.isCreating)
     }
   }
 }

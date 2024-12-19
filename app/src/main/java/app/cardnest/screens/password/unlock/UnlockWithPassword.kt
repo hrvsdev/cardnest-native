@@ -56,12 +56,12 @@ class UnlockWithPasswordScreen : Screen {
       if (navigator.lastEvent != StackEvent.Push && hasEnabledBiometrics && vm.getAreBiometricsAvailable(ctx)) {
         onUnlockWithBiometrics()
       } else {
-        vm.focusRequester.requestFocus()
+        vm.currentPasswordFocusRequester.requestFocus()
       }
     }
 
-    LaunchedEffect(vm.isPasswordIncorrect) {
-      if (vm.isPasswordIncorrect) vm.focusRequester.requestFocus()
+    LaunchedEffect(vm.isCurrentPasswordIncorrect) {
+      if (vm.isCurrentPasswordIncorrect) vm.currentPasswordFocusRequester.requestFocus()
     }
 
     SubScreenRoot(title = "", rightButtonLabel = "Help", onRightButtonClick = ::onHelp) {
@@ -85,15 +85,15 @@ class UnlockWithPasswordScreen : Screen {
       Spacer(Modifier.size(32.dp))
       Column {
         PasswordTextField(
-          state = vm.state,
+          state = vm.currentPasswordState,
           placeholder = "Enter password",
-          isLoading = vm.isLoading,
-          focusRequester = vm.focusRequester,
+          isLoading = vm.isVerifying,
+          focusRequester = vm.currentPasswordFocusRequester,
           onKeyboardAction = { vm.onSubmit() }
         )
 
         Spacer(Modifier.size(8.dp))
-        PasswordInfo("Entered password is incorrect", PasswordInfoType.ERROR, vm.isPasswordIncorrect)
+        PasswordInfo("Entered password is incorrect", PasswordInfoType.ERROR, vm.isCurrentPasswordIncorrect)
       }
 
       Spacer(Modifier.weight(1f))
@@ -103,7 +103,7 @@ class UnlockWithPasswordScreen : Screen {
       }
 
       Spacer(Modifier.size(12.dp))
-      AppButton("Continue", vm::onSubmit, isLoading = vm.isLoading)
+      AppButton("Continue", vm::onSubmit, isLoading = vm.isVerifying)
     }
   }
 }
