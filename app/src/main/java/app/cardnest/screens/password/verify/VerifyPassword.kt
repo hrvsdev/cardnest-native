@@ -23,6 +23,8 @@ import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
 import app.cardnest.utils.extensions.open
+import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
+import cafe.adriel.voyager.core.lifecycle.LifecycleEffectOnce
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
@@ -31,6 +33,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 data class VerifyPasswordScreen(private val buttonLabel: String = "Continue") : Screen {
+  @OptIn(ExperimentalVoyagerApi::class)
   @Composable
   override fun Content() {
     val focusManager = LocalFocusManager.current
@@ -44,6 +47,10 @@ data class VerifyPasswordScreen(private val buttonLabel: String = "Continue") : 
       bottomSheetNavigator.open(ForgotPasswordBottomSheetScreen()) {
         bottomSheetNavigator.hide()
       }
+    }
+
+    LifecycleEffectOnce {
+      vm.currentPasswordFocusRequester.requestFocus()
     }
 
     LaunchedEffect(vm.isCurrentPasswordIncorrect) {

@@ -28,6 +28,8 @@ import app.cardnest.components.password.PasswordInfoType
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
+import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
+import cafe.adriel.voyager.core.lifecycle.LifecycleEffectOnce
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -35,11 +37,16 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 class ChangePasswordScreen : Screen {
+  @OptIn(ExperimentalVoyagerApi::class)
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
 
     val vm = koinViewModel<ChangePasswordViewModel> { parametersOf(navigator) }
+
+    LifecycleEffectOnce {
+      vm.currentPasswordFocusRequester.requestFocus()
+    }
 
     LaunchedEffect(vm.isCurrentPasswordIncorrect) {
       if (vm.isCurrentPasswordIncorrect) vm.currentPasswordFocusRequester.requestFocus()
