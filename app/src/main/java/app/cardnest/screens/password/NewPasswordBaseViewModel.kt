@@ -63,7 +63,10 @@ open class NewPasswordBaseViewModel() : ViewModel() {
       return
     }
 
-    hasNewPasswordSubmitted = true
+    if (!hasNewPasswordSubmitted) {
+      hasNewPasswordSubmitted = true
+      return
+    }
 
     if (!doPasswordsMatch) {
       confirmPasswordFocusRequester.requestFocus()
