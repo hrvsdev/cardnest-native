@@ -15,35 +15,37 @@ val remotePasswordData = MutableStateFlow<PasswordData?>(null)
 val pinData = MutableStateFlow<PinData?>(null)
 val biometricsData = MutableStateFlow<BiometricsData?>(null)
 
-val authDataLoadState = MutableStateFlow(AuthDataLoadState())
 val authState = MutableStateFlow(AuthState())
 
 val initialUserState = MutableStateFlow<User?>(null)
 val userState = MutableStateFlow<User?>(null)
 
 val cardsState = MutableStateFlow<Map<String, CardUnencrypted>>(emptyMap())
-val cardsLoadState = MutableStateFlow(CardsLoadState())
 
 val preferencesState = MutableStateFlow(Preferences())
 
 val connectionState = MutableStateFlow(Connection())
 
+val appDataState = MutableStateFlow(AppDataState())
+
 val hasEnabledAuth = combine(passwordData, pinData) { password, pin ->
   password != null || pin != null
 }
 
-data class AuthDataLoadState(
-  val hasLocalLoaded: Boolean = false,
-  val hasRemoteLoaded: Boolean = false,
+/**
+ * Represents the state of the app data.
+ * Each of the fields represents whether the data has been loaded or not unless otherwise specified.
+ */
+data class AppDataState(
+  val user: Boolean = false,
+  val localAuth: Boolean = false,
+  val remoteAuth: Boolean = false,
+  val cards: Boolean = false,
+  val areCardsMerging: Boolean = false,
 )
 
 data class AuthState(
   val dek: SecretKey? = null,
-)
-
-data class CardsLoadState(
-  val isMerging: Boolean = false,
-  val hasLoaded: Boolean = false,
 )
 
 data class User(

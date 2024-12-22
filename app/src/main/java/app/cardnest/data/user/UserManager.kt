@@ -7,10 +7,9 @@ import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import app.cardnest.R
 import app.cardnest.data.User
+import app.cardnest.data.appDataState
 import app.cardnest.data.auth.AuthManager
-import app.cardnest.data.authDataLoadState
 import app.cardnest.data.card.CardDataManager
-import app.cardnest.data.cardsLoadState
 import app.cardnest.data.initialUserState
 import app.cardnest.data.passwordData
 import app.cardnest.data.remotePasswordData
@@ -48,7 +47,7 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
       }
     }
 
-    val remotePasswordData = authDataLoadState.first { it.hasRemoteLoaded }.let { remotePasswordData.value }
+    val remotePasswordData = appDataState.first { it.remoteAuth }.let { remotePasswordData.value }
     val isUserNew = remotePasswordData == null
 
     return if (isUserNew) SignInResult.CREATE_PASSWORD else SignInResult.ENTER_PASSWORD
@@ -58,7 +57,7 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
     authManager.createAndSetPassword(password)
     userState.first { it != null }
 
-    cardsLoadState.update { it.copy(isMerging = true) }
+    appDataState.update { it.copy(areCardsMerging = true) }
     cardDataManager.mergeCards()
   }
 
@@ -66,7 +65,7 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
     authManager.setLocalPassword(password)
     userState.first { it != null }
 
-    cardsLoadState.update { it.copy(isMerging = true) }
+    appDataState.update { it.copy(areCardsMerging = true) }
     cardDataManager.mergeCards()
   }
 

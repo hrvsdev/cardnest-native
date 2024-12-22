@@ -1,8 +1,8 @@
 package app.cardnest.data.card
 
+import app.cardnest.data.appDataState
 import app.cardnest.data.auth.EncryptedData
 import app.cardnest.data.authState
-import app.cardnest.data.cardsLoadState
 import app.cardnest.data.cardsState
 import app.cardnest.data.hasEnabledAuth
 import app.cardnest.data.userState
@@ -27,7 +27,7 @@ import javax.crypto.SecretKey
 class CardDataManager(private val repo: CardRepository, private val crypto: CryptoManager) {
   suspend fun collectAndDecryptCards() {
     val dataFlow = userState.flatMapLatest {
-      cardsLoadState.first { it.isMerging.not() }
+      appDataState.first { it.areCardsMerging.not() }
       if (it != null) repo.getRemoteCards() else repo.getLocalCards()
     }
 
@@ -53,7 +53,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
       }
 
       cardsState.update { updatedCards }
-      cardsLoadState.update { it.copy(hasLoaded = true) }
+      appDataState.update { it.copy(cards = true) }
     }
   }
 
@@ -96,7 +96,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     repo.setRemoteCards(CardRecords.Encrypted(cards.toPersistentMap()))
     repo.setLocalCards(CardRecords.Encrypted(cards.toPersistentMap()))
 
-    cardsLoadState.update { it.copy(isMerging = false) }
+    appDataState.update { it.copy(areCardsMerging = false) }
   }
 
   suspend fun resetLocalCards() {

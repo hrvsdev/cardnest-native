@@ -4,11 +4,11 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.cardnest.data.CardsLoadState
+import app.cardnest.data.AppDataState
+import app.cardnest.data.appDataState
 import app.cardnest.data.card.Card
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.card.PaymentNetwork
-import app.cardnest.data.cardsLoadState
 import app.cardnest.data.cardsState
 import app.cardnest.data.preferencesState
 import app.cardnest.data.userState
@@ -25,7 +25,7 @@ class HomeViewModel(private val dataManager: CardDataManager) : ViewModel() {
   val cardRecordList = cardsState.map { it.values.toList() }.stateInViewModel(emptyList())
   val maskCardNumber = preferencesState.map { it.userInterface.maskCardNumber }.stateInViewModel(false)
 
-  val loadState = cardsLoadState.stateInViewModel(CardsLoadState())
+  val loadState = appDataState.stateInViewModel(AppDataState())
 
   val filteredCardIds = combineStateInViewModel(cardRecordList, snapshotFlow { queryState.text }, emptyList()) { state, text ->
     state.mapNotNull { if (filterCard(it.data, text)) it.id else null }

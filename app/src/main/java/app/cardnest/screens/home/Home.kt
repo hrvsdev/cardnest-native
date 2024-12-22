@@ -56,7 +56,7 @@ object HomeScreen : Screen, ScreenTransition by NoTransition() {
       HeaderSearch(vm.queryState, noOfResults, totalNoOfCards)
       ScreenContainer {
         when {
-          loadState.isMerging || loadState.hasLoaded.not() -> Loading()
+          loadState.areCardsMerging || loadState.cards.not() -> Loading()
           totalNoOfCards == 0 -> NoCardsFoundMessage()
           else -> CardList(cardRecordList, filteredCardIds, maskCardNumber)
         }

@@ -5,7 +5,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
-import app.cardnest.data.authDataLoadState
+import app.cardnest.data.appDataState
 import app.cardnest.data.authState
 import app.cardnest.data.biometricsData
 import app.cardnest.data.hasEnabledAuth
@@ -13,6 +13,7 @@ import app.cardnest.data.initialUserState
 import app.cardnest.data.passwordData
 import app.cardnest.data.pinData
 import app.cardnest.data.remotePasswordData
+import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.utils.crypto.CryptoManager
 import app.cardnest.utils.extensions.checkNotNull
@@ -23,11 +24,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -59,13 +62,13 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
       pinData.update { d.pin }
       biometricsData.update { d.biometrics }
 
-      authDataLoadState.update { it.copy(hasLocalLoaded = true) }
+      appDataState.update { it.copy(localAuth = true) }
     }
   }
 
   suspend fun collectRemoteAuthData() {
     val remoteAuthDataFlow = initialUserState.flatMapLatest {
-      authDataLoadState.update { it.copy(hasRemoteLoaded = false) }
+      appDataState.update { it.copy(remoteAuth = false) }
       remotePasswordData.update { null }
 
       if (it != null) {
@@ -85,7 +88,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
         remotePasswordData.update { d.password }
       }
 
-      authDataLoadState.update { it.copy(hasRemoteLoaded = true) }
+      appDataState.update { it.copy(remoteAuth = true) }
     }
   }
 

@@ -2,8 +2,8 @@ package app.cardnest
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.cardnest.data.appDataState
 import app.cardnest.data.auth.AuthManager
-import app.cardnest.data.authDataLoadState
 import app.cardnest.data.biometricsData
 import app.cardnest.data.passwordData
 import app.cardnest.data.pinData
@@ -26,7 +26,7 @@ class AppViewModel(
   private val connectionManager: ConnectionManager
 ) : ViewModel() {
   val initialScreen = combineStateInViewModel(passwordData, pinData, biometricsData, null) { password, pin, biometrics ->
-    authDataLoadState.first { it.hasLocalLoaded }
+    appDataState.first { it.localAuth }
     when {
       pin != null -> UnlockWithPinScreen()
       password != null -> UnlockWithPasswordScreen()
