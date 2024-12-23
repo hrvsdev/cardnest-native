@@ -105,6 +105,7 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
     combineCollectLatest(userFlow, passwordData) { user, passwordData ->
       initialUserState.update { user }
       userState.update { if (passwordData == null) null else user }
+      appDataState.update { it.copy(user = true) }
     }
   }
 
