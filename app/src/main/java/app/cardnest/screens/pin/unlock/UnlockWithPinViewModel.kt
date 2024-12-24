@@ -7,12 +7,15 @@ import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.biometricsData
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.pin.PinBaseViewModel
+import app.cardnest.utils.extensions.existsStateInViewModel
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class UnlockWithPinViewModel(private val authManager: AuthManager, private val navigator: Navigator) : PinBaseViewModel() {
+  val hasEnabledBiometrics = biometricsData.existsStateInViewModel()
+
   fun onPinSubmit() {
     viewModelScope.launch(Dispatchers.IO) {
       try {
@@ -23,10 +26,6 @@ class UnlockWithPinViewModel(private val authManager: AuthManager, private val n
         onError()
       }
     }
-  }
-
-  fun getHasEnabledBiometrics(): Boolean {
-    return biometricsData.value != null
   }
 
   fun getAreBiometricsAvailable(ctx: FragmentActivity): Boolean {

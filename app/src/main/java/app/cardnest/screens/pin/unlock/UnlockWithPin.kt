@@ -22,6 +22,7 @@ import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_RED
 import app.cardnest.ui.theme.TH_WHITE
+import app.cardnest.utils.extensions.collectValue
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffectOnce
 import cafe.adriel.voyager.core.screen.Screen
@@ -39,7 +40,7 @@ class UnlockWithPinScreen : Screen {
 
     val vm = koinViewModel<UnlockWithPinViewModel> { parametersOf(navigator) }
 
-    val hasEnabledBiometrics = vm.getHasEnabledBiometrics()
+    val hasEnabledBiometrics = vm.hasEnabledBiometrics.collectValue()
 
     fun onUnlockWithBiometrics() {
       vm.unlockWithBiometrics(ctx)

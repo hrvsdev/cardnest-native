@@ -24,6 +24,7 @@ import app.cardnest.screens.password.unlock.help.UnlockWithPasswordHelpScreen
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
+import app.cardnest.utils.extensions.collectValue
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffectOnce
 import cafe.adriel.voyager.core.screen.Screen
@@ -42,7 +43,7 @@ class UnlockWithPasswordScreen : Screen {
 
     val vm = koinViewModel<UnlockWithPasswordViewModel> { parametersOf(navigator) }
 
-    val hasEnabledBiometrics = vm.getHasEnabledBiometrics()
+    val hasEnabledBiometrics = vm.hasEnabledBiometrics.collectValue()
 
     fun onHelp() {
       navigator.push(UnlockWithPasswordHelpScreen())

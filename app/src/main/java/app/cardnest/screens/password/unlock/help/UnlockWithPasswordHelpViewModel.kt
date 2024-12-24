@@ -4,14 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cardnest.data.pinData
 import app.cardnest.data.user.UserManager
+import app.cardnest.utils.extensions.existsStateInViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class UnlockWithPasswordHelpViewModel(private val userManager: UserManager) : ViewModel() {
-  fun hasCreatedPin(): Boolean {
-    return pinData.value != null
-  }
+  val hasCreatedPin = pinData.existsStateInViewModel()
 
   fun signOut() {
     viewModelScope.launch(Dispatchers.IO) {

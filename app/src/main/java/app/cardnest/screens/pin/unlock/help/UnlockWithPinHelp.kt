@@ -8,8 +8,8 @@ import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
 import app.cardnest.screens.password.unlock.UnlockWithPasswordScreen
-import app.cardnest.screens.password.unlock.help.UnlockWithPasswordHelpViewModel
 import app.cardnest.screens.user.account.SignOutBottomSheetScreen
+import app.cardnest.utils.extensions.collectValue
 import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -26,8 +26,8 @@ class UnlockWithPinHelpScreen : Screen {
 
     val vm = koinViewModel<UnlockWithPinHelpViewModel> { parametersOf(navigator) }
 
-    val hasCreatedPassword = vm.hasCreatedPassword()
-    val isSignedIn = vm.isSignedIn()
+    val hasCreatedPassword = vm.hasCreatedPassword.collectValue()
+    val isSignedIn = vm.isSignedIn.collectValue()
 
     fun onUnlockWithPassword() {
       navigator.push(UnlockWithPasswordScreen())
