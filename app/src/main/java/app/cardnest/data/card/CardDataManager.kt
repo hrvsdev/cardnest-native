@@ -86,7 +86,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   suspend fun deleteAllCards() {
-    val cardRecords = if (hasEnabledAuth.first()) CardRecords.Unencrypted() else CardRecords.Encrypted()
+    val cardRecords = if (hasEnabledAuth.first()) CardRecords.Encrypted() else CardRecords.Unencrypted()
     repo.setCards(cardRecords)
   }
 
