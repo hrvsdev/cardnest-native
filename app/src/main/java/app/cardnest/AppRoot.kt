@@ -11,13 +11,15 @@ fun AppRoot(splashScreen: SplashScreen) {
   CardNestTheme {
     val vm = koinViewModel<AppViewModel>()
 
-    val initialScreen = vm.initialScreen.collectValue()
+    val initialScreen = vm.initialScreen
+    val isPasswordStale = vm.isPasswordStale.collectValue()
+
     val isLoading = initialScreen == null
 
     splashScreen.setKeepOnScreenCondition { isLoading }
 
     if (isLoading.not()) {
-      App(initialScreen)
+      App(initialScreen, isPasswordStale)
     }
   }
 }

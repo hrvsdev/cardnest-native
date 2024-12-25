@@ -13,7 +13,6 @@ import app.cardnest.data.initialUserState
 import app.cardnest.data.passwordData
 import app.cardnest.data.pinData
 import app.cardnest.data.remotePasswordData
-import app.cardnest.data.userState
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.utils.crypto.CryptoManager
 import app.cardnest.utils.extensions.checkNotNull
@@ -24,13 +23,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -71,23 +67,21 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
       appDataState.update { it.copy(remoteAuth = false) }
       remotePasswordData.update { null }
 
-      if (it != null) {
-        repo.getRemoteAuthData().catch { it.toastAndLog("AuthManager") }
-      } else {
-        emptyFlow()
-      }
+      initialUserState.first { it != null }.let { repo.getRemoteAuthData() }
     }
 
-    remoteAuthDataFlow.collectLatest { d ->
+    remoteAuthDataFlow.catch { it.toastAndLog("AuthManager") }.collectLatest { d ->
       if (d != null) {
         val localModifiedAt = passwordData.value?.modifiedAt
         if (localModifiedAt != null && d.password.modifiedAt > localModifiedAt) {
-          passwordData.update { d.password }
-        }
+          repo.setLocalPinData(null)
+          repo.setLocalBiometricsData(null)
 
-        remotePasswordData.update { d.password }
+          authState.update { it.copy(dek = null, isPasswordStale = true) }
+        }
       }
 
+      remotePasswordData.update { d?.password }
       appDataState.update { it.copy(remoteAuth = true) }
     }
   }
@@ -114,9 +108,12 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     repo.setLocalBiometricsData(null)
   }
 
-  fun verifyPassword(password: String) {
-    val passwordData = passwordData.value.checkNotNull { "Create password first to verify" }
-    decryptDek(password, passwordData.salt, passwordData.encryptedDek)
+  suspend fun updateStalePassword(password: String) {
+    val remotePasswordData = remotePasswordData.value.checkNotNull { "Complete sign-in process to update password" }
+    val dek = decryptDek(password, remotePasswordData.salt, remotePasswordData.encryptedDek)
+
+    authState.update { it.copy(dek = dek, isPasswordStale = false) }
+    repo.setLocalPasswordData(remotePasswordData)
   }
 
   fun unlockWithPassword(password: String) {
@@ -124,6 +121,11 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val dek = decryptDek(password, passwordData.salt, passwordData.encryptedDek)
 
     authState.update { it.copy(dek = dek) }
+  }
+
+  fun verifyPassword(password: String) {
+    val passwordData = passwordData.value.checkNotNull { "Create password first to verify" }
+    decryptDek(password, passwordData.salt, passwordData.encryptedDek)
   }
 
   suspend fun createAndSetPin(pin: String) {

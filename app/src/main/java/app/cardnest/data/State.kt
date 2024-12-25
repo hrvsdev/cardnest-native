@@ -46,6 +46,7 @@ data class AppDataState(
 
 data class AuthState(
   val dek: SecretKey? = null,
+  val isPasswordStale: Boolean = false,
 )
 
 data class User(

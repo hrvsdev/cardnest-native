@@ -23,6 +23,13 @@ class UnlockWithPasswordViewModel(private val authManager: AuthManager, private 
     }
   }
 
+  fun onUnlockWithNewPasswordSubmit() {
+    onVerifyPasswordSubmit("UnlockWithPasswordViewModel") {
+      authManager.updateStalePassword(it)
+      navigator.replaceAll(HomeScreen)
+    }
+  }
+
   fun getAreBiometricsAvailable(ctx: FragmentActivity): Boolean {
     return authManager.getAreBiometricsAvailable(ctx)
   }
