@@ -32,7 +32,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-data class VerifyPasswordScreen(private val buttonLabel: String = "Continue") : Screen {
+class VerifyPasswordScreen : Screen {
   @OptIn(ExperimentalVoyagerApi::class)
   @Composable
   override fun Content() {
@@ -85,7 +85,7 @@ data class VerifyPasswordScreen(private val buttonLabel: String = "Continue") : 
         }
 
         Spacer(Modifier.weight(1f))
-        AppButton(buttonLabel, vm::onSubmit, isLoading = vm.isVerifying)
+        AppButton("Continue", vm::onSubmit, isLoading = vm.isVerifying)
       }
     }
   }
