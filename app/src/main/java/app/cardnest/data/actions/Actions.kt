@@ -1,6 +1,8 @@
 package app.cardnest.data.actions
 
 object Actions {
+  val afterPasswordVerified = SuspendedAction()
+
   val afterPinCreated = SuspendedAction()
   val afterPinVerified = SuspendedAction()
 
