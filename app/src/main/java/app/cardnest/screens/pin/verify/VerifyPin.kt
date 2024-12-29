@@ -15,19 +15,33 @@ import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.pin.Keypad
 import app.cardnest.components.pin.PinInput
 import app.cardnest.screens.pin.create.create.PIN_LENGTH
+import app.cardnest.screens.pin.verify.help.ForgotPinBottomSheetScreen
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_RED
 import app.cardnest.ui.theme.TH_WHITE
+import app.cardnest.utils.extensions.collectValue
+import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
 import org.koin.androidx.compose.koinViewModel
 
 class VerifyPinBeforeActionScreen : Screen {
   @Composable
   override fun Content() {
+    val bottomSheetNavigator = LocalBottomSheetNavigator.current
+
     val vm = koinViewModel<VerifyPinViewModel>()
 
-    SubScreenRoot(title = "") {
+    val hasCreatedPassword = vm.hasCreatedPassword.collectValue()
+
+    fun onForgotPin() {
+      bottomSheetNavigator.open(ForgotPinBottomSheetScreen(hasCreatedPassword)) {
+        bottomSheetNavigator.hide()
+      }
+    }
+
+    SubScreenRoot(title = "", rightButtonLabel = "Forgot PIN?", onRightButtonClick = ::onForgotPin) {
       Spacer(Modifier.size(32.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(
@@ -38,7 +52,7 @@ class VerifyPinBeforeActionScreen : Screen {
           color = TH_WHITE
         )
 
-        AppText("Continue to proceed using your PIN", align = TextAlign.Center)
+        AppText("Verify your PIN to confirm and proceed.", align = TextAlign.Center)
       }
 
       Spacer(Modifier.size(32.dp))
