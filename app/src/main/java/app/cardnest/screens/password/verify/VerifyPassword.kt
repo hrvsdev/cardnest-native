@@ -18,7 +18,8 @@ import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.core.PasswordTextField
 import app.cardnest.components.password.PasswordInfo
 import app.cardnest.components.password.PasswordInfoType
-import app.cardnest.screens.password.sign_in.help.ForgotPasswordBottomSheetScreen
+import app.cardnest.screens.password.ForgotPasswordBottomSheetScreen
+import app.cardnest.screens.password.ForgotPasswordContext
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
@@ -44,7 +45,7 @@ class VerifyPasswordScreen : Screen {
 
     fun onForgotPassword() {
       focusManager.clearFocus()
-      bottomSheetNavigator.open(ForgotPasswordBottomSheetScreen()) {
+      bottomSheetNavigator.open(ForgotPasswordBottomSheetScreen(ForgotPasswordContext.VERIFICATION)) {
         bottomSheetNavigator.hide()
       }
     }

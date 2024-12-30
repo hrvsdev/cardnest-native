@@ -7,6 +7,8 @@ import app.cardnest.R
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
+import app.cardnest.screens.password.ForgotPasswordBottomSheetScreen
+import app.cardnest.screens.password.ForgotPasswordContext
 import app.cardnest.screens.pin.unlock.UnlockWithPinScreen
 import app.cardnest.screens.user.account.SignOutBottomSheetScreen
 import app.cardnest.utils.extensions.collectValue
@@ -33,7 +35,7 @@ class UnlockWithPasswordHelpScreen : Screen {
     }
 
     fun onForgotPassword() {
-      bottomSheetNavigator.open(ForgotPasswordBottomSheetScreen()) {
+      bottomSheetNavigator.open(ForgotPasswordBottomSheetScreen(ForgotPasswordContext.UNLOCK)) {
         bottomSheetNavigator.hide()
       }
     }

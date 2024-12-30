@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -25,13 +26,17 @@ import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.core.PasswordTextField
 import app.cardnest.components.password.PasswordInfo
 import app.cardnest.components.password.PasswordInfoType
+import app.cardnest.screens.password.ForgotPasswordBottomSheetScreen
+import app.cardnest.screens.password.ForgotPasswordContext
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
+import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffectOnce
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -40,9 +45,18 @@ class ChangePasswordScreen : Screen {
   @OptIn(ExperimentalVoyagerApi::class)
   @Composable
   override fun Content() {
+    val focusManager = LocalFocusManager.current
     val navigator = LocalNavigator.currentOrThrow
+    val bottomSheetNavigator = LocalBottomSheetNavigator.current
 
     val vm = koinViewModel<ChangePasswordViewModel> { parametersOf(navigator) }
+
+    fun onForgotPassword() {
+      focusManager.clearFocus()
+      bottomSheetNavigator.open(ForgotPasswordBottomSheetScreen(ForgotPasswordContext.CHANGE)) {
+        bottomSheetNavigator.hide()
+      }
+    }
 
     LifecycleEffectOnce {
       vm.currentPasswordFocusRequester.requestFocus()
@@ -60,7 +74,7 @@ class ChangePasswordScreen : Screen {
       if (vm.hasNewPasswordSubmitted) vm.confirmPasswordFocusRequester.requestFocus()
     }
 
-    SubScreenRoot(title = "") {
+    SubScreenRoot(title = "", rightButtonLabel = "Forgot password?", onRightButtonClick = ::onForgotPassword) {
       Spacer(Modifier.size(32.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(
