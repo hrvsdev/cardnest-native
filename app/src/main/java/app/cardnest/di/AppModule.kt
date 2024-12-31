@@ -76,13 +76,13 @@ val appModule = module {
   viewModel { CreatePinViewModel(it.get()) }
   viewModel { ConfirmPinViewModel(get(), it.get()) }
   viewModel { UnlockWithPinViewModel(get(), it.get()) }
-  viewModel { UnlockWithPinHelpViewModel(get()) }
+  viewModel { UnlockWithPinHelpViewModel(get(), it.get()) }
   viewModel { VerifyPinViewModel(get()) }
 
   viewModel { CreatePasswordViewModel(get(), it.get()) }
   viewModel { SignInWithPasswordViewModel(get(), it.get()) }
   viewModel { UnlockWithPasswordViewModel(get(), it.get()) }
-  viewModel { UnlockWithPasswordHelpViewModel(get()) }
+  viewModel { UnlockWithPasswordHelpViewModel(get(), it.get()) }
   viewModel { ChangePasswordViewModel(get(), it.get()) }
   viewModel { VerifyPasswordViewModel(get(), it.get()) }
 
