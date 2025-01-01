@@ -14,7 +14,6 @@ import app.cardnest.db.preferences.PreferencesRepository
 import app.cardnest.firebase.ConnectionManager
 import app.cardnest.preferencesDataStore
 import app.cardnest.screens.add.editor.AddCardViewModel
-import app.cardnest.screens.biometrics.unlock.UnlockWithBiometricsViewModel
 import app.cardnest.screens.home.HomeViewModel
 import app.cardnest.screens.home.card.CardViewModel
 import app.cardnest.screens.home.card.editor.UpdateCardViewModel
@@ -85,6 +84,4 @@ val appModule = module {
   viewModel { UnlockWithPasswordHelpViewModel(get(), it.get()) }
   viewModel { ChangePasswordViewModel(get(), it.get()) }
   viewModel { VerifyPasswordViewModel(get(), it.get()) }
-
-  viewModel { UnlockWithBiometricsViewModel(get(), it.get()) }
 }
