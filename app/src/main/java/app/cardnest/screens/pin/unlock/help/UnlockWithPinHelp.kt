@@ -8,6 +8,8 @@ import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
 import app.cardnest.screens.password.unlock.UnlockWithPasswordScreen
+import app.cardnest.screens.pin.ForgotPinBottomSheetScreen
+import app.cardnest.screens.pin.ForgotPinContext
 import app.cardnest.screens.user.account.SignOutBottomSheetScreen
 import app.cardnest.utils.extensions.collectValue
 import app.cardnest.utils.extensions.open
@@ -34,7 +36,7 @@ class UnlockWithPinHelpScreen : Screen {
     }
 
     fun onForgotPin() {
-      bottomSheetNavigator.open(ForgotPinBottomSheetScreen()) {
+      bottomSheetNavigator.open(ForgotPinBottomSheetScreen(ForgotPinContext.UNLOCK, hasCreatedPassword)) {
         bottomSheetNavigator.hide()
       }
     }

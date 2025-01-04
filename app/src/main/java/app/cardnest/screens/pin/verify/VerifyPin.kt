@@ -14,8 +14,8 @@ import androidx.compose.ui.unit.dp
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.pin.Keypad
 import app.cardnest.components.pin.PinInput
-import app.cardnest.screens.pin.create.create.PIN_LENGTH
-import app.cardnest.screens.pin.verify.help.ForgotPinBottomSheetScreen
+import app.cardnest.screens.pin.ForgotPinBottomSheetScreen
+import app.cardnest.screens.pin.ForgotPinContext
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_RED
@@ -36,7 +36,7 @@ class VerifyPinBeforeActionScreen : Screen {
     val hasCreatedPassword = vm.hasCreatedPassword.collectValue()
 
     fun onForgotPin() {
-      bottomSheetNavigator.open(ForgotPinBottomSheetScreen(hasCreatedPassword)) {
+      bottomSheetNavigator.open(ForgotPinBottomSheetScreen(ForgotPinContext.VERIFICATION, hasCreatedPassword)) {
         bottomSheetNavigator.hide()
       }
     }
@@ -58,13 +58,13 @@ class VerifyPinBeforeActionScreen : Screen {
       Spacer(Modifier.size(32.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         PinInput(
-          pin = vm.pin.value,
-          hasError = vm.hasError.value,
-          isLoading = if (vm.hasError.value) false else vm.pin.value.length == PIN_LENGTH
+          pin = vm.pin,
+          hasError = vm.hasError,
+          isLoading = if (vm.hasError) false else vm.hasMaxLength
         )
 
         AppText(
-          text = if (vm.showErrorMessage.value) "Entered PIN is incorrect" else "",
+          text = if (vm.showErrorMessage) "Entered PIN is incorrect" else "",
           modifier = Modifier.padding(top = 24.dp),
           size = AppTextSize.SM,
           color = TH_RED
@@ -72,7 +72,7 @@ class VerifyPinBeforeActionScreen : Screen {
       }
 
       Spacer(Modifier.weight(1f))
-      Keypad(vm.pin, vm::onPinChange, vm::onPinSubmit)
+      Keypad(vm::onKeyClick, vm::onBackspaceClick, vm.hasMaxLength)
 
       Spacer(Modifier.size(48.dp))
     }

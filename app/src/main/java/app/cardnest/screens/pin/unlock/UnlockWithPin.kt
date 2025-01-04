@@ -16,7 +16,6 @@ import androidx.fragment.app.FragmentActivity
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.pin.Keypad
 import app.cardnest.components.pin.PinInput
-import app.cardnest.screens.pin.create.create.PIN_LENGTH
 import app.cardnest.screens.pin.unlock.help.UnlockWithPinHelpScreen
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
@@ -77,13 +76,13 @@ class UnlockWithPinScreen : Screen {
       Spacer(Modifier.size(32.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         PinInput(
-          pin = vm.pin.value,
-          hasError = vm.hasError.value,
-          isLoading = if (vm.hasError.value) false else vm.pin.value.length == PIN_LENGTH
+          pin = vm.pin,
+          hasError = vm.hasError,
+          isLoading = if (vm.hasError) false else vm.hasMaxLength
         )
 
         AppText(
-          text = if (vm.showErrorMessage.value) "Entered PIN is incorrect" else "",
+          text = if (vm.showErrorMessage) "Entered PIN is incorrect" else "",
           modifier = Modifier.padding(top = 24.dp),
           size = AppTextSize.SM,
           color = TH_RED
@@ -93,9 +92,9 @@ class UnlockWithPinScreen : Screen {
       Spacer(Modifier.weight(1f))
 
       Keypad(
-        pin = vm.pin,
-        onPinChange = vm::onPinChange,
-        onPinSubmit = vm::onPinSubmit,
+        onKeyClick = vm::onKeyClick,
+        onBackspaceClick = vm::onBackspaceClick,
+        isDisabled = vm.hasMaxLength,
         showBiometricsIcon = hasEnabledBiometrics,
         onBiometricsIconClick = ::onUnlockWithBiometrics
       )

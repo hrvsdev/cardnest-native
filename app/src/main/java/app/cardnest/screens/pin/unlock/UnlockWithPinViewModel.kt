@@ -16,15 +16,10 @@ import kotlinx.coroutines.launch
 class UnlockWithPinViewModel(private val authManager: AuthManager, private val navigator: Navigator) : PinBaseViewModel() {
   val hasEnabledBiometrics = biometricsData.existsStateInViewModel()
 
-  fun onPinSubmit() {
-    viewModelScope.launch(Dispatchers.IO) {
-      try {
-        authManager.unlockWithPin(pin.value)
-        navigator.replaceAll(HomeScreen)
-      } catch (e: Exception) {
-        e.toastAndLog("EnterPinViewModel")
-        onError()
-      }
+  override fun onSubmit() {
+    onPinSubmit("UnlockWithPinViewModel") {
+      authManager.unlockWithPin(pin)
+      navigator.replaceAll(HomeScreen)
     }
   }
 

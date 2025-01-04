@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,7 +30,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import app.cardnest.R
-import app.cardnest.screens.pin.create.create.PIN_LENGTH
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
@@ -41,29 +39,18 @@ import app.cardnest.ui.theme.TH_WHITE_20
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Keypad(
-  pin: MutableState<String>,
-  onPinChange: (String) -> Unit,
-  onPinSubmit: () -> Unit,
+  onKeyClick: (String) -> Unit,
+  onBackspaceClick: () -> Unit,
+  isDisabled: Boolean,
   showBiometricsIcon: Boolean = false,
   onBiometricsIconClick: () -> Unit = {},
 ) {
-  val isDisabled = pin.value.length == PIN_LENGTH
-
-  fun onPinButtonClick(number: Int) {
-    if (pin.value.length < PIN_LENGTH) onPinChange(pin.value + number)
-    if (pin.value.length == PIN_LENGTH) onPinSubmit()
-  }
-
-  fun onBackspaceButtonClick() {
-    pin.value = pin.value.dropLast(1)
-  }
-
   val arrangement = Arrangement.spacedBy(20.dp)
 
   Box(Modifier.fillMaxWidth(), Alignment.Center) {
     FlowRow(maxItemsInEachRow = 3, horizontalArrangement = arrangement, verticalArrangement = arrangement) {
       for (num in 1..9) {
-        KeypadNumberButton(num, { onPinButtonClick(num) }, isDisabled)
+        KeypadNumberButton(num, { onKeyClick(num.toString()) }, isDisabled)
       }
 
       if (showBiometricsIcon) {
@@ -72,8 +59,8 @@ fun Keypad(
         Spacer(Modifier.size(72.dp))
       }
 
-      KeypadNumberButton(0, { onPinButtonClick(0) }, isDisabled)
-      KeypadIconButton(painterResource(R.drawable.heroicons__backspace), ::onBackspaceButtonClick, isDisabled)
+      KeypadNumberButton(0, { onKeyClick("0") }, isDisabled)
+      KeypadIconButton(painterResource(R.drawable.heroicons__backspace), onBackspaceClick, isDisabled)
     }
   }
 }
