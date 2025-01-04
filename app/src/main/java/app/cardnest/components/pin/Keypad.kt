@@ -58,56 +58,33 @@ fun Keypad(
     pin.value = pin.value.dropLast(1)
   }
 
-  Box(Modifier.fillMaxWidth(), Alignment.Center) {
-    FlowRow(
-      maxItemsInEachRow = 3,
-      verticalArrangement = Arrangement.spacedBy(20.dp),
-      horizontalArrangement = Arrangement.spacedBy(20.dp),
-    ) {
+  val arrangement = Arrangement.spacedBy(20.dp)
 
+  Box(Modifier.fillMaxWidth(), Alignment.Center) {
+    FlowRow(maxItemsInEachRow = 3, horizontalArrangement = arrangement, verticalArrangement = arrangement) {
       for (num in 1..9) {
         KeypadNumberButton(num, { onPinButtonClick(num) }, isDisabled)
       }
 
       if (showBiometricsIcon) {
-        KeypadIconButton(
-          icon = painterResource(R.drawable.heroicons__finger_print),
-          onClick = onBiometricsIconClick,
-          disabled = isDisabled
-        )
+        KeypadIconButton(painterResource(R.drawable.heroicons__finger_print), onBiometricsIconClick, isDisabled)
       } else {
         Spacer(Modifier.size(72.dp))
       }
 
       KeypadNumberButton(0, { onPinButtonClick(0) }, isDisabled)
-      KeypadIconButton(
-        icon = painterResource(R.drawable.heroicons__backspace),
-        onClick = ::onBackspaceButtonClick,
-        disabled = isDisabled
-      )
+      KeypadIconButton(painterResource(R.drawable.heroicons__backspace), ::onBackspaceButtonClick, isDisabled)
     }
   }
 }
 
 @Composable
-fun KeypadButton(
-  onClick: () -> Unit,
-  disabled: Boolean = false,
-  content: @Composable BoxScope.() -> Unit,
-) {
+fun KeypadButton(onClick: () -> Unit, isDisabled: Boolean = false, content: @Composable BoxScope.() -> Unit) {
   var isBeingPressed by remember { mutableStateOf(false) }
 
-  val scale by animateFloatAsState(
-    targetValue = if (isBeingPressed) 0.95f else 1f,
-    animationSpec = tween(100),
-    label = ""
-  )
-
-  val bgColor by animateColorAsState(
-    targetValue = if (isBeingPressed) TH_WHITE_20 else TH_WHITE_05,
-    animationSpec = tween(100),
-    label = ""
-  )
+  val alpha by animateFloatAsState(if (isDisabled) 0.5f else 1f, tween(100))
+  val scale by animateFloatAsState(if (isBeingPressed) 0.95f else 1f, tween(100))
+  val bgColor by animateColorAsState(if (isBeingPressed) TH_WHITE_20 else TH_WHITE_05, tween(100))
 
   Box(
     contentAlignment = Alignment.Center,
@@ -115,30 +92,31 @@ fun KeypadButton(
     modifier = Modifier.Companion
       .size(72.dp)
       .graphicsLayer {
-        alpha = if (disabled) 0.5f else 1f
+        this.alpha = alpha
         scaleX = scale
         scaleY = scale
       }
       .clip(RoundedCornerShape(36.dp))
       .background(bgColor)
-      .border(1.dp, TH_WHITE_20, androidx.compose.foundation.shape.RoundedCornerShape(36.dp))
-      .pointerInput(true) {
-        detectTapGestures(
-          onTap = { if (!disabled) onClick() },
-          onPress = {
-            if (disabled) return@detectTapGestures
-            isBeingPressed = true
-            tryAwaitRelease()
-            isBeingPressed = false
-          },
-        )
+      .border(1.dp, TH_WHITE_20, RoundedCornerShape(36.dp))
+      .pointerInput(isDisabled) {
+        if (isDisabled.not()) {
+          detectTapGestures(
+            onTap = { onClick() },
+            onPress = {
+              isBeingPressed = true
+              tryAwaitRelease()
+              isBeingPressed = false
+            },
+          )
+        }
       }
   )
 }
 
 @Composable
-fun KeypadNumberButton(number: Int, onClick: () -> Unit, disabled: Boolean = false) {
-  KeypadButton(onClick, disabled) {
+fun KeypadNumberButton(number: Int, onClick: () -> Unit, isDisabled: Boolean = false) {
+  KeypadButton(onClick, isDisabled) {
     AppText(
       text = number.toString(),
       size = AppTextSize.XXXL,
@@ -149,8 +127,8 @@ fun KeypadNumberButton(number: Int, onClick: () -> Unit, disabled: Boolean = fal
 }
 
 @Composable
-fun KeypadIconButton(icon: Painter, onClick: () -> Unit, disabled: Boolean = false) {
-  KeypadButton(onClick, disabled) {
+fun KeypadIconButton(icon: Painter, onClick: () -> Unit, isDisabled: Boolean = false) {
+  KeypadButton(onClick, isDisabled) {
     Icon(icon, contentDescription = null, Modifier.size(30.dp), TH_WHITE)
   }
 }
