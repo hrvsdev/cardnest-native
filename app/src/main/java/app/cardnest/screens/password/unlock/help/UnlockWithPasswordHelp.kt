@@ -52,7 +52,7 @@ class UnlockWithPasswordHelpScreen : Screen {
         SettingsGroup("PIN") {
           SettingsButton(
             title = "Unlock using your PIN",
-            icon = painterResource(R.drawable.tabler__password),
+            icon = painterResource(R.drawable.tabler__password_mobile_phone),
             isFirst = true,
             isLast = true,
             onClick = ::onUnlockWithPin
@@ -63,7 +63,7 @@ class UnlockWithPasswordHelpScreen : Screen {
       SettingsGroup("Password") {
         SettingsButton(
           title = "Forgot password?",
-          icon = painterResource(R.drawable.tabler__lock_password),
+          icon = painterResource(R.drawable.tabler__lock_question),
           isFirst = true,
           isLast = true,
           onClick = ::onForgotPassword

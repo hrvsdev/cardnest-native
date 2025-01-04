@@ -62,7 +62,7 @@ class UnlockWithPinHelpScreen : Screen {
       SettingsGroup("PIN") {
         SettingsButton(
           title = "Forgot PIN?",
-          icon = painterResource(R.drawable.tabler__password),
+          icon = painterResource(R.drawable.tabler__lock_question),
           isFirst = true,
           isLast = true,
           onClick = ::onForgotPin

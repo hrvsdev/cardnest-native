@@ -112,7 +112,6 @@ class ChangePasswordScreen : Screen {
           isLoading = vm.isVerifying,
           isDisabled = vm.isVerified,
           focusRequester = vm.currentPasswordFocusRequester,
-          leftIconId = R.drawable.tabler__lock_password,
           onKeyboardAction = { vm.onSubmit() }
         )
 
@@ -128,6 +127,7 @@ class ChangePasswordScreen : Screen {
               placeholder = "Enter new password",
               isDisabled = vm.isCreating,
               focusRequester = vm.newPasswordFocusRequester,
+              leftIconId = R.drawable.tabler__lock,
               onFocus = { vm.updateIsNewPasswordFocused(true) },
               onBlur = { vm.updateIsNewPasswordFocused(false) },
               onKeyboardAction = { vm.onSubmit() }

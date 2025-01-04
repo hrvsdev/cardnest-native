@@ -84,7 +84,7 @@ class AccountScreen : Screen {
         SettingsGroup("Sign in", SIGN_IN_GOOGLE_DESC) {
           SettingsButton(
             title = "Sign in with Google",
-            icon = painterResource(R.drawable.tabler__brand_google),
+            icon = painterResource(R.drawable.tabler__brand_google_filled),
             isFirst = true,
             isLast = true,
             isLoading = isSigningIn,

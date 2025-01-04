@@ -89,6 +89,7 @@ class CreatePasswordScreen : Screen {
           placeholder = "Enter password",
           isDisabled = vm.isCreating,
           focusRequester = vm.newPasswordFocusRequester,
+          leftIconId = R.drawable.tabler__lock,
           onFocus = { vm.updateIsNewPasswordFocused(true) },
           onBlur = { vm.updateIsNewPasswordFocused(false) },
           onKeyboardAction = { vm.onSubmit() }

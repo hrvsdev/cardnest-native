@@ -39,7 +39,7 @@ object AddCardScreen : Screen, ScreenTransition by NoTransition() {
       ScreenContainer(modifier = Modifier.weight(1f)) {
         Column(Modifier.weight(1f), Arrangement.Center, Alignment.CenterHorizontally) {
           Icon(
-            painter = painterResource(R.drawable.tabler__circle_plus),
+            painter = painterResource(R.drawable.heroicons__plus_circle),
             contentDescription = null,
             modifier = Modifier.size(128.dp),
             tint = TH_WHITE_70

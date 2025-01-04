@@ -154,7 +154,7 @@ fun PasswordTextField(
   focusRequester: FocusRequester = FocusRequester(),
   onKeyboardAction: KeyboardActionHandler? = null,
 
-  leftIconId: Int = R.drawable.tabler__lock,
+  leftIconId: Int = R.drawable.tabler__lock_password,
 
   isLoading: Boolean = false,
   isDisabled: Boolean = false,
@@ -265,7 +265,7 @@ fun CopyableTextField(text: String, label: String? = null, textToCopy: String = 
     rightIcon = {
       IconButton(::copyText, Modifier.offset { IntOffset(0, y = offsetY) }, !hasCopied) {
         if (hasCopied) {
-          Icon(painterResource(R.drawable.tabler__check), "Text copied", tint = TH_WHITE)
+          Icon(painterResource(R.drawable.tabler__copy_check), "Text copied", tint = TH_WHITE)
         } else {
           Icon(painterResource(R.drawable.tabler__copy), "Copy text", tint = TH_WHITE)
         }

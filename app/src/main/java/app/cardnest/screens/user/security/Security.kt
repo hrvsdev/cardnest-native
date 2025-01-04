@@ -63,7 +63,7 @@ class SecurityScreen : Screen {
 
           SettingsButton(
             title = "Remove PIN",
-            icon = painterResource(R.drawable.tabler__lock_open_off),
+            icon = painterResource(R.drawable.tabler__lock_off),
             onClick = vm::onRemovePin,
             isLast = true,
           )
