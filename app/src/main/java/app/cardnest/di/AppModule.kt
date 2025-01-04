@@ -76,7 +76,7 @@ val appModule = module {
   viewModel { ConfirmPinViewModel(get(), it.get()) }
   viewModel { UnlockWithPinViewModel(get(), it.get()) }
   viewModel { UnlockWithPinHelpViewModel(get(), it.get()) }
-  viewModel { VerifyPinViewModel(get()) }
+  viewModel { VerifyPinViewModel(get(), it.get()) }
 
   viewModel { CreatePasswordViewModel(get(), it.get()) }
   viewModel { SignInWithPasswordViewModel(get(), it.get()) }

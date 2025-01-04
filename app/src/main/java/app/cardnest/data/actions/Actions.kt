@@ -29,7 +29,8 @@ class Action() {
 }
 
 class SuspendedAction() {
-  private var action: SuspendedActionType? = null
+  var action: SuspendedActionType? = null
+    private set
 
   suspend operator fun invoke(clear: Boolean = true) {
     action?.invoke()
