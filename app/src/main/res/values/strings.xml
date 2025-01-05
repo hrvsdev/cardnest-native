@@ -1,5 +1,5 @@
 <resources>
-  <string name="app_name">CardNest</string>
+  <string name="app_name_release">CardNest</string>
   <string name="app_name_debug">CN Debug</string>
   <string name="google_auth_client_id">212184976594-n3uje194ica7t1hfcvrp5cos4ve0r7a7.apps.googleusercontent.com</string>
 </resources>

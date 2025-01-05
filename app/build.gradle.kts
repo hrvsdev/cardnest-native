@@ -21,7 +21,7 @@ android {
   buildTypes {
     release {
       isMinifyEnabled = true
-      resValue("string", "app_name", "@string/app_name")
+      resValue("string", "app_name", "@string/app_name_release")
       proguardFiles(getDefaultProguardFile("proguard-android.txt"))
     }
 
