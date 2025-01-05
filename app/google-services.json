@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "212184976594",
+    "firebase_url": "https://cardnest-app-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "cardnest-app",
     "storage_bucket": "cardnest-app.firebasestorage.app"
   },
@@ -14,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "212184976594-7uo5oph51shoqpgacqp2onq9cupmpkam.apps.googleusercontent.com",
+          "client_id": "212184976594-p20muuutg4e16699vo9filutj6ad0e59.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "app.cardnest",
-            "certificate_hash": "86cb5e361cb48a47ce735bf48d2184e2a26e9080"
+            "certificate_hash": "915ba07c954128b618930421fc1fba07cc476eab"
           }
         },
         {
