@@ -54,7 +54,7 @@ class UnlockWithPasswordScreen : Screen {
     }
 
     LifecycleEffectOnce {
-      if (navigator.lastEvent != StackEvent.Push && hasEnabledBiometrics && vm.getAreBiometricsAvailable(ctx)) {
+      if (navigator.lastEvent != StackEvent.Push && vm.getShouldUnlockWithBiometrics(ctx)) {
         onUnlockWithBiometrics()
       } else {
         vm.currentPasswordFocusRequester.requestFocus()

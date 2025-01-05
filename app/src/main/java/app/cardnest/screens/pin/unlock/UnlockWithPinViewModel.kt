@@ -23,12 +23,12 @@ class UnlockWithPinViewModel(private val authManager: AuthManager, private val n
     }
   }
 
-  fun getAreBiometricsAvailable(ctx: FragmentActivity): Boolean {
-    return authManager.getAreBiometricsAvailable(ctx)
+  fun getShouldUnlockWithBiometrics(ctx: FragmentActivity): Boolean {
+    return biometricsData.value != null && authManager.getAreBiometricsAvailable(ctx)
   }
 
   fun unlockWithBiometrics(ctx: FragmentActivity) {
-    if (getAreBiometricsAvailable(ctx).not()) {
+    if (authManager.getAreBiometricsAvailable(ctx).not()) {
       AppToast.error("Biometrics are not available. Please unlock using your PIN.")
       return
     }

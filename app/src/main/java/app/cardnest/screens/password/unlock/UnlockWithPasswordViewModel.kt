@@ -30,12 +30,12 @@ class UnlockWithPasswordViewModel(private val authManager: AuthManager, private 
     }
   }
 
-  fun getAreBiometricsAvailable(ctx: FragmentActivity): Boolean {
-    return authManager.getAreBiometricsAvailable(ctx)
+  fun getShouldUnlockWithBiometrics(ctx: FragmentActivity): Boolean {
+    return biometricsData.value != null && authManager.getAreBiometricsAvailable(ctx)
   }
 
   fun unlockWithBiometrics(ctx: FragmentActivity) {
-    if (getAreBiometricsAvailable(ctx).not()) {
+    if (authManager.getAreBiometricsAvailable(ctx).not()) {
       AppToast.error("Biometrics are not available, please unlock using your password.")
       return
     }

@@ -50,7 +50,7 @@ class UnlockWithPinScreen : Screen {
     }
 
     LifecycleEffectOnce {
-      if (hasEnabledBiometrics && vm.getAreBiometricsAvailable(ctx)) {
+      if (vm.getShouldUnlockWithBiometrics(ctx)) {
         onUnlockWithBiometrics()
       }
     }
