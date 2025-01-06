@@ -1,16 +1,11 @@
 package app.cardnest.utils.card
 
 import app.cardnest.data.card.Card
-import app.cardnest.data.card.DisplayCardDetails
 
 fun addCardNumberSpaces(number: String) = number.chunked(4).joinToString(" ")
 fun removeCardNumberSpaces(number: String) = number.replace(" ", "")
 
-fun formatCardViewDetails(
-  card: Card,
-  usePlaceholders: Boolean = false,
-  maskCardNumber: Boolean = false
-): DisplayCardDetails {
+fun formatCardViewDetails(card: Card, usePlaceholders: Boolean = false, maskCardNumber: Boolean = false): DisplayCardDetails {
   val cardNumber = card.number.let {
     var number = removeCardNumberSpaces(it)
 
@@ -45,3 +40,10 @@ fun formatCardViewDetails(
     issuer = card.issuer.ifBlank { if (usePlaceholders) "Issuer/bank" else "" }
   )
 }
+
+data class DisplayCardDetails(
+  val number: String,
+  val expiry: String,
+  val cardholder: String,
+  val issuer: String
+)

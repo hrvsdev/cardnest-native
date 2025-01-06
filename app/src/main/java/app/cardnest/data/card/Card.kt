@@ -1,6 +1,5 @@
 package app.cardnest.data.card
 
-import app.cardnest.components.core.AppTextFieldError
 import app.cardnest.utils.serialization.AppPersistentMapSerializer
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
@@ -71,32 +70,6 @@ data class CardEncryptedNullable(
 data class CardEncryptedDataNullable(
   val cipherText: String? = null,
   val iv: String? = null
-)
-
-data class CardErrorsState(
-  val number: AppTextFieldError = CardNumberError(false),
-  val expiry: AppTextFieldError = CardExpiryError(false),
-  val cardholder: AppTextFieldError = CardholderError(false),
-  val cvv: AppTextFieldError = CardCvvError(false)
-)
-
-data class CardNumberError(override val hasError: Boolean) :
-  AppTextFieldError("Card number must be exact 16 digits long")
-
-data class CardExpiryError(override val hasError: Boolean) :
-  AppTextFieldError("Expiry date must be a valid date in MM/YY format")
-
-data class CardholderError(override val hasError: Boolean) :
-  AppTextFieldError("Cardholder name must be at least 2 characters long")
-
-data class CardCvvError(override val hasError: Boolean) :
-  AppTextFieldError("CVV must be exact 3 digits long or you can leave it empty")
-
-data class DisplayCardDetails(
-  val number: String,
-  val expiry: String,
-  val cardholder: String,
-  val issuer: String
 )
 
 enum class PaymentNetwork {

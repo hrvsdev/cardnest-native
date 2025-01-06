@@ -5,6 +5,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import app.cardnest.components.core.AppTextFieldError
 import app.cardnest.utils.card.addCardNumberSpaces
 import app.cardnest.utils.card.defaultCard
 import app.cardnest.utils.card.removeCardNumberSpaces
@@ -63,3 +64,22 @@ class CardEditorViewModel(card: Card = defaultCard()) : ViewModel() {
     next(card)
   }
 }
+
+data class CardErrorsState(
+  val number: AppTextFieldError = CardNumberError(false),
+  val expiry: AppTextFieldError = CardExpiryError(false),
+  val cardholder: AppTextFieldError = CardholderError(false),
+  val cvv: AppTextFieldError = CardCvvError(false)
+)
+
+private data class CardNumberError(override val hasError: Boolean) :
+  AppTextFieldError("Card number must be exact 16 digits long")
+
+private data class CardExpiryError(override val hasError: Boolean) :
+  AppTextFieldError("Expiry date must be a valid date in MM/YY format")
+
+private data class CardholderError(override val hasError: Boolean) :
+  AppTextFieldError("Cardholder name must be at least 2 characters long")
+
+private data class CardCvvError(override val hasError: Boolean) :
+  AppTextFieldError("CVV must be exact 3 digits long or you can leave it empty")
