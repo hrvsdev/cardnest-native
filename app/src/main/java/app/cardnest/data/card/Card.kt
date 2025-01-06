@@ -1,11 +1,13 @@
 package app.cardnest.data.card
 
+import androidx.annotation.Keep
 import app.cardnest.utils.serialization.AppPersistentMapSerializer
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.serialization.Serializable
 import java.io.Serializable as JavaSerializable
 
+@Keep
 @Serializable
 data class Card(
   val number: String,
@@ -17,14 +19,17 @@ data class Card(
   val theme: CardTheme
 ) : JavaSerializable
 
+@Keep
 @Serializable
 sealed class CardRecords {
+  @Keep
   @Serializable
   data class Encrypted(
     @Serializable(with = AppPersistentMapSerializer::class)
     val cards: PersistentMap<String, CardEncrypted> = persistentMapOf()
   ) : CardRecords()
 
+  @Keep
   @Serializable
   data class Unencrypted(
     @Serializable(with = AppPersistentMapSerializer::class)
@@ -32,15 +37,19 @@ sealed class CardRecords {
   ) : CardRecords()
 }
 
+@Keep
 @Serializable
 sealed class CardData {
+  @Keep
   @Serializable
   data class Encrypted(val encrypted: CardEncrypted) : CardData()
 
+  @Keep
   @Serializable
   data class Unencrypted(val unencrypted: CardUnencrypted) : CardData()
 }
 
+@Keep
 @Serializable
 data class CardEncrypted(
   val id: String,
@@ -48,6 +57,7 @@ data class CardEncrypted(
   val modifiedAt: Long
 )
 
+@Keep
 @Serializable
 data class CardUnencrypted(
   val id: String,
@@ -55,18 +65,21 @@ data class CardUnencrypted(
   val modifiedAt: Long
 ) : JavaSerializable
 
+@Keep
 @Serializable
 data class CardEncryptedData(
   val cipherText: String,
   val iv: String,
 )
 
+@Keep
 data class CardEncryptedNullable(
   val id: String? = null,
   val data: CardEncryptedDataNullable? = null,
   val modifiedAt: Long? = null
 )
 
+@Keep
 data class CardEncryptedDataNullable(
   val cipherText: String? = null,
   val iv: String? = null
