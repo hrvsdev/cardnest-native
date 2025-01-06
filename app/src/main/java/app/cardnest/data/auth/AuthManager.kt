@@ -94,8 +94,8 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val data = PasswordData(salt.encoded, encryptedDek.encoded, System.currentTimeMillis())
 
     authState.update { it.copy(dek = dek) }
-    repo.setRemotePasswordData(data)
     repo.setLocalPasswordData(data)
+    repo.setRemotePasswordData(data)
   }
 
   suspend fun setLocalPassword(password: String) {
