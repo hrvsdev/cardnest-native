@@ -35,12 +35,22 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 
 @Composable
+fun SubScreenHeader(title: String, backLabel: String = "Back") {
+  SubScreenHeader(title, { HeaderBackButton(backLabel) })
+}
+
+@Composable
 fun SubScreenHeader(title: String, backLabel: String = "Back", actionButton: @Composable () -> Unit) {
+  SubScreenHeader(title, { HeaderBackButton(backLabel) }, actionButton)
+}
+
+@Composable
+fun SubScreenHeader(title: String, backButton: @Composable () -> Unit, actionButton: @Composable () -> Unit = {}) {
   Column(Modifier.statusBarsPadding()) {
     Box(Modifier.height(48.dp).fillMaxWidth()) {
       AppText(title, Modifier.align(Alignment.Center), color = TH_WHITE, weight = FontWeight.Bold)
       Row(Modifier.fillMaxSize(), Arrangement.SpaceBetween) {
-        HeaderBackButton(backLabel)
+        backButton()
         actionButton()
       }
     }
