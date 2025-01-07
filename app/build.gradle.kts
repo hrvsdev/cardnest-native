@@ -65,6 +65,12 @@ android {
   }
 }
 
+tasks.register("printVersionName") {
+  doFirst {
+    println(android.defaultConfig.versionName)
+  }
+}
+
 dependencies {
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.lifecycle.runtime.ktx)

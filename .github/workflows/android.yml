@@ -35,13 +35,21 @@ jobs:
           keyPassword: ${{ secrets.KEY_PASSWORD }}
           EOF
 
+      - name: Retrieve version
+        run: echo "::set-output name=VERSION_NAME::$(${{github.workspace}}/gradlew -q printVersionName)"
+        id: android_version
+
+      - name: Generate app name
+        run: echo "::set-output name=APP_NAME::CardNest-${{ steps.android_version.outputs.VERSION_NAME }}"
+        id: app_name
+
       - name: Build APK
         run: ./gradlew assembleRelease --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: CardNest
+          name: ${{ steps.app_name.outputs.APP_NAME }}.apk
           path: app/build/outputs/apk/release/app-release.apk
 
       - name: Build AAB
@@ -50,5 +58,5 @@ jobs:
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
-          name: CardNest
+          name: ${{ steps.app_name.outputs.APP_NAME }}.aab
           path: app/build/outputs/bundle/release/app-release.aab
