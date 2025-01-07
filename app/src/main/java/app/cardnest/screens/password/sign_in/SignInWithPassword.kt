@@ -58,7 +58,7 @@ class SignInWithPasswordScreen : Screen {
       if (vm.isCurrentPasswordIncorrect) vm.currentPasswordFocusRequester.requestFocus()
     }
 
-    SubScreenRoot(title = "", rightButtonLabel = "Forgot password?", onRightButtonClick = ::onForgotPassword) {
+    SubScreenRoot(title = "", actionLabel = "Forgot password?", onAction = ::onForgotPassword) {
       Spacer(Modifier.size(32.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(

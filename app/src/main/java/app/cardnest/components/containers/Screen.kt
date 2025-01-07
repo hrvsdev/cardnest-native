@@ -3,10 +3,7 @@ package app.cardnest.components.containers
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -45,33 +42,31 @@ fun TabScreenRoot(content: @Composable ColumnScope.() -> Unit) {
 @Composable
 fun SubScreenRoot(
   title: String,
+  backLabel: String = "Back",
 
-  leftIconLabel: String = "Back",
-
-  rightButtonLabel: String? = null,
-  rightButtonIcon: Painter? = null,
-  onRightButtonClick: () -> Unit = {},
+  actionLabel: String,
+  actionIcon: Painter? = null,
   isLoading: Boolean = false,
+  onAction: () -> Unit,
 
   spacedBy: Dp? = null,
 
   content: @Composable ColumnScope.() -> Unit
 ) {
-  Column(Modifier.fillMaxHeight()) {
-    SubScreenHeader(title, leftIconLabel) {
-      if (rightButtonLabel != null) {
-        HeaderActionButton(rightButtonLabel, rightButtonIcon, isLoading, onRightButtonClick)
-      }
+  SubScreenRoot {
+    SubScreenHeader(title, backLabel) {
+      HeaderActionButton(label = actionLabel, icon = actionIcon, isLoading = isLoading, onClick = onAction)
     }
 
-    ScreenContainer(
-      spacedBy,
-      content = content,
-      modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(rememberScrollState())
-        .height(IntrinsicSize.Max),
-    )
+    SubScreenContainer(spacedBy, content)
+  }
+}
+
+@Composable
+fun SubScreenRoot(title: String, backLabel: String = "Back", spacedBy: Dp? = null, content: @Composable ColumnScope.() -> Unit) {
+  SubScreenRoot {
+    SubScreenHeader(title, backLabel)
+    SubScreenContainer(spacedBy, content)
   }
 }
 

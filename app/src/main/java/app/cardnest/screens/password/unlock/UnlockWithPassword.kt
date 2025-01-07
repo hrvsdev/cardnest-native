@@ -65,7 +65,7 @@ class UnlockWithPasswordScreen : Screen {
       if (vm.isCurrentPasswordIncorrect) vm.currentPasswordFocusRequester.requestFocus()
     }
 
-    SubScreenRoot(title = "", rightButtonLabel = "Help", onRightButtonClick = ::onHelp) {
+    SubScreenRoot(title = "", actionLabel = "Help", onAction = ::onHelp) {
       Spacer(Modifier.size(32.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(

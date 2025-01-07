@@ -39,7 +39,7 @@ class SecurityScreen : Screen {
       vm.onBiometricsSwitchChange(ctx)
     }
 
-    SubScreenRoot("Security", leftIconLabel = "Settings", spacedBy = 24.dp) {
+    SubScreenRoot("Security", backLabel = "Settings", spacedBy = 24.dp) {
       if (hasCreatedPassword) {
         SettingsGroup("Password", PASSWORD_DESC) {
           SettingsButton(

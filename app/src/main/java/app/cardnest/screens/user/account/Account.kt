@@ -52,7 +52,7 @@ class AccountScreen : Screen {
       }
     }
 
-    SubScreenRoot("Account", leftIconLabel = "Settings", spacedBy = 24.dp) {
+    SubScreenRoot("Account", backLabel = "Settings", spacedBy = 24.dp) {
       if (user != null) {
         SettingsGroup("User", SIGN_OUT_DESC) {
           SettingsItem(

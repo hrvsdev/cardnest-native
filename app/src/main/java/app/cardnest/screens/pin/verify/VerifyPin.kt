@@ -45,7 +45,7 @@ class VerifyPinBeforeActionScreen : Screen {
       }
     }
 
-    SubScreenRoot(title = "", rightButtonLabel = "Forgot PIN?", onRightButtonClick = ::onForgotPin) {
+    SubScreenRoot(title = "", actionLabel = "Forgot PIN?", onAction = ::onForgotPin) {
       Spacer(Modifier.size(32.dp))
       Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         AppText(

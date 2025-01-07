@@ -28,8 +28,8 @@ class AddCardEditorScreen : Screen {
 
     SubScreenRoot(
       title = "New Card",
-      rightButtonLabel = "Done",
-      onRightButtonClick = ::saveCard,
+      actionLabel = "Done",
+      onAction = ::saveCard,
       isLoading = addCardVM.isAdding,
       spacedBy = 32.dp
     ) {

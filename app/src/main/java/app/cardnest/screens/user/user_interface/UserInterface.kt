@@ -18,7 +18,7 @@ class UserInterfaceScreen : Screen {
 
     val maskCardNumber = vm.maskCardNumber.collectValue()
 
-    SubScreenRoot("User Interface", leftIconLabel = "Settings", spacedBy = 24.dp) {
+    SubScreenRoot("User Interface", backLabel = "Settings", spacedBy = 24.dp) {
       SettingsGroup("Card", MASK_CARD_DESC) {
         SettingsSwitch(
           title = "Mask card number",
