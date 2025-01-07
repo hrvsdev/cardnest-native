@@ -77,7 +77,7 @@ fun SubScreenRoot(content: @Composable ColumnScope.() -> Unit) {
 
 @Composable
 fun SubScreenContainer(spacedBy: Dp? = null, content: @Composable ColumnScope.() -> Unit) {
-  ScreenContainer(spacedBy, Modifier.verticalScroll(rememberScrollState()), content)
+  ScreenContainer(spacedBy, Modifier.fillMaxHeight().verticalScroll(rememberScrollState()), content)
 }
 
 @Composable
