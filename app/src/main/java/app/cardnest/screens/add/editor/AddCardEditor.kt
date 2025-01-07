@@ -4,7 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import app.cardnest.components.button.AppButton
 import app.cardnest.components.card.CardEditor
+import app.cardnest.components.containers.SubScreenContainer
 import app.cardnest.components.containers.SubScreenRoot
+import app.cardnest.components.header.HeaderActionButton
+import app.cardnest.components.header.SubScreenHeader
 import app.cardnest.data.card.CardEditorViewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -26,15 +29,15 @@ class AddCardEditorScreen : Screen {
       }
     }
 
-    SubScreenRoot(
-      title = "New Card",
-      actionLabel = "Done",
-      onAction = ::saveCard,
-      isLoading = addCardVM.isAdding,
-      spacedBy = 32.dp
-    ) {
-      CardEditor(editorVM)
-      AppButton(title = "Save", onClick = ::saveCard, isLoading = addCardVM.isAdding)
+    SubScreenRoot {
+      SubScreenHeader("New Card") {
+        HeaderActionButton(label = "Done", onClick = ::saveCard, isLoading = addCardVM.isAdding)
+      }
+
+      SubScreenContainer(32.dp) {
+        CardEditor(editorVM)
+        AppButton(title = "Save", onClick = ::saveCard, isLoading = addCardVM.isAdding)
+      }
     }
   }
 }
