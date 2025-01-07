@@ -76,15 +76,16 @@ fun SubScreenRoot(
 }
 
 @Composable
-fun ScreenContainer(
-  spacedBy: Dp? = null,
-  modifier: Modifier = Modifier,
-  content: @Composable ColumnScope.() -> Unit
-) {
-  Column(
-    modifier = modifier.padding(16.dp),
-    verticalArrangement = if (spacedBy != null) Arrangement.spacedBy(spacedBy) else Arrangement.Top
-  ) {
-    content()
-  }
+fun SubScreenRoot(content: @Composable ColumnScope.() -> Unit) {
+  Column(Modifier.fillMaxHeight(), content = content)
+}
+
+@Composable
+fun SubScreenContainer(spacedBy: Dp? = null, content: @Composable ColumnScope.() -> Unit) {
+  ScreenContainer(spacedBy, Modifier.verticalScroll(rememberScrollState()), content)
+}
+
+@Composable
+fun ScreenContainer(spacedBy: Dp? = null, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+  Column(modifier.padding(16.dp), if (spacedBy != null) Arrangement.spacedBy(spacedBy) else Arrangement.Top, content = content)
 }
