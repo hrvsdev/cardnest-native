@@ -9,8 +9,11 @@ import app.cardnest.R
 import app.cardnest.components.button.AppButton
 import app.cardnest.components.button.ButtonTheme
 import app.cardnest.components.card.CardPreview
+import app.cardnest.components.containers.SubScreenContainer
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.core.CopyableTextField
+import app.cardnest.components.header.HeaderActionButton
+import app.cardnest.components.header.SubScreenHeader
 import app.cardnest.data.card.CardUnencrypted
 import app.cardnest.screens.home.card.editor.UpdateCardEditorScreen
 import app.cardnest.utils.card.addCardNumberSpaces
@@ -44,31 +47,35 @@ data class CardViewScreen(val cardWithMeta: CardUnencrypted) : Screen {
       bottomSheetNavigator.open(DeleteCardBottomSheetScreen(), ::del)
     }
 
-    SubScreenRoot(
-      title = "Card",
-      rightButtonLabel = "Edit",
-      rightButtonIcon = painterResource(R.drawable.tabler__pencil),
-      onRightButtonClick = ::onEditClick,
-      spacedBy = 32.dp
-    ) {
-
-      CardPreview(card)
-      Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
-        CopyableTextField(label = "Card number", text = addCardNumberSpaces(card.number), textToCopy = card.number)
-
-        CopyableTextField(label = "Expiry date", text = card.expiry)
-        CopyableTextField(label = "Cardholder name", text = card.cardholder)
-
-        if (card.cvv.isNotBlank()) {
-          CopyableTextField(label = "CVV", text = card.cvv)
-        }
-
-        if (card.issuer.isNotBlank()) {
-          CopyableTextField(label = "Issuer", text = card.issuer)
-        }
+    SubScreenRoot {
+      SubScreenHeader("Card") {
+        HeaderActionButton(
+          label = "Edit",
+          icon = painterResource(id = R.drawable.tabler__pencil),
+          isLoading = false,
+          onClick = ::onEditClick
+        )
       }
 
-      AppButton(title = "Delete", onClick = ::onDeleteClick, theme = ButtonTheme.Danger, isLoading = viewModel.isDeleting)
+      SubScreenContainer(32.dp) {
+        CardPreview(card)
+        Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+          CopyableTextField(label = "Card number", text = addCardNumberSpaces(card.number), textToCopy = card.number)
+
+          CopyableTextField(label = "Expiry date", text = card.expiry)
+          CopyableTextField(label = "Cardholder name", text = card.cardholder)
+
+          if (card.cvv.isNotBlank()) {
+            CopyableTextField(label = "CVV", text = card.cvv)
+          }
+
+          if (card.issuer.isNotBlank()) {
+            CopyableTextField(label = "Issuer", text = card.issuer)
+          }
+        }
+
+        AppButton(title = "Delete", onClick = ::onDeleteClick, theme = ButtonTheme.Danger, isLoading = viewModel.isDeleting)
+      }
     }
   }
 }
