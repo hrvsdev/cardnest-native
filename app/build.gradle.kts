@@ -1,9 +1,16 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.android)
   alias(libs.plugins.kotlin.compose)
   alias(libs.plugins.kotlin.serialization)
   alias(libs.plugins.google.gms.google.services)
+}
+
+val keystore = Properties().apply {
+  load(FileInputStream(rootProject.file("keystore.properties")))
 }
 
 android {
@@ -16,12 +23,23 @@ android {
     targetSdk = 34
     versionCode = 1
     versionName = "1.0"
+
+  }
+
+  signingConfigs {
+    create("release") {
+      storeFile = file(keystore["storeFile"] as String)
+      storePassword = keystore["storePassword"] as String
+      keyAlias = keystore["keyAlias"] as String
+      keyPassword = keystore["keyPassword"] as String
+    }
   }
 
   buildTypes {
     release {
       isMinifyEnabled = true
       isShrinkResources = true
+      signingConfig = signingConfigs.getByName("release")
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       resValue("string", "app_name", "@string/app_name_release")
     }
