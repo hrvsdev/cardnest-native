@@ -23,17 +23,17 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Decode keystore and create jks
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > keystore.jks
+
       - name: Generate keystore.properties file
         run: |
           cat <<EOF > keystore.properties
-          storeFile:${{ secrets.KEYSTORE_FILE }}
-          storePassword:${{ secrets.KEYSTORE_PASSWORD }}
-          keyAlias:${{ secrets.KEY_ALIAS }}
-          keyPassword:${{ secrets.KEY_PASSWORD }}
+          storeFile: keystore.jks
+          storePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyAlias: ${{ secrets.KEY_ALIAS }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
           EOF
-
-      - name: Decode keystore and create jks
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > keystore.jks
 
       - name: Build APK
         run: ./gradlew assembleRelease --stacktrace
@@ -45,7 +45,7 @@ jobs:
           path: app/build/outputs/apk/release/app-release.apk
 
       - name: Build AAB
-        run: bash ./gradlew bundleRelease --stacktrace
+        run: ./gradlew bundleRelease --stacktrace
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
