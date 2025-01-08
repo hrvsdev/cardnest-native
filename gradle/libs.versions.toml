@@ -1,13 +1,12 @@
 [versions]
-agp = "8.7.2"
+agp = "8.7.3"
 kotlin = "2.0.20"
 coreKtx = "1.15.0"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
-composeBom = "2024.10.01"
+composeBom = "2024.12.01"
 koin = "4.0.0"
 datastore = "1.1.1"
-navigationCompose = "2.8.3"
 coreSplashscreen = "1.0.1"
 kotlinxImmutable = "0.3.8"
 kotlinxSerialization = "1.7.3"
@@ -36,9 +35,6 @@ androidx-material3 = { module = "androidx.compose.material3:material3" }
 # Biometrics
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 
-# Compose navigation
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
-
 # Splash screen support
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 
@@ -56,10 +52,8 @@ nanoid = { module = "io.viascom.nanoid:nanoid", version.ref = "nanoid" }
 
 # Voyager Navigation
 voyager-navigation = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
-voyager-tab-navigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyager" }
 voyager-bottom-sheet-navigation = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyager" }
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyager" }
-voyager-screenmodel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyager" }
 
 # Firebase
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
