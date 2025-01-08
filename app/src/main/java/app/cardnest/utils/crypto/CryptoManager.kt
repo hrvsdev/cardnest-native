@@ -1,13 +1,13 @@
 package app.cardnest.utils.crypto
 
-import android.annotation.SuppressLint
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import app.cardnest.data.auth.EncryptedData
+import app.cardnest.utils.extensions.decoded
+import app.cardnest.utils.extensions.encoded
 import java.security.InvalidKeyException
 import java.security.KeyStore
 import java.security.SecureRandom
-import java.util.Base64
 import javax.crypto.AEADBadTagException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -133,15 +133,13 @@ object CryptoManager {
     return decryptDataWithCipher(encryptedData.ciphertext, cipher)
   }
 
-  @SuppressLint("NewApi")
   fun keyToString(key: SecretKey): String {
     val encoded = key.encoded
-    return Base64.getEncoder().encodeToString(encoded)
+    return encoded.encoded
   }
 
-  @SuppressLint("NewApi")
   fun stringToKey(encodedKey: String): SecretKeySpec {
-    val decoded = Base64.getDecoder().decode(encodedKey)
+    val decoded = encodedKey.decoded
     return SecretKeySpec(decoded, 0, decoded.size, ENCRYPTION_ALGORITHM)
   }
 
