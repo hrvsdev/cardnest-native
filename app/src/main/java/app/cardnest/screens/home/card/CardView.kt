@@ -69,7 +69,7 @@ data class CardViewScreen(val cardWithMeta: CardUnencrypted) : Screen {
           }
         }
 
-        AppButton("Delete", ::onDelete, ButtonTheme.Danger, isLoading = vm.isDeleting)
+        AppButton("Delete", ::onDelete, ButtonTheme.Danger)
       }
     }
   }

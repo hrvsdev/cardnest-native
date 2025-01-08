@@ -32,12 +32,12 @@ data class UpdateCardEditorScreen(val cardWithMeta: CardUnencrypted) : Screen {
 
     SubScreenRoot {
       SubScreenHeader("Edit Card") {
-        HeaderActionButton(label = "Done", onClick = ::onUpdate, isLoading = updateCardVM.isUpdating)
+        HeaderActionButton(label = "Done", onClick = ::onUpdate)
       }
 
       SubScreenContainer(32.dp) {
         CardEditor(editorVM)
-        AppButton(title = "Update", onClick = ::onUpdate, isLoading = updateCardVM.isUpdating)
+        AppButton(title = "Update", onClick = ::onUpdate)
       }
     }
   }

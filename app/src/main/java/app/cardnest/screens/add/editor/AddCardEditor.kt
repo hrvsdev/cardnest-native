@@ -31,12 +31,12 @@ class AddCardEditorScreen : Screen {
 
     SubScreenRoot {
       SubScreenHeader("New Card") {
-        HeaderActionButton(label = "Done", onClick = ::onSave, isLoading = addCardVM.isAdding)
+        HeaderActionButton(label = "Done", onClick = ::onSave)
       }
 
       SubScreenContainer(32.dp) {
         CardEditor(editorVM)
-        AppButton(title = "Save", onClick = ::onSave, isLoading = addCardVM.isAdding)
+        AppButton(title = "Save", onClick = ::onSave)
       }
     }
   }
