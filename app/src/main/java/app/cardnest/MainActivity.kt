@@ -34,7 +34,9 @@ class MainActivity : AppCompatActivity() {
       navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT)
     )
 
-    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    if (resources.getString(R.string.app_name).contains("Debug")) {
+      window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
   }
 }
 

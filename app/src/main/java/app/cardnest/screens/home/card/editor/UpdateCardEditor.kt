@@ -24,7 +24,7 @@ data class UpdateCardEditorScreen(val cardWithMeta: CardUnencrypted) : Screen {
     val updateCardVM = koinViewModel<UpdateCardViewModel> { parametersOf(cardWithMeta.id, navigator) }
     val editorVM = koinViewModel<CardEditorViewModel> { parametersOf(cardWithMeta.data) }
 
-    fun update() {
+    fun onUpdate() {
       editorVM.onSubmit {
         updateCardVM.updateCard(cardWithMeta.id, it)
       }
@@ -32,12 +32,12 @@ data class UpdateCardEditorScreen(val cardWithMeta: CardUnencrypted) : Screen {
 
     SubScreenRoot {
       SubScreenHeader("Edit Card") {
-        HeaderActionButton(label = "Done", onClick = ::update, isLoading = updateCardVM.isUpdating)
+        HeaderActionButton(label = "Done", onClick = ::onUpdate, isLoading = updateCardVM.isUpdating)
       }
 
       SubScreenContainer(32.dp) {
         CardEditor(editorVM)
-        AppButton(title = "Update", onClick = ::update, isLoading = updateCardVM.isUpdating)
+        AppButton(title = "Update", onClick = ::onUpdate, isLoading = updateCardVM.isUpdating)
       }
     }
   }

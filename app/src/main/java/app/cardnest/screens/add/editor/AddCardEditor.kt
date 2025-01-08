@@ -23,7 +23,7 @@ class AddCardEditorScreen : Screen {
     val addCardVM = koinViewModel<AddCardViewModel> { parametersOf(navigator) }
     val editorVM = koinViewModel<CardEditorViewModel>()
 
-    fun saveCard() {
+    fun onSave() {
       editorVM.onSubmit {
         addCardVM.addCard(it)
       }
@@ -31,12 +31,12 @@ class AddCardEditorScreen : Screen {
 
     SubScreenRoot {
       SubScreenHeader("New Card") {
-        HeaderActionButton(label = "Done", onClick = ::saveCard, isLoading = addCardVM.isAdding)
+        HeaderActionButton(label = "Done", onClick = ::onSave, isLoading = addCardVM.isAdding)
       }
 
       SubScreenContainer(32.dp) {
         CardEditor(editorVM)
-        AppButton(title = "Save", onClick = ::saveCard, isLoading = addCardVM.isAdding)
+        AppButton(title = "Save", onClick = ::onSave, isLoading = addCardVM.isAdding)
       }
     }
   }

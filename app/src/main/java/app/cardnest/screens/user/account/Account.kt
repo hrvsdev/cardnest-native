@@ -30,7 +30,6 @@ class AccountScreen : Screen {
     val vm = koinViewModel<AccountViewModel> { parametersOf(navigator) }
 
     val user = vm.user.collectValue()
-
     val isSigningIn = vm.isSigningIn
     val isDeleting = vm.isDeleting
 

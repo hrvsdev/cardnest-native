@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 data class Preferences(
   val userInterface: UserInterface = UserInterface(),
   val interactions: Interactions = Interactions(),
-  val sync: Sync = Sync(),
 )
 
 @Keep
@@ -21,10 +20,4 @@ data class UserInterface(
 @Serializable
 data class Interactions(
   val hasSkippedPinSetup: Boolean = false,
-)
-
-@Keep
-@Serializable
-data class Sync(
-  val isSyncing: Boolean = false,
 )

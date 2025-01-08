@@ -9,7 +9,7 @@ import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.passwordData
 import app.cardnest.data.pinData
 import app.cardnest.screens.password.verify.VerifyPasswordScreen
-import app.cardnest.screens.pin.verify.VerifyPinBeforeActionScreen
+import app.cardnest.screens.pin.verify.VerifyPinScreen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +40,7 @@ class UserViewModel(
 
         pinData.value != null -> {
           afterPinVerified.set { deleteAllCards() }
-          navigator.push(VerifyPinBeforeActionScreen())
+          navigator.push(VerifyPinScreen())
         }
 
         else -> deleteAllCards()

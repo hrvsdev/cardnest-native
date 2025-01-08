@@ -86,9 +86,9 @@ object CryptoManager {
     try {
       return getCipher().also { it.init(Cipher.ENCRYPT_MODE, key) }
     } catch (e: Exception) {
-      when (e) {
-        is InvalidKeyException -> throw RuntimeException("Encryption key is invalid", e)
-        else -> throw RuntimeException("Failed to initialize encryption cipher", e)
+      throw when (e) {
+        is InvalidKeyException -> RuntimeException("Encryption key is invalid", e)
+        else -> RuntimeException("Failed to initialize encryption cipher", e)
       }
     }
   }
@@ -97,9 +97,9 @@ object CryptoManager {
     try {
       return getCipher().also { it.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, iv)) }
     } catch (e: Exception) {
-      when (e) {
-        is InvalidKeyException -> throw RuntimeException("Decryption key is invalid", e)
-        else -> throw RuntimeException("Failed to initialize decryption cipher", e)
+      throw when (e) {
+        is InvalidKeyException -> RuntimeException("Decryption key is invalid", e)
+        else -> RuntimeException("Failed to initialize decryption cipher", e)
       }
     }
   }
@@ -116,9 +116,9 @@ object CryptoManager {
     try {
       return String(cipher.doFinal(cipherText))
     } catch (e: Exception) {
-      when (e) {
-        is AEADBadTagException -> throw AEADBadTagException("Wrong password or data is corrupted")
-        else -> throw RuntimeException("Failed to decrypt data", e)
+      throw when (e) {
+        is AEADBadTagException -> AEADBadTagException("Wrong password or data is corrupted")
+        else -> RuntimeException("Failed to decrypt data", e)
       }
     }
   }

@@ -30,8 +30,6 @@ fun LoadingIcon(color: Color = TH_WHITE_60, size: Dp = 20.dp) {
     painter = painterResource(id = R.drawable.tabler__loader_2),
     contentDescription = null,
     tint = color,
-    modifier = Modifier.Companion
-      .size(size)
-      .graphicsLayer(rotationZ = angle.value),
+    modifier = Modifier.size(size).graphicsLayer(rotationZ = angle.value),
   )
 }

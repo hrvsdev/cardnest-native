@@ -19,7 +19,7 @@ class VerifyPinViewModel(private val auth: AuthManager, private val navigator: N
   init {
     viewModelScope.launch(Dispatchers.Default) {
       snapshotFlow { navigator.lastItem }.collectLatest {
-        if (it is VerifyPinBeforeActionScreen && afterPinVerified.action == null) {
+        if (it is VerifyPinScreen && afterPinVerified.action == null) {
           navigator.pop()
         }
       }

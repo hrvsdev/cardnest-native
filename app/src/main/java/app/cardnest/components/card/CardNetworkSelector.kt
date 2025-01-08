@@ -38,6 +38,7 @@ fun CardNetworkSelector(selectedNetwork: PaymentNetwork, setSelectedNetwork: (Pa
         NetworkButton(it, setSelectedNetwork, selectedNetwork == it)
       }
 
+      // Empty boxes to fill the row otherwise the last item will be stretched
       Box(Modifier.weight(1f))
       Box(Modifier.weight(1f))
     }
@@ -46,7 +47,7 @@ fun CardNetworkSelector(selectedNetwork: PaymentNetwork, setSelectedNetwork: (Pa
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun FlowRowScope.NetworkButton(network: PaymentNetwork, onClick: (PaymentNetwork) -> Unit, isSelected: Boolean = false) {
+private fun FlowRowScope.NetworkButton(network: PaymentNetwork, onClick: (PaymentNetwork) -> Unit, isSelected: Boolean = false) {
   Box(
     contentAlignment = Alignment.Center,
     modifier = Modifier

@@ -10,10 +10,10 @@ import java.io.Serializable
 @OptIn(ExperimentalVoyagerApi::class)
 class NoTransition : ScreenTransition, Serializable {
   override fun enter(lastEvent: StackEvent): EnterTransition {
-    return EnterTransition.Companion.None
+    return EnterTransition.None
   }
 
   override fun exit(lastEvent: StackEvent): ExitTransition {
-    return ExitTransition.Companion.None
+    return ExitTransition.None
   }
 }

@@ -1,7 +1,7 @@
 package app.cardnest.data.card
 
 import androidx.annotation.Keep
-import app.cardnest.utils.serialization.AppPersistentMapSerializer
+import app.cardnest.utils.serialization.PersistentMapSerializer
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.serialization.Serializable
@@ -25,14 +25,14 @@ sealed class CardRecords {
   @Keep
   @Serializable
   data class Encrypted(
-    @Serializable(with = AppPersistentMapSerializer::class)
+    @Serializable(with = PersistentMapSerializer::class)
     val cards: PersistentMap<String, CardEncrypted> = persistentMapOf()
   ) : CardRecords()
 
   @Keep
   @Serializable
   data class Unencrypted(
-    @Serializable(with = AppPersistentMapSerializer::class)
+    @Serializable(with = PersistentMapSerializer::class)
     val cards: PersistentMap<String, CardUnencrypted> = persistentMapOf()
   ) : CardRecords()
 }

@@ -32,13 +32,6 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 
-data class TabData(
-  val index: Int,
-  val title: String,
-  val icon: Int,
-  val screen: Screen,
-)
-
 val tabs = listOf(
   TabData(0, "Home", R.drawable.heroicons__home_solid, HomeScreen),
   TabData(1, "Add Card", R.drawable.heroicons__credit_card_solid, AddCardScreen),
@@ -86,19 +79,8 @@ fun BoxScope.TabBar(show: Boolean) {
 }
 
 @Composable
-fun RowScope.TabButton(
-  title: String,
-  icon: Painter,
-  onClick: () -> Unit,
-  isSelected: Boolean,
-) {
-  Box(
-    modifier = Modifier
-      .weight(1f)
-      .clickable(onClick = onClick)
-      .padding(vertical = 16.dp),
-    contentAlignment = Alignment.Center,
-  ) {
+private fun RowScope.TabButton(title: String, icon: Painter, onClick: () -> Unit, isSelected: Boolean) {
+  Box(Modifier.weight(1f).clickable(onClick = onClick).padding(vertical = 16.dp), Alignment.Center) {
     Icon(
       painter = icon,
       contentDescription = title,
@@ -107,3 +89,10 @@ fun RowScope.TabButton(
     )
   }
 }
+
+data class TabData(
+  val index: Int,
+  val title: String,
+  val icon: Int,
+  val screen: Screen,
+)

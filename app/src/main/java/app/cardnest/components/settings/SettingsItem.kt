@@ -39,7 +39,7 @@ fun SettingsItem(
   isLast: Boolean = false,
   isDisabled: Boolean = false,
   onClick: (() -> Unit)? = null,
-  rightContent: (@Composable () -> Unit) = {},
+  rightContent: @Composable () -> Unit = {},
 ) {
   val color = if (isDanger) {
     if (isDisabled) TH_RED_70 else TH_RED
@@ -68,7 +68,7 @@ fun SettingsItem(
       verticalAlignment = Alignment.CenterVertically,
       modifier = Modifier
         .clip(shape)
-        .clickable(onClick != null, onClick = { onClick?.invoke() })
+        .clickable(enabled = onClick != null, onClick = { onClick?.invoke() })
         .height(44.dp)
         .background(bgColor)
         .padding(horizontal = 12.dp)

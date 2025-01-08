@@ -77,17 +77,13 @@ private fun Dot(isFilled: Boolean, hasError: Boolean, isAnimating: Boolean) {
   val scale by animateFloatAsState(
     targetValue = if (isAnimating) 1.5f else 1f,
     animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMediumLow),
-    label = ""
   )
 
   Box(
-    Modifier.Companion
+    Modifier
       .size(12.dp)
       .scale(scale)
       .border(1.dp, if (hasError) TH_RED else TH_WHITE, RoundedCornerShape(6.dp))
-      .background(
-        if (hasError) TH_RED else if (isFilled) TH_WHITE else TH_WHITE_00,
-        RoundedCornerShape(6.dp)
-      )
+      .background(if (hasError) TH_RED else if (isFilled) TH_WHITE else TH_WHITE_00, RoundedCornerShape(6.dp))
   )
 }

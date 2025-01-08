@@ -227,12 +227,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     return isBiometricsAvailable
   }
 
-  private suspend fun authenticate(
-    ctx: FragmentActivity,
-    cipher: Cipher,
-    promptInfo: BiometricPrompt.PromptInfo,
-    onSuccess: () -> Unit
-  ) {
+  private suspend fun authenticate(ctx: FragmentActivity, cipher: Cipher, promptInfo: BiometricPrompt.PromptInfo, onSuccess: () -> Unit) {
     if (!getAreBiometricsAvailable(ctx)) return
 
     val prompt = BiometricPrompt(ctx, object : BiometricPrompt.AuthenticationCallback() {
@@ -294,9 +289,9 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
 
       return crypto.stringToKey(dekEncoded)
     } catch (e: Exception) {
-      when (e) {
-        is AEADBadTagException -> throw Exception()
-        else -> throw e
+      throw when (e) {
+        is AEADBadTagException -> Exception()
+        else -> e
       }
     }
   }

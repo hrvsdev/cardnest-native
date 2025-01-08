@@ -13,10 +13,7 @@ import app.cardnest.ui.theme.TH_WHITE
 
 @Composable
 fun HeaderTitle(title: String) {
-  Box(
-    Modifier
-      .padding(top = 32.dp, start = 18.dp, end = 16.dp)
-      .statusBarsPadding()) {
+  Box(Modifier.padding(top = 32.dp, start = 18.dp, end = 16.dp).statusBarsPadding()) {
     AppText(
       text = title,
       color = TH_WHITE,

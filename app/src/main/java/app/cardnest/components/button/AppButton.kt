@@ -51,18 +51,15 @@ fun AppButton(
   variant: ButtonVariant = ButtonVariant.Solid,
 
   isLoading: Boolean = false,
-  isDisabled: Boolean = false,
+  isDisabled: Boolean = isLoading,
 ) {
   val interactionSource = remember { MutableInteractionSource() }
-
-  val isFullyDisabled = isDisabled || isLoading
-  val isVisuallyDisabled = isFullyDisabled
 
   val containerColor by animateColorAsState(
     when (variant) {
       ButtonVariant.Solid -> when (theme) {
-        ButtonTheme.Primary -> if (isVisuallyDisabled) TH_SKY_20 else TH_SKY
-        ButtonTheme.Danger -> if (isVisuallyDisabled) TH_RED_20 else TH_RED
+        ButtonTheme.Primary -> if (isDisabled) TH_SKY_20 else TH_SKY
+        ButtonTheme.Danger -> if (isDisabled) TH_RED_20 else TH_RED
       }
 
       ButtonVariant.Flat -> when (theme) {
@@ -74,7 +71,7 @@ fun AppButton(
 
   val textAndContentColor by animateColorAsState(
     when (variant) {
-      ButtonVariant.Solid -> if (isVisuallyDisabled) TH_WHITE_70 else TH_WHITE
+      ButtonVariant.Solid -> if (isDisabled) TH_WHITE_70 else TH_WHITE
       ButtonVariant.Flat -> when (theme) {
         ButtonTheme.Primary -> TH_SKY
         ButtonTheme.Danger -> TH_RED
@@ -86,7 +83,7 @@ fun AppButton(
     onClick = onClick,
     interactionSource = interactionSource,
     indication = ripple(color = { textAndContentColor }),
-    enabled = isFullyDisabled.not(),
+    enabled = isDisabled.not(),
     role = Role.Button
   )
 

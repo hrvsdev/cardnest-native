@@ -13,7 +13,6 @@ import app.cardnest.data.pinData
 import app.cardnest.data.preferences.PreferencesManager
 import app.cardnest.data.user.UserManager
 import app.cardnest.data.userState
-import app.cardnest.firebase.ConnectionManager
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.password.unlock.UnlockWithNewPasswordScreen
 import app.cardnest.screens.password.unlock.UnlockWithPasswordScreen
@@ -29,7 +28,6 @@ class AppViewModel(
   private val userManager: UserManager,
   private val authManager: AuthManager,
   private val prefsManager: PreferencesManager,
-  private val connectionManager: ConnectionManager
 ) : ViewModel() {
   var initialScreen by mutableStateOf<Screen?>(null)
     private set
@@ -41,7 +39,6 @@ class AppViewModel(
     initUser()
     initAuth()
     initPreferences()
-    initConnectionState()
   }
 
   private fun initScreen() {
@@ -75,12 +72,6 @@ class AppViewModel(
   private fun initPreferences() {
     viewModelScope.launch(Dispatchers.IO) {
       prefsManager.collectPreferences()
-    }
-  }
-
-  private fun initConnectionState() {
-    viewModelScope.launch(Dispatchers.IO) {
-      connectionManager.collectConnectionState()
     }
   }
 }

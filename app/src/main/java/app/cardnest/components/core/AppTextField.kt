@@ -139,9 +139,7 @@ fun AppTextField(
     }
 
     AnimatedVisibility(error.hasError) {
-      AppText(
-        error.message, Modifier.padding(start = 8.dp), AppTextSize.SM, color = TH_RED
-      )
+      AppText(error.message, Modifier.padding(start = 8.dp), AppTextSize.SM, color = TH_RED)
     }
   }
 }

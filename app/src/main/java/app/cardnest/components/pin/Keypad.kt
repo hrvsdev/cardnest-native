@@ -66,7 +66,7 @@ fun Keypad(
 }
 
 @Composable
-fun KeypadButton(onClick: () -> Unit, isDisabled: Boolean = false, content: @Composable BoxScope.() -> Unit) {
+private fun KeypadButton(onClick: () -> Unit, isDisabled: Boolean = false, content: @Composable BoxScope.() -> Unit) {
   var isBeingPressed by remember { mutableStateOf(false) }
 
   val alpha by animateFloatAsState(if (isDisabled) 0.5f else 1f, tween(100))
@@ -102,7 +102,7 @@ fun KeypadButton(onClick: () -> Unit, isDisabled: Boolean = false, content: @Com
 }
 
 @Composable
-fun KeypadNumberButton(number: Int, onClick: () -> Unit, isDisabled: Boolean = false) {
+private fun KeypadNumberButton(number: Int, onClick: () -> Unit, isDisabled: Boolean = false) {
   KeypadButton(onClick, isDisabled) {
     AppText(
       text = number.toString(),
@@ -114,7 +114,7 @@ fun KeypadNumberButton(number: Int, onClick: () -> Unit, isDisabled: Boolean = f
 }
 
 @Composable
-fun KeypadIconButton(icon: Painter, onClick: () -> Unit, isDisabled: Boolean = false) {
+private fun KeypadIconButton(icon: Painter, onClick: () -> Unit, isDisabled: Boolean = false) {
   KeypadButton(onClick, isDisabled) {
     Icon(icon, contentDescription = null, Modifier.size(30.dp), TH_WHITE)
   }

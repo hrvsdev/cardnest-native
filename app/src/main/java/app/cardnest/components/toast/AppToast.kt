@@ -27,7 +27,6 @@ import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_BLACK
 import app.cardnest.ui.theme.TH_GREEN
 import app.cardnest.ui.theme.TH_RED
-import app.cardnest.ui.theme.TH_SKY
 import app.cardnest.utils.extensions.collectValue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,7 +49,6 @@ fun BoxScope.AppToast() {
   val exit = scaleOut(targetScale = 0.7f) + fadeOut()
 
   val color = when (state.type) {
-    AppToastType.INFO -> TH_SKY
     AppToastType.SUCCESS -> TH_GREEN
     AppToastType.ERROR -> TH_RED
   }
@@ -69,13 +67,11 @@ fun BoxScope.AppToast() {
 @Composable
 private fun ToastIcon(type: AppToastType) {
   val color = when (type) {
-    AppToastType.INFO -> TH_SKY
     AppToastType.SUCCESS -> TH_GREEN
     AppToastType.ERROR -> TH_RED
   }
 
   val icon = when (type) {
-    AppToastType.INFO -> R.drawable.tabler__exclamation_mark
     AppToastType.SUCCESS -> R.drawable.tabler__check
     AppToastType.ERROR -> R.drawable.tabler__x
   }
@@ -91,10 +87,6 @@ private fun ToastIcon(type: AppToastType) {
 }
 
 object AppToast {
-  fun info(message: String) {
-    toastState.update { it.copy(show = true, message = message, type = AppToastType.INFO) }
-  }
-
   fun success(message: String) {
     toastState.update { it.copy(show = true, message = message, type = AppToastType.SUCCESS) }
   }
@@ -111,7 +103,7 @@ object AppToast {
 private data class AppToastData(
   val show: Boolean = false,
   val message: String = "",
-  val type: AppToastType = AppToastType.INFO
+  val type: AppToastType = AppToastType.ERROR
 )
 
-private enum class AppToastType { INFO, SUCCESS, ERROR }
+private enum class AppToastType { SUCCESS, ERROR }

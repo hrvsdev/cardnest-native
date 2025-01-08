@@ -11,7 +11,7 @@ import app.cardnest.data.card.CardUnencrypted
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.home.card.CardViewScreen
 import app.cardnest.utils.extensions.toastAndLog
-import app.cardnest.utils.genId
+import app.cardnest.utils.id.genId
 import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

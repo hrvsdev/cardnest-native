@@ -34,42 +34,20 @@ import app.cardnest.ui.theme.TH_WHITE_60
 fun HeaderSearch(queryState: TextFieldState, noOfResults: Int, totalResults: Int) {
   val showResults = queryState.text.isNotEmpty()
 
-  @Composable
-  fun SearchIcon() {
-    Box(Modifier.size(48.dp), Alignment.Center) {
-      Icon(
-        painter = painterResource(R.drawable.tabler__search),
-        contentDescription = "",
-        tint = TH_WHITE_60
-      )
-    }
-  }
-
-  @Composable
-  fun ClearButton() {
-    if (queryState.text.isNotEmpty()) {
-      IconButton(onClick = { queryState.clearText() }) {
-        Icon(
-          painter = painterResource(R.drawable.tabler__circle_x),
-          contentDescription = "Clear text",
-          tint = TH_WHITE_60
-        )
-      }
-    }
-  }
-
   Column(Modifier.padding(16.dp, 16.dp, 16.dp)) {
     AppTextField(
       state = queryState,
       placeholder = "Enter card number, bank or network",
       leftIcon = { SearchIcon() },
-      rightIcon = { ClearButton() },
+      rightIcon = { ClearButton(queryState) },
     )
 
     Spacer(Modifier.size(8.dp))
 
     AnimatedVisibility(showResults) {
-      SearchResultStatus(noOfResults, totalResults) { queryState.clearText() }
+      SearchResultStatus(noOfResults, totalResults) {
+        queryState.clearText()
+      }
     }
 
     Spacer(Modifier.size(8.dp))
@@ -83,10 +61,10 @@ private fun SearchResultStatus(noOfResults: Int, totalResults: Int, clear: () ->
       size = AppTextSize.SM,
       text = buildAnnotatedString {
         append("Showing ")
-        withStyle(SpanStyle(color = TH_SKY)) { append("$noOfResults") }
-        append(" out of ")
-        withStyle(SpanStyle(color = TH_SKY)) { append("$totalResults") }
-        append(" ${if (totalResults == 1) "card" else "cards"}")
+        withStyle(SpanStyle(color = TH_SKY)) { append("$noOfResults ") }
+        append("out of ")
+        withStyle(SpanStyle(color = TH_SKY)) { append("$totalResults ") }
+        append(if (totalResults == 1) "card" else "cards")
       },
     )
 
@@ -97,7 +75,7 @@ private fun SearchResultStatus(noOfResults: Int, totalResults: Int, clear: () ->
       size = AppTextSize.SM,
       color = TH_SKY,
       modifier = Modifier
-        .clickable { clear() }
+        .clickable(onClick = clear)
         .drawBehind {
           drawLine(
             color = TH_SKY,
@@ -110,3 +88,26 @@ private fun SearchResultStatus(noOfResults: Int, totalResults: Int, clear: () ->
   }
 }
 
+@Composable
+private fun SearchIcon() {
+  Box(Modifier.size(48.dp), Alignment.Center) {
+    Icon(
+      painter = painterResource(R.drawable.tabler__search),
+      contentDescription = "",
+      tint = TH_WHITE_60
+    )
+  }
+}
+
+@Composable
+fun ClearButton(queryState: TextFieldState) {
+  if (queryState.text.isNotEmpty()) {
+    IconButton(onClick = { queryState.clearText() }) {
+      Icon(
+        painter = painterResource(R.drawable.tabler__circle_x),
+        contentDescription = "Clear text",
+        tint = TH_WHITE_60
+      )
+    }
+  }
+}

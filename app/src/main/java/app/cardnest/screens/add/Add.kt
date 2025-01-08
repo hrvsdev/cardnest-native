@@ -34,6 +34,10 @@ object AddCardScreen : Screen, ScreenTransition by NoTransition() {
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
 
+    fun onAddCard() {
+      navigator.push(AddCardEditorScreen())
+    }
+
     TabScreenRoot {
       HeaderTitle("Add Card")
       ScreenContainer(modifier = Modifier.weight(1f)) {
@@ -48,12 +52,10 @@ object AddCardScreen : Screen, ScreenTransition by NoTransition() {
           Spacer(modifier = Modifier.height(16.dp))
 
           AppText("Add a new card to add to your collection.", align = TextAlign.Center)
-          AppText(
-            text = "You can't scan cards yet but you can add them manually.",
-            align = TextAlign.Center
-          )
+          AppText("You can't scan cards yet but you can add them manually.", align = TextAlign.Center)
         }
-        AppButton(title = "Add Card", onClick = { navigator.push(AddCardEditorScreen()) })
+
+        AppButton("Add Card", ::onAddCard)
       }
     }
   }

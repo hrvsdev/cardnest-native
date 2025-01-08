@@ -13,15 +13,3 @@ fun <T> T?.checkNotNull(lazyMessage: () -> String): T {
 
   return this
 }
-
-/**
- * Throws an [IllegalArgumentException] with the result of calling [lazyMessage] if [this] is null. Otherwise
- * returns the not null [this].
- */
-fun <T> T?.requireNotNull(lazyMessage: () -> String): T {
-  if (this == null) {
-    throw IllegalArgumentException(lazyMessage())
-  }
-
-  return this
-}

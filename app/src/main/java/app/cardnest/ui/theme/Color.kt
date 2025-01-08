@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package app.cardnest.ui.theme
 
 import androidx.compose.ui.graphics.Color
@@ -7,10 +5,7 @@ import app.cardnest.data.card.CardTheme
 
 val TH_BLACK = Color(0xFF00060C)
 val TH_BLACK_00 = Color(0x0000060C)
-val TH_BLACK_20 = Color(0x3300060C)
-val TH_BLACK_40 = Color(0x6600060C)
 val TH_BLACK_60 = Color(0x9900060C)
-val TH_BLACK_80 = Color(0xCC00060C)
 
 val TH_DARKER_BLUE = Color(0xFF001528)
 
@@ -22,9 +17,7 @@ val TH_SKY_70 = Color(0xB23FA1FF)
 val TH_SKY_80 = Color(0xCC3FA1FF)
 
 val TH_GREEN = Color(0xFF1CAC78)
-val TH_GREEN_70 = Color(0xB31CAC78)
 
-val TH_YELLOW = Color(0xFFF5A524)
 val TH_YELLOW_70 = Color(0xB3F5A524)
 
 val TH_RED = Color(0xFFF31260)
@@ -32,8 +25,6 @@ val TH_RED_05 = Color(0x0DF31260)
 val TH_RED_10 = Color(0x19F31260)
 val TH_RED_12 = Color(0x1FF31260)
 val TH_RED_20 = Color(0x33F31260)
-val TH_RED_15 = Color(0x26F31260)
-val TH_RED_40 = Color(0x66F31260)
 val TH_RED_60 = Color(0x99F31260)
 val TH_RED_70 = Color(0xB3F31260)
 
@@ -44,14 +35,10 @@ val TH_WHITE_05 = Color(0x0DF4F7FB)
 val TH_WHITE_07 = Color(0x12F4F7FB)
 val TH_WHITE_10 = Color(0x19F4F7FB)
 val TH_WHITE_20 = Color(0x33F4F7FB)
-val TH_WHITE_35 = Color(0x59F4F7FB)
 val TH_WHITE_50 = Color(0x7FF4F7FB)
 val TH_WHITE_60 = Color(0x99F4F7FB)
-val TH_WHITE_65 = Color(0xA6F4F7FB)
 val TH_WHITE_70 = Color(0xB2F4F7FB)
 val TH_WHITE_80 = Color(0xCCF4F7FB)
-val TH_WHITE_85 = Color(0xD9F4F7FB)
-val TH_WHITE_90 = Color(0xE6F4F7FB)
 
 val CARD_RED_500 = Color(0xFFEF4444)
 val CARD_RED_700 = Color(0xFFB91C1C)

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -25,17 +26,13 @@ import app.cardnest.ui.theme.TH_WHITE
 import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
 
 @Composable
-fun BottomSheet(content: @Composable () -> Unit) {
+fun BottomSheet(content: @Composable ColumnScope. () -> Unit) {
   Box(Modifier.background(TH_SKY_20, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))) {
     Column(
-      Modifier
-        .padding(top = 1.dp)
-        .background(appGradient, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-        .padding(16.dp),
+      content = content,
       horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-      content()
-    }
+      modifier = Modifier.padding(top = 1.dp).background(appGradient, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)).padding(16.dp),
+    )
   }
 }
 
@@ -45,25 +42,23 @@ fun BottomSheetHeading(title: String) {
     text = title,
     size = AppTextSize.XL,
     weight = FontWeight.Bold,
-    color = TH_WHITE,
+    color = TH_WHITE
   )
 }
 
 @Composable
 fun BottomSheetDescription(description: String) {
-  AppText(text = description, align = TextAlign.Center)
+  AppText(description, align = TextAlign.Center)
 }
 
 @Composable
 fun BottomSheetDescription(description: AnnotatedString) {
-  AppText(text = description, align = TextAlign.Center)
+  AppText(description, align = TextAlign.Center)
 }
 
 @Composable
-fun BottomSheetButtons(content: @Composable () -> Unit) {
-  Column(Modifier.padding(top = 40.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-    content()
-  }
+fun BottomSheetButtons(content: @Composable ColumnScope.() -> Unit) {
+  Column(Modifier.padding(top = 40.dp), verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
 }
 
 @Composable

@@ -145,7 +145,7 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
     authManager.resetLocalAuthData()
   }
 
-  private suspend fun deleteRemoteData() {
+  private fun deleteRemoteData() {
     cardDataManager.resetRemoteCards()
     authManager.resetRemoteAuthData()
   }

@@ -8,7 +8,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-class AppPersistentMapSerializer<T>(
+class PersistentMapSerializer<T>(
   private val keySerializer: KSerializer<String>,
   private val valueSerializer: KSerializer<T>
 ) : KSerializer<PersistentMap<String, T>> {

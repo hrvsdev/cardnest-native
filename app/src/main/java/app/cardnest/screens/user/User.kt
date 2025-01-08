@@ -33,7 +33,7 @@ object UserScreen : Screen, ScreenTransition by NoTransition() {
 
     val vm = koinViewModel<UserViewModel> { parametersOf(navigator, bottomSheetNavigator) }
 
-    fun onDeleteAllCardsClick() {
+    fun onDeleteAllCards() {
       bottomSheetNavigator.open(DeleteDataBottomSheetScreen(), vm::onDeleteAllCards)
     }
 
@@ -72,7 +72,7 @@ object UserScreen : Screen, ScreenTransition by NoTransition() {
             isDanger = true,
             isFirst = true,
             isLast = true,
-            onClick = ::onDeleteAllCardsClick
+            onClick = ::onDeleteAllCards
           )
         }
       }

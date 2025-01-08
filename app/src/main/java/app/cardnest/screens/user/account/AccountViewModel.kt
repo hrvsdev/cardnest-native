@@ -35,7 +35,6 @@ class AccountViewModel(private val userManager: UserManager, private val navigat
         userManager.signInWithGoogle(ctx).also { continueSignInByPassword(it) }
       } catch (e: Exception) {
         e.toastAndLog("AccountViewModel")
-      } finally {
         isSigningIn = false
       }
     }
@@ -56,7 +55,6 @@ class AccountViewModel(private val userManager: UserManager, private val navigat
         AppToast.success("Account has been deleted")
       } catch (e: Exception) {
         e.toastAndLog("AccountViewModel")
-      } finally {
         isDeleting = false
       }
     }

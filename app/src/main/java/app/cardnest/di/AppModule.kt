@@ -11,7 +11,6 @@ import app.cardnest.data.user.UserManager
 import app.cardnest.db.auth.AuthRepository
 import app.cardnest.db.card.CardRepository
 import app.cardnest.db.preferences.PreferencesRepository
-import app.cardnest.firebase.ConnectionManager
 import app.cardnest.preferencesDataStore
 import app.cardnest.screens.add.editor.AddCardViewModel
 import app.cardnest.screens.home.HomeViewModel
@@ -52,13 +51,11 @@ val appModule = module {
   single { PreferencesRepository(androidContext().preferencesDataStore) }
   single { PreferencesManager(get()) }
 
-  single { ConnectionManager() }
-
   factory { defaultCard() }
 
   viewModel { CardEditorViewModel(it.getOrNull() ?: get()) }
 
-  viewModel { AppViewModel(get(), get(), get(), get()) }
+  viewModel { AppViewModel(get(), get(), get()) }
 
   viewModel { HomeViewModel(get()) }
   viewModel { CardViewModel(get(), it.get()) }

@@ -31,30 +31,25 @@ data class CardViewScreen(val cardWithMeta: CardUnencrypted) : Screen {
     val navigator = LocalNavigator.currentOrThrow
     val bottomSheetNavigator = LocalBottomSheetNavigator.current
 
-    val viewModel = koinViewModel<CardViewModel> { parametersOf(navigator) }
+    val vm = koinViewModel<CardViewModel> { parametersOf(navigator) }
     val card = cardWithMeta.data
 
-    fun del() {
+    fun deleteCard() {
       bottomSheetNavigator.hide()
-      viewModel.deleteCard(cardWithMeta.id)
+      vm.deleteCard(cardWithMeta.id)
     }
 
-    fun onEditClick() {
+    fun onEdit() {
       navigator.push(UpdateCardEditorScreen(cardWithMeta))
     }
 
-    fun onDeleteClick() {
-      bottomSheetNavigator.open(DeleteCardBottomSheetScreen(), ::del)
+    fun onDelete() {
+      bottomSheetNavigator.open(DeleteCardBottomSheetScreen(), ::deleteCard)
     }
 
     SubScreenRoot {
       SubScreenHeader("Card") {
-        HeaderActionButton(
-          label = "Edit",
-          icon = painterResource(id = R.drawable.tabler__pencil),
-          isLoading = false,
-          onClick = ::onEditClick
-        )
+        HeaderActionButton(label = "Edit", icon = painterResource(id = R.drawable.tabler__pencil), isLoading = false, onClick = ::onEdit)
       }
 
       SubScreenContainer(32.dp) {
@@ -74,7 +69,7 @@ data class CardViewScreen(val cardWithMeta: CardUnencrypted) : Screen {
           }
         }
 
-        AppButton(title = "Delete", onClick = ::onDeleteClick, theme = ButtonTheme.Danger, isLoading = viewModel.isDeleting)
+        AppButton("Delete", ::onDelete, ButtonTheme.Danger, isLoading = vm.isDeleting)
       }
     }
   }

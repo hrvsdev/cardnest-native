@@ -8,11 +8,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.pin.Keypad
@@ -21,6 +19,7 @@ import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_RED
 import app.cardnest.ui.theme.TH_WHITE
+import app.cardnest.utils.extensions.appendWithEmphasis
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -52,7 +51,7 @@ class CreatePinScreen : Screen {
           align = TextAlign.Center,
           text = buildAnnotatedString {
             append("It never gets stored, so it ")
-            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("can't be recovered") }
+            appendWithEmphasis("can't be recovered")
             append(".")
           }
         )

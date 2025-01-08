@@ -21,7 +21,7 @@ import app.cardnest.ui.theme.TH_BLACK
 import app.cardnest.ui.theme.TH_DARKER_BLUE
 
 val appGradient = Brush.linearGradient(
-  listOf(TH_BLACK, TH_DARKER_BLUE),
+  colors = listOf(TH_BLACK, TH_DARKER_BLUE),
   start = Offset(Float.POSITIVE_INFINITY, 0f),
   end = Offset(0f, Float.POSITIVE_INFINITY)
 )
@@ -29,14 +29,13 @@ val appGradient = Brush.linearGradient(
 @Composable
 fun TabScreenRoot(content: @Composable ColumnScope.() -> Unit) {
   Column(
-    Modifier
+    content = content,
+    modifier = Modifier
       .statusBarsPadding()
       .padding(bottom = 56.dp)
       .fillMaxHeight()
       .verticalScroll(rememberScrollState(0))
-  ) {
-    content()
-  }
+  )
 }
 
 @Composable

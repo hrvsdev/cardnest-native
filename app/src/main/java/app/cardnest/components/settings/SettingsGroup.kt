@@ -12,30 +12,24 @@ import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE_60
 
 @Composable
-fun SettingsGroup(
-  title: String? = null,
-  description: String? = null,
-  content: @Composable ColumnScope.() -> Unit
-) {
+fun SettingsGroup(title: String? = null, description: String? = null, content: @Composable ColumnScope.() -> Unit) {
   Column {
     if (title != null) {
       AppText(
-        title.uppercase(),
-        Modifier.padding(start = 8.dp, bottom = 8.dp),
-        AppTextSize.XS,
+        text = title.uppercase(),
+        modifier = Modifier.padding(start = 8.dp, bottom = 8.dp),
+        size = AppTextSize.XS,
         color = TH_WHITE_60
       )
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-      content()
-    }
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp), content = content)
 
     if (description != null) {
       AppText(
-        description,
-        Modifier.padding(start = 8.dp, top = 8.dp),
-        AppTextSize.SM,
+        text = description,
+        modifier = Modifier.padding(start = 8.dp, top = 8.dp),
+        size = AppTextSize.SM,
         color = TH_WHITE_60
       )
     }

@@ -5,7 +5,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.cardnest.R
 import app.cardnest.components.containers.SubScreenRoot
 import app.cardnest.components.settings.SettingsButton
@@ -30,7 +29,7 @@ class SecurityScreen : Screen {
 
     val hasCreatedPassword = vm.hasCreatedPassword.collectValue()
     val hasCreatedPin = vm.hasCreatedPin.collectValue()
-    val hasEnabledBiometrics = vm.hasEnabledBiometrics.collectAsStateWithLifecycle().value
+    val hasEnabledBiometrics = vm.hasEnabledBiometrics.collectValue()
 
     val CREATE_PIN_DESC = if (hasEnabledBiometrics || hasCreatedPassword) CREATE_PIN_DESC_IF_BIOMETRICS_OR_PASSWORD_EXIST else CREATE_PIN_DESC_IF_NONE_EXIST
 

@@ -54,23 +54,7 @@ fun <T1, T2, R> combineStateInViewModel(
   return combine(flow, flow2, transform).stateInViewModel(initialValue, started)
 }
 
-context(ViewModel)
-fun <T1, T2, T3, R> combineStateInViewModel(
-  flow: Flow<T1>,
-  flow2: Flow<T2>,
-  flow3: Flow<T3>,
-  initialValue: R,
-  started: SharingStarted = defaultSharing,
-  transform: suspend (T1, T2, T3) -> R
-): StateFlow<R> {
-  return combine(flow, flow2, flow3, transform).stateInViewModel(initialValue, started)
-}
-
-suspend fun <T1, T2, R> combineCollectLatest(
-  flow: Flow<T1>,
-  flow2: Flow<T2>,
-  transform: suspend (T1, T2) -> R
-) {
+suspend fun <T1, T2, R> combineCollectLatest(flow: Flow<T1>, flow2: Flow<T2>, transform: suspend (T1, T2) -> R) {
   return combine(flow, flow2, transform).collectLatest {}
 }
 

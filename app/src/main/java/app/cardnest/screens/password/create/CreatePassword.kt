@@ -13,11 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import app.cardnest.R
 import app.cardnest.components.button.AppButton
@@ -28,6 +26,7 @@ import app.cardnest.components.password.PasswordInfoType
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
+import app.cardnest.utils.extensions.appendWithEmphasis
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffectOnce
 import cafe.adriel.voyager.core.screen.Screen
@@ -68,7 +67,7 @@ class CreatePasswordScreen : Screen {
           align = TextAlign.Center,
           text = buildAnnotatedString {
             append("It never gets stored, so it ")
-            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("can't be recovered") }
+            appendWithEmphasis("can't be recovered")
             append(".")
           }
         )
@@ -76,8 +75,8 @@ class CreatePasswordScreen : Screen {
           align = TextAlign.Center,
           text = buildAnnotatedString {
             append("If forgotten, all ")
-            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("data will be lost") }
-            append(" forever.")
+            appendWithEmphasis("data will be lost ")
+            append("forever.")
           }
         )
       }

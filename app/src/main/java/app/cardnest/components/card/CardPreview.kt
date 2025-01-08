@@ -37,12 +37,7 @@ import app.cardnest.ui.theme.getCardTheme
 import app.cardnest.utils.card.formatCardViewDetails
 
 @Composable
-fun CardPreview(
-  card: Card,
-  usePlaceholders: Boolean = false,
-  maskCardNumber: Boolean = false,
-  focused: CardFocusableField? = null,
-) {
+fun CardPreview(card: Card, usePlaceholders: Boolean = false, maskCardNumber: Boolean = false, focused: CardFocusableField? = null) {
   val formattedCard = formatCardViewDetails(card, usePlaceholders, maskCardNumber)
 
   @Composable
@@ -150,9 +145,10 @@ fun CardPreview(
 }
 
 @Composable
-fun CardNetworkLogo(network: PaymentNetwork) {
+private fun CardNetworkLogo(network: PaymentNetwork) {
   Image(
-    contentDescription = network.name, painter = painterResource(
+    contentDescription = network.name,
+    painter = painterResource(
       id = when (network) {
         PaymentNetwork.VISA -> R.drawable.visa
         PaymentNetwork.MASTERCARD -> R.drawable.mastercard

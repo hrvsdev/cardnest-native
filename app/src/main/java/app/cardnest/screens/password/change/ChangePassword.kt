@@ -14,11 +14,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import app.cardnest.R
 import app.cardnest.components.button.AppButton
@@ -31,6 +29,7 @@ import app.cardnest.screens.password.ForgotPasswordContext
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_WHITE
+import app.cardnest.utils.extensions.appendWithEmphasis
 import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.lifecycle.LifecycleEffectOnce
@@ -90,7 +89,7 @@ class ChangePasswordScreen : Screen {
           align = TextAlign.Center,
           text = buildAnnotatedString {
             append("It never gets stored, so it ")
-            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("can't be recovered") }
+            appendWithEmphasis("can't be recovered")
             append(".")
           }
         )
@@ -98,8 +97,8 @@ class ChangePasswordScreen : Screen {
           align = TextAlign.Center,
           text = buildAnnotatedString {
             append("If forgotten, all ")
-            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("data will be lost") }
-            append(" forever.")
+            appendWithEmphasis("data will be lost ")
+            append("forever.")
           }
         )
       }
@@ -138,13 +137,11 @@ class ChangePasswordScreen : Screen {
         Spacer(Modifier.size(8.dp))
 
         PasswordInfo("Entered password is equal to current password", PasswordInfoType.ERROR, vm.isNewPasswordEqualToCurrentPassword)
-
         PasswordInfo(
           text = "Entered password includes space(s), which is allowed",
           type = PasswordInfoType.WARN,
           isVisible = vm.doesNewPasswordContainsSpace && vm.isNewPasswordEqualToCurrentPassword.not()
         )
-
         PasswordInfo(
           text = "Entered password is strong and secure against brute-force attacks",
           type = PasswordInfoType.SUCCESS,
