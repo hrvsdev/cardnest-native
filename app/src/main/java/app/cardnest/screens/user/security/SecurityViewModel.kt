@@ -12,17 +12,14 @@ import app.cardnest.data.pinData
 import app.cardnest.screens.password.change.ChangePasswordScreen
 import app.cardnest.screens.pin.create.create.CreatePinScreen
 import app.cardnest.screens.pin.verify.VerifyPinScreen
+import app.cardnest.utils.extensions.launchDefault
 import app.cardnest.utils.extensions.open
 import app.cardnest.utils.extensions.stateInViewModel
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
 class SecurityViewModel(
   private val authManager: AuthManager,
@@ -53,7 +50,7 @@ class SecurityViewModel(
 
   fun onRemovePin() {
     bottomSheetNavigator.open(RemovePinBottomSheetScreen(hasCreatedPassword.value, hasEnabledBiometrics.value)) {
-      viewModelScope.launch(Dispatchers.IO) {
+      launchDefault {
         bottomSheetNavigator.hide()
         delay(200)
 
@@ -77,7 +74,7 @@ class SecurityViewModel(
   }
 
   fun onBiometricsSwitchChange(ctx: FragmentActivity) {
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       when {
         hasEnabledBiometrics.value -> disableBiometrics()
         checkIfBiometricsBackupIsAvailable() -> enableBiometrics(ctx)
@@ -104,7 +101,7 @@ class SecurityViewModel(
 
   private fun showEnableBiometricsBottomSheet(ctx: FragmentActivity) {
     bottomSheetNavigator.open(EnableBiometricsBottomSheetScreen()) {
-      viewModelScope.launch(Dispatchers.IO) {
+      launchDefault {
         bottomSheetNavigator.hide()
         delay(200)
 

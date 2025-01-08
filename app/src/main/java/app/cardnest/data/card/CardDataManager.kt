@@ -12,6 +12,7 @@ import app.cardnest.utils.extensions.checkNotNull
 import app.cardnest.utils.extensions.decoded
 import app.cardnest.utils.extensions.encoded
 import app.cardnest.utils.extensions.toastAndLog
+import app.cardnest.utils.extensions.withDefault
 import app.cardnest.utils.extensions.zipWithNext
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,7 +42,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
             for ((id, card) in it.cards) {
               val stateCard = cardsState.value[card.id]
               if (stateCard == null || stateCard.modifiedAt < card.modifiedAt) {
-                updatedCards[id] = decryptToCardUnencrypted(card)
+                updatedCards[id] = withDefault { decryptToCardUnencrypted(card) }
               } else {
                 updatedCards[id] = stateCard
               }
@@ -103,7 +104,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     repo.setLocalCards(CardRecords.Unencrypted())
   }
 
-  fun resetRemoteCards() {
+  suspend fun resetRemoteCards() {
     repo.setRemoteCards(CardRecords.Encrypted())
   }
 

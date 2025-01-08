@@ -7,12 +7,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import app.cardnest.utils.extensions.launchDefault
 import app.cardnest.utils.extensions.toastAndLog
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 open class VerifyPasswordBaseViewModel() : ViewModel() {
   val currentPasswordState = TextFieldState()
@@ -25,7 +23,7 @@ open class VerifyPasswordBaseViewModel() : ViewModel() {
     private set
 
   init {
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       snapshotFlow { currentPasswordState.text }.collectLatest {
         if (isCurrentPasswordIncorrect) isCurrentPasswordIncorrect = false
       }
@@ -39,7 +37,7 @@ open class VerifyPasswordBaseViewModel() : ViewModel() {
     }
 
     isVerifying = true
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       try {
         afterValidation(currentPasswordState.text.toString())
       } catch (e: Exception) {

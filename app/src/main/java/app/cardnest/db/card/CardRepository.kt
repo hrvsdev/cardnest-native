@@ -9,6 +9,7 @@ import app.cardnest.data.card.CardRecords
 import app.cardnest.data.userState
 import app.cardnest.firebase.rtDb
 import app.cardnest.utils.extensions.checkNotNull
+import app.cardnest.utils.extensions.withIO
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -57,16 +58,24 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
   }
 
   suspend fun setLocalCards(cards: CardRecords) {
-    localDb.updateData { cards }
+    withIO {
+      try {
+        localDb.updateData { cards }
+      } catch (e: Exception) {
+        throw Exception("Error setting local cards", e)
+      }
+    }
   }
 
-  fun setRemoteCards(cards: CardRecords) {
+  suspend fun setRemoteCards(cards: CardRecords) {
     if (cards is CardRecords.Encrypted) {
-      try {
-        val ref = rtDb.getReference("$uid/cards")
-        ref.setValue(cards.cards)
-      } catch (e: Exception) {
-        throw Exception("Error setting remote cards", e)
+      withIO {
+        try {
+          val ref = rtDb.getReference("$uid/cards")
+          ref.setValue(cards.cards)
+        } catch (e: Exception) {
+          throw Exception("Error setting remote cards", e)
+        }
       }
     } else {
       throw IllegalArgumentException("Unencrypted card records cannot be saved in remote database")
@@ -82,28 +91,39 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
   }
 
   suspend fun addOrUpdateLocalCard(card: CardData) {
-    localDb.updateData {
-      when (it) {
-        is CardRecords.Encrypted -> when (card) {
-          is CardData.Encrypted -> it.copy(it.cards.put(card.encrypted.id, card.encrypted))
-          is CardData.Unencrypted -> throw IllegalArgumentException("Unencrypted card can't be saved in encrypted records")
-        }
+    withIO {
+      try {
+        localDb.updateData {
+          when (it) {
+            is CardRecords.Encrypted -> when (card) {
+              is CardData.Encrypted -> it.copy(it.cards.put(card.encrypted.id, card.encrypted))
+              is CardData.Unencrypted -> throw IllegalArgumentException("Unencrypted card can't be saved in encrypted records")
+            }
 
-        is CardRecords.Unencrypted -> when (card) {
-          is CardData.Unencrypted -> it.copy(it.cards.put(card.unencrypted.id, card.unencrypted))
-          is CardData.Encrypted -> throw IllegalArgumentException("Encrypted card can't be saved in unencrypted records")
+            is CardRecords.Unencrypted -> when (card) {
+              is CardData.Unencrypted -> it.copy(it.cards.put(card.unencrypted.id, card.unencrypted))
+              is CardData.Encrypted -> throw IllegalArgumentException("Encrypted card can't be saved in unencrypted records")
+            }
+          }
+        }
+      } catch (e: Exception) {
+        throw when (e) {
+          is IllegalArgumentException -> e
+          else -> Exception("Error adding or updating local card", e)
         }
       }
     }
   }
 
-  fun addOrUpdateRemoteCard(card: CardData) {
+  suspend fun addOrUpdateRemoteCard(card: CardData) {
     if (card is CardData.Encrypted) {
-      try {
-        val ref = rtDb.getReference("$uid/cards/${card.encrypted.id}")
-        ref.setValue(card.encrypted)
-      } catch (e: Exception) {
-        throw Exception("Error adding or updating remote card", e)
+      withIO {
+        try {
+          val ref = rtDb.getReference("$uid/cards/${card.encrypted.id}")
+          ref.setValue(card.encrypted)
+        } catch (e: Exception) {
+          throw Exception("Error adding or updating remote card", e)
+        }
       }
     } else {
       throw IllegalArgumentException("Unencrypted card can't be saved in remote database")
@@ -119,20 +139,28 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
   }
 
   suspend fun deleteLocalCard(id: String) {
-    localDb.updateData {
-      when (it) {
-        is CardRecords.Encrypted -> it.copy(it.cards.remove(id))
-        is CardRecords.Unencrypted -> it.copy(it.cards.remove(id))
+    withIO {
+      try {
+        localDb.updateData {
+          when (it) {
+            is CardRecords.Encrypted -> it.copy(it.cards.remove(id))
+            is CardRecords.Unencrypted -> it.copy(it.cards.remove(id))
+          }
+        }
+      } catch (e: Exception) {
+        throw Exception("Error deleting local card", e)
       }
     }
   }
 
-  fun deleteRemoteCard(id: String) {
-    try {
-      val ref = rtDb.getReference("$uid/cards/$id")
-      ref.removeValue()
-    } catch (e: Exception) {
-      throw Exception("Error deleting remote card", e)
+  suspend fun deleteRemoteCard(id: String) {
+    withIO {
+      try {
+        val ref = rtDb.getReference("$uid/cards/$id")
+        ref.removeValue()
+      } catch (e: Exception) {
+        throw Exception("Error deleting remote card", e)
+      }
     }
   }
 

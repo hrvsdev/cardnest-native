@@ -4,14 +4,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import app.cardnest.data.card.Card
 import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.card.CardUnencrypted
 import app.cardnest.screens.home.card.CardViewScreen
+import app.cardnest.utils.extensions.launchDefault
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -22,7 +21,7 @@ class UpdateCardViewModel(private val dataManager: CardDataManager, private val 
   fun updateCard(id: String, card: Card) {
     if (isUpdating) return
 
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       val isUpdatingJob = launch {
         delay(200)
         isUpdating = true

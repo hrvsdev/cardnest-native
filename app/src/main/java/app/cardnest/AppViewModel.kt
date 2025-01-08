@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import app.cardnest.data.appDataState
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.authState
@@ -17,12 +16,12 @@ import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.password.unlock.UnlockWithNewPasswordScreen
 import app.cardnest.screens.password.unlock.UnlockWithPasswordScreen
 import app.cardnest.screens.pin.unlock.UnlockWithPinScreen
+import app.cardnest.utils.extensions.launchDefault
+import app.cardnest.utils.extensions.launchWithIO
 import app.cardnest.utils.extensions.stateInViewModel
 import cafe.adriel.voyager.core.screen.Screen
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 class AppViewModel(
   private val userManager: UserManager,
@@ -42,7 +41,7 @@ class AppViewModel(
   }
 
   private fun initScreen() {
-    viewModelScope.launch {
+    launchDefault {
       appDataState.first { it.localAuth && it.user && if (userState.value != null) it.remoteAuth else true }
       initialScreen = when {
         isPasswordStale.value -> UnlockWithNewPasswordScreen()
@@ -54,23 +53,23 @@ class AppViewModel(
   }
 
   private fun initUser() {
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       userManager.collectUser()
     }
   }
 
   private fun initAuth() {
-    viewModelScope.launch(Dispatchers.IO) {
+    launchWithIO {
       authManager.collectAuthData()
     }
 
-    viewModelScope.launch(Dispatchers.IO) {
+    launchWithIO {
       authManager.collectRemoteAuthData()
     }
   }
 
   private fun initPreferences() {
-    viewModelScope.launch(Dispatchers.IO) {
+    launchWithIO {
       prefsManager.collectPreferences()
     }
   }

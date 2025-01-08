@@ -3,7 +3,6 @@ package app.cardnest.screens.home
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import app.cardnest.data.AppDataState
 import app.cardnest.data.appDataState
 import app.cardnest.data.card.Card
@@ -13,10 +12,10 @@ import app.cardnest.data.cardsState
 import app.cardnest.data.preferencesState
 import app.cardnest.data.userState
 import app.cardnest.utils.extensions.combineStateInViewModel
+import app.cardnest.utils.extensions.launchDefault
+import app.cardnest.utils.extensions.launchWithIO
 import app.cardnest.utils.extensions.stateInViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 class HomeViewModel(private val dataManager: CardDataManager) : ViewModel() {
   val queryState = TextFieldState()
@@ -36,11 +35,11 @@ class HomeViewModel(private val dataManager: CardDataManager) : ViewModel() {
   }
 
   private fun initCards() {
-    viewModelScope.launch(Dispatchers.IO) {
+    launchWithIO {
       dataManager.collectAndDecryptCards()
     }
 
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       dataManager.checkAndEncryptOrDecryptCards()
     }
   }

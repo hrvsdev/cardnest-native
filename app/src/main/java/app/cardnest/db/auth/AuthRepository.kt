@@ -12,6 +12,7 @@ import app.cardnest.data.initialUserState
 import app.cardnest.firebase.rtDb
 import app.cardnest.utils.extensions.checkNotNull
 import app.cardnest.utils.extensions.toastAndLog
+import app.cardnest.utils.extensions.withIO
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -51,32 +52,54 @@ class AuthRepository(private val localDb: DataStore<AuthData>) {
   }
 
   suspend fun setLocalPasswordData(data: PasswordData?) {
-    localDb.updateData { it.copy(password = data) }
-  }
-
-  suspend fun setLocalPinData(data: PinData?) {
-    localDb.updateData { it.copy(pin = data) }
-  }
-
-  suspend fun setLocalBiometricsData(data: BiometricsData?) {
-    localDb.updateData { it.copy(biometrics = data) }
-  }
-
-  fun setRemotePasswordData(data: PasswordData) {
-    try {
-      val ref = rtDb.getReference("$uid/auth/password")
-      ref.setValue(data)
-    } catch (e: Exception) {
-      throw Exception("Error setting remote password data", e)
+    withIO {
+      try {
+        localDb.updateData { it.copy(password = data) }
+      } catch (e: Exception) {
+        throw Exception("Error setting local password data", e)
+      }
     }
   }
 
-  fun removeRemotePasswordData() {
-    try {
-      val ref = rtDb.getReference("$uid/auth/password")
-      ref.removeValue()
-    } catch (e: Exception) {
-      throw Exception("Error removing remote password data", e)
+  suspend fun setLocalPinData(data: PinData?) {
+    withIO {
+      try {
+        localDb.updateData { it.copy(pin = data) }
+      } catch (e: Exception) {
+        throw Exception("Error setting local pin data", e)
+      }
+    }
+  }
+
+  suspend fun setLocalBiometricsData(data: BiometricsData?) {
+    withIO {
+      try {
+        localDb.updateData { it.copy(biometrics = data) }
+      } catch (e: Exception) {
+        throw Exception("Error setting local biometrics data", e)
+      }
+    }
+  }
+
+  suspend fun setRemotePasswordData(data: PasswordData) {
+    withIO {
+      try {
+        val ref = rtDb.getReference("$uid/auth/password")
+        ref.setValue(data)
+      } catch (e: Exception) {
+        throw Exception("Error setting remote password data", e)
+      }
+    }
+  }
+
+  suspend fun removeRemotePasswordData() {
+    withIO {
+      try {
+        val ref = rtDb.getReference("$uid/auth/password")
+        ref.removeValue()
+      } catch (e: Exception) {
+        throw Exception("Error removing remote password data", e)
+      }
     }
   }
 

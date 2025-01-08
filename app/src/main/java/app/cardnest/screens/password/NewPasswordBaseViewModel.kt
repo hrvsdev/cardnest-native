@@ -8,12 +8,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import app.cardnest.utils.extensions.launchDefault
 import app.cardnest.utils.extensions.toastAndLog
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 open class NewPasswordBaseViewModel() : ViewModel() {
   val newPasswordState = TextFieldState()
@@ -50,7 +48,7 @@ open class NewPasswordBaseViewModel() : ViewModel() {
   val doPasswordsMatch by derivedStateOf { newPasswordState.text == confirmPasswordState.text }
 
   init {
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       snapshotFlow { isNewPasswordFocused }.collectLatest {
         if (isNewPasswordFocused) hasNewPasswordSubmitted = false
       }
@@ -74,7 +72,7 @@ open class NewPasswordBaseViewModel() : ViewModel() {
     }
 
     isCreating = true
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       try {
         afterValidation(newPasswordState.text.toString())
       } catch (e: Exception) {

@@ -2,6 +2,7 @@ package app.cardnest.db.preferences
 
 import androidx.datastore.core.DataStore
 import app.cardnest.data.preferences.Preferences
+import app.cardnest.utils.extensions.withIO
 import kotlinx.coroutines.flow.Flow
 
 class PreferencesRepository(private val localDb: DataStore<Preferences>) {
@@ -14,6 +15,12 @@ class PreferencesRepository(private val localDb: DataStore<Preferences>) {
   }
 
   suspend fun setPreferences(transform: (Preferences) -> Preferences) {
-    localDb.updateData(transform)
+    withIO {
+      try {
+        localDb.updateData(transform)
+      } catch (e: Exception) {
+        throw Exception("Error setting preferences", e)
+      }
+    }
   }
 }

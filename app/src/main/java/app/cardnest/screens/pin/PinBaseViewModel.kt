@@ -5,12 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import app.cardnest.screens.pin.create.create.PIN_LENGTH
+import app.cardnest.utils.extensions.launchDefault
 import app.cardnest.utils.extensions.toastAndLog
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 abstract class PinBaseViewModel : ViewModel() {
   var pin by mutableStateOf("")
@@ -27,7 +25,7 @@ abstract class PinBaseViewModel : ViewModel() {
   abstract fun onSubmit()
 
   fun onPinSubmit(tag: String, afterValidation: suspend PinBaseViewModel.() -> Unit) {
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       try {
         afterValidation()
       } catch (e: Exception) {

@@ -7,15 +7,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.focus.FocusRequester
-import androidx.lifecycle.viewModelScope
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.screens.password.NewPasswordBaseViewModel
 import app.cardnest.screens.user.account.AccountScreen
+import app.cardnest.utils.extensions.launchDefault
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 class ChangePasswordViewModel(private val authManager: AuthManager, private val navigator: Navigator) : NewPasswordBaseViewModel() {
   val currentPasswordState = TextFieldState()
@@ -33,7 +31,7 @@ class ChangePasswordViewModel(private val authManager: AuthManager, private val 
   val isNewPasswordEqualToCurrentPassword by derivedStateOf { newPasswordState.text.isNotEmpty() && newPasswordState.text == currentPasswordState.text }
 
   init {
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       snapshotFlow { currentPasswordState.text }.collectLatest {
         if (isCurrentPasswordIncorrect) isCurrentPasswordIncorrect = false
       }
@@ -52,7 +50,7 @@ class ChangePasswordViewModel(private val authManager: AuthManager, private val 
     }
 
     isVerifying = true
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       try {
         authManager.verifyPassword(currentPasswordState.text.toString())
         isVerified = true

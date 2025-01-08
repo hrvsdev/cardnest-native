@@ -5,19 +5,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import app.cardnest.components.toast.AppToast
 import app.cardnest.data.user.SignInResult
 import app.cardnest.data.user.UserManager
 import app.cardnest.data.userState
 import app.cardnest.screens.password.create.CreatePasswordScreen
 import app.cardnest.screens.password.sign_in.SignInWithPasswordScreen
+import app.cardnest.utils.extensions.launchDefault
 import app.cardnest.utils.extensions.stateInViewModel
 import app.cardnest.utils.extensions.toastAndLog
 import cafe.adriel.voyager.navigator.Navigator
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class AccountViewModel(private val userManager: UserManager, private val navigator: Navigator) : ViewModel() {
   var isSigningIn by mutableStateOf(false)
@@ -30,7 +28,7 @@ class AccountViewModel(private val userManager: UserManager, private val navigat
 
   fun signInWithGoogle(ctx: Context) {
     isSigningIn = true
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       try {
         userManager.signInWithGoogle(ctx).also { continueSignInByPassword(it) }
       } catch (e: Exception) {
@@ -41,7 +39,7 @@ class AccountViewModel(private val userManager: UserManager, private val navigat
   }
 
   fun signOut() {
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       delay(200)
       userManager.signOut()
     }
@@ -49,7 +47,7 @@ class AccountViewModel(private val userManager: UserManager, private val navigat
 
   fun deleteUser(ctx: Context) {
     isDeleting = true
-    viewModelScope.launch(Dispatchers.IO) {
+    launchDefault {
       try {
         userManager.deleteUser(ctx)
         AppToast.success("Account has been deleted")

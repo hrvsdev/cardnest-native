@@ -19,6 +19,7 @@ import app.cardnest.utils.extensions.checkNotNull
 import app.cardnest.utils.extensions.decoded
 import app.cardnest.utils.extensions.encoded
 import app.cardnest.utils.extensions.toastAndLog
+import app.cardnest.utils.extensions.withMain
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,7 +30,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.crypto.AEADBadTagException
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
@@ -94,6 +94,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val data = PasswordData(salt.encoded, encryptedDek.encoded, System.currentTimeMillis())
 
     authState.update { it.copy(dek = dek) }
+
     repo.setLocalPasswordData(data)
     repo.setRemotePasswordData(data)
   }
@@ -103,6 +104,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val dek = decryptDek(password, remotePasswordData.salt, remotePasswordData.encryptedDek)
 
     authState.update { it.copy(dek = dek) }
+
     repo.setLocalPasswordData(remotePasswordData)
     repo.setLocalPinData(null)
     repo.setLocalBiometricsData(null)
@@ -162,7 +164,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val cipher = crypto.getInitializedCipherForEncryption(androidKey)
 
     authenticate(ctx, cipher, enableBiometricsPromptInfo) {
-      scope.launch(Dispatchers.IO) {
+      scope.launch(Dispatchers.Default) {
         val encryptedDek = crypto.encryptDataWithCipher(crypto.keyToString(dek), cipher)
         val data = BiometricsData(encryptedDek.encoded, System.currentTimeMillis())
 
@@ -244,7 +246,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
       }
     })
 
-    withContext(Dispatchers.Main) {
+    withMain {
       prompt.authenticate(promptInfo, BiometricPrompt.CryptoObject(cipher))
     }
   }
@@ -255,7 +257,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     repo.setLocalBiometricsData(null)
   }
 
-  fun resetRemoteAuthData() {
+  suspend fun resetRemoteAuthData() {
     repo.removeRemotePasswordData()
   }
 
