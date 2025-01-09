@@ -71,24 +71,24 @@ class SignInWithPasswordScreen : Screen {
 
         AppText("Complete sign-in process using your password.", align = TextAlign.Center)
         AppText("For security reasons, you will have to set-up PIN or biometrics again.", align = TextAlign.Center)
-
-        Spacer(Modifier.size(32.dp))
-        Column {
-          PasswordTextField(
-            state = vm.currentPasswordState,
-            placeholder = "Enter password",
-            isLoading = vm.isVerifying,
-            focusRequester = vm.currentPasswordFocusRequester,
-            onKeyboardAction = { vm.onSubmit() }
-          )
-
-          Spacer(Modifier.size(8.dp))
-          PasswordInfo("Entered password is incorrect", PasswordInfoType.ERROR, vm.isCurrentPasswordIncorrect)
-        }
-
-        Spacer(Modifier.weight(1f))
-        AppButton("Continue", vm::onSubmit, isLoading = vm.isVerifying)
       }
+
+      Spacer(Modifier.size(32.dp))
+      Column {
+        PasswordTextField(
+          state = vm.currentPasswordState,
+          placeholder = "Enter password",
+          isLoading = vm.isVerifying,
+          focusRequester = vm.currentPasswordFocusRequester,
+          onKeyboardAction = { vm.onSubmit() }
+        )
+
+        Spacer(Modifier.size(8.dp))
+        PasswordInfo("Entered password is incorrect", PasswordInfoType.ERROR, vm.isCurrentPasswordIncorrect)
+      }
+
+      Spacer(Modifier.weight(1f))
+      AppButton("Continue", vm::onSubmit, isLoading = vm.isVerifying)
     }
   }
 }

@@ -70,24 +70,24 @@ class VerifyPasswordScreen : Screen {
         )
 
         AppText("Verify your password to confirm and proceed.", align = TextAlign.Center)
-
-        Spacer(Modifier.size(32.dp))
-        Column {
-          PasswordTextField(
-            state = vm.currentPasswordState,
-            placeholder = "Enter password",
-            isLoading = vm.isVerifying,
-            focusRequester = vm.currentPasswordFocusRequester,
-            onKeyboardAction = { vm.onSubmit() }
-          )
-
-          Spacer(Modifier.size(8.dp))
-          PasswordInfo("Entered password is incorrect", PasswordInfoType.ERROR, vm.isCurrentPasswordIncorrect)
-        }
-
-        Spacer(Modifier.weight(1f))
-        AppButton("Continue", vm::onSubmit, isLoading = vm.isVerifying)
       }
+
+      Spacer(Modifier.size(32.dp))
+      Column {
+        PasswordTextField(
+          state = vm.currentPasswordState,
+          placeholder = "Enter password",
+          isLoading = vm.isVerifying,
+          focusRequester = vm.currentPasswordFocusRequester,
+          onKeyboardAction = { vm.onSubmit() }
+        )
+
+        Spacer(Modifier.size(8.dp))
+        PasswordInfo("Entered password is incorrect", PasswordInfoType.ERROR, vm.isCurrentPasswordIncorrect)
+      }
+
+      Spacer(Modifier.weight(1f))
+      AppButton("Continue", vm::onSubmit, isLoading = vm.isVerifying)
     }
   }
 }
