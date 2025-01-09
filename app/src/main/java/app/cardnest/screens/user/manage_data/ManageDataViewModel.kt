@@ -1,4 +1,4 @@
-package app.cardnest.screens.user
+package app.cardnest.screens.user.manage_data
 
 import androidx.lifecycle.ViewModel
 import app.cardnest.components.toast.AppToast
@@ -11,22 +11,16 @@ import app.cardnest.screens.password.verify.VerifyPasswordScreen
 import app.cardnest.screens.pin.verify.VerifyPinScreen
 import app.cardnest.utils.extensions.launchDefault
 import cafe.adriel.voyager.navigator.Navigator
-import cafe.adriel.voyager.navigator.bottomSheet.BottomSheetNavigator
 import kotlinx.coroutines.delay
 
-class UserViewModel(
-  private val cardDataManager: CardDataManager,
-  private val navigator: Navigator,
-  private val bottomSheetNavigator: BottomSheetNavigator
-) : ViewModel() {
+class ManageDataViewModel(private val cardDataManager: CardDataManager, private val navigator: Navigator) : ViewModel() {
   suspend fun deleteAllCards() {
     cardDataManager.deleteAllCards()
-    navigator.popUntil { it is UserScreen }
+    navigator.popUntil { it is ManageDataScreen }
     AppToast.success("Deleted all cards")
   }
 
   fun onDeleteAllCards() {
-    bottomSheetNavigator.hide()
     launchDefault {
       delay(200)
 
@@ -46,3 +40,4 @@ class UserViewModel(
     }
   }
 }
+

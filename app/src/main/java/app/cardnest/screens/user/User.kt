@@ -11,17 +11,14 @@ import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
 import app.cardnest.screens.NoTransition
 import app.cardnest.screens.user.account.AccountScreen
+import app.cardnest.screens.user.manage_data.ManageDataScreen
 import app.cardnest.screens.user.security.SecurityScreen
 import app.cardnest.screens.user.user_interface.UserInterfaceScreen
-import app.cardnest.utils.extensions.open
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.bottomSheet.LocalBottomSheetNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.ScreenTransition
-import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Suppress("JavaIoSerializableObjectMustHaveReadResolve")
 @OptIn(ExperimentalVoyagerApi::class)
@@ -29,13 +26,6 @@ object UserScreen : Screen, ScreenTransition by NoTransition() {
   @Composable
   override fun Content() {
     val navigator = LocalNavigator.currentOrThrow
-    val bottomSheetNavigator = LocalBottomSheetNavigator.current
-
-    val vm = koinViewModel<UserViewModel> { parametersOf(navigator, bottomSheetNavigator) }
-
-    fun onDeleteAllCards() {
-      bottomSheetNavigator.open(DeleteDataBottomSheetScreen(), vm::onDeleteAllCards)
-    }
 
     TabScreenRoot {
       HeaderTitle("You")
@@ -65,14 +55,13 @@ object UserScreen : Screen, ScreenTransition by NoTransition() {
           )
         }
 
-        SettingsGroup("Danger Zone") {
+        SettingsGroup("Data") {
           SettingsButton(
-            title = "Delete all data",
-            icon = painterResource(R.drawable.tabler__trash),
-            isDanger = true,
+            title = "Data Management",
+            icon = painterResource(R.drawable.tabler__database),
             isFirst = true,
             isLast = true,
-            onClick = ::onDeleteAllCards
+            onClick = { navigator.push(ManageDataScreen()) }
           )
         }
       }

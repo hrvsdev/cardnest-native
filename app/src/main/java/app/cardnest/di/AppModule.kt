@@ -27,8 +27,8 @@ import app.cardnest.screens.pin.create.create.CreatePinViewModel
 import app.cardnest.screens.pin.unlock.UnlockWithPinViewModel
 import app.cardnest.screens.pin.unlock.help.UnlockWithPinHelpViewModel
 import app.cardnest.screens.pin.verify.VerifyPinViewModel
-import app.cardnest.screens.user.UserViewModel
 import app.cardnest.screens.user.account.AccountViewModel
+import app.cardnest.screens.user.manage_data.ManageDataViewModel
 import app.cardnest.screens.user.security.SecurityViewModel
 import app.cardnest.screens.user.user_interface.UserInterfaceViewModel
 import app.cardnest.utils.card.defaultCard
@@ -63,11 +63,10 @@ val appModule = module {
 
   viewModel { AddCardViewModel(get(), it.get()) }
 
-  viewModel { UserViewModel(get(), it.get(), it.get()) }
   viewModel { AccountViewModel(get(), it.get()) }
   viewModel { SecurityViewModel(get(), it.get(), it.get()) }
-
   viewModel { UserInterfaceViewModel(get()) }
+  viewModel { ManageDataViewModel(get(), it.get()) }
 
   viewModel { CreatePinViewModel(it.get()) }
   viewModel { ConfirmPinViewModel(get(), it.get()) }

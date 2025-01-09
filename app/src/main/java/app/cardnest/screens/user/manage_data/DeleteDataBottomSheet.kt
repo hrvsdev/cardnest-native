@@ -1,4 +1,4 @@
-package app.cardnest.screens.user
+package app.cardnest.screens.user.manage_data
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.buildAnnotatedString
