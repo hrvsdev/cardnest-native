@@ -63,7 +63,7 @@ class AccountViewModel(private val userManager: UserManager, private val navigat
       SignInResult.CREATE_PASSWORD -> navigator.push(CreatePasswordScreen())
       SignInResult.ENTER_PASSWORD -> navigator.push(SignInWithPasswordScreen())
 
-      SignInResult.ERROR -> throw Exception("Error setting up sync")
+      SignInResult.ERROR -> throw Exception("Failed to sign-in")
       SignInResult.SUCCESS -> {}
     }
   }

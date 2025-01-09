@@ -27,7 +27,7 @@ class AuthRepository(private val localDb: DataStore<AuthData>) {
     try {
       return localDb.data
     } catch (e: Exception) {
-      throw Exception("Error getting auth record", e)
+      throw Exception("Failed to get auth related data", e)
     }
   }
 
@@ -44,7 +44,7 @@ class AuthRepository(private val localDb: DataStore<AuthData>) {
       }
 
       override fun onCancelled(error: DatabaseError) {
-        close(Exception("Error getting remote auth data", error.toException()))
+        close(Exception("Failed to get auth related data from server", error.toException()))
       }
     })
 
@@ -56,7 +56,7 @@ class AuthRepository(private val localDb: DataStore<AuthData>) {
       try {
         localDb.updateData { it.copy(password = data) }
       } catch (e: Exception) {
-        throw Exception("Error setting local password data", e)
+        throw Exception("Failed to set password", e)
       }
     }
   }
@@ -66,7 +66,7 @@ class AuthRepository(private val localDb: DataStore<AuthData>) {
       try {
         localDb.updateData { it.copy(pin = data) }
       } catch (e: Exception) {
-        throw Exception("Error setting local pin data", e)
+        throw Exception("Failed to set PIN", e)
       }
     }
   }
@@ -76,7 +76,7 @@ class AuthRepository(private val localDb: DataStore<AuthData>) {
       try {
         localDb.updateData { it.copy(biometrics = data) }
       } catch (e: Exception) {
-        throw Exception("Error setting local biometrics data", e)
+        throw Exception("Failed to enable biometrics", e)
       }
     }
   }
@@ -87,7 +87,7 @@ class AuthRepository(private val localDb: DataStore<AuthData>) {
         val ref = rtDb.getReference("$uid/auth/password")
         ref.setValue(data)
       } catch (e: Exception) {
-        throw Exception("Error setting remote password data", e)
+        throw Exception("Failed to set password on server", e)
       }
     }
   }
@@ -98,7 +98,7 @@ class AuthRepository(private val localDb: DataStore<AuthData>) {
         val ref = rtDb.getReference("$uid/auth/password")
         ref.removeValue()
       } catch (e: Exception) {
-        throw Exception("Error removing remote password data", e)
+        throw Exception("Failed to remove password from server", e)
       }
     }
   }
@@ -115,7 +115,7 @@ class AuthRepository(private val localDb: DataStore<AuthData>) {
     }
 
     if (data.password.encryptedDek.ciphertext == null || data.password.encryptedDek.iv == null) {
-      throw IllegalStateException("Encrypted encryption key seems to be corrupted")
+      throw IllegalStateException("Encryption key seems to be corrupted")
     }
 
     val passwordData = PasswordData(

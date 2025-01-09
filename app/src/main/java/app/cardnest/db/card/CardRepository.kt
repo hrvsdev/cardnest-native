@@ -26,7 +26,7 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
     try {
       return localDb.data
     } catch (e: Exception) {
-      throw Exception("Error getting cards", e)
+      throw Exception("Failed to get cards", e)
     }
   }
 
@@ -42,7 +42,7 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
       }
 
       override fun onCancelled(error: DatabaseError) {
-        close(Exception("Error getting remote cards", error.toException()))
+        close(Exception("Failed to get cards from server", error.toException()))
       }
     })
 
@@ -62,7 +62,7 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
       try {
         localDb.updateData { cards }
       } catch (e: Exception) {
-        throw Exception("Error setting local cards", e)
+        throw Exception("Failed to set cards", e)
       }
     }
   }
@@ -74,11 +74,11 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
           val ref = rtDb.getReference("$uid/cards")
           ref.setValue(cards.cards)
         } catch (e: Exception) {
-          throw Exception("Error setting remote cards", e)
+          throw Exception("Failed to set cards on server", e)
         }
       }
     } else {
-      throw IllegalArgumentException("Unencrypted card records cannot be saved in remote database")
+      throw IllegalArgumentException("Unencrypted cards can't be saved on server")
     }
   }
 
@@ -97,19 +97,19 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
           when (it) {
             is CardRecords.Encrypted -> when (card) {
               is CardData.Encrypted -> it.copy(it.cards.put(card.encrypted.id, card.encrypted))
-              is CardData.Unencrypted -> throw IllegalArgumentException("Unencrypted card can't be saved in encrypted records")
+              is CardData.Unencrypted -> throw IllegalArgumentException("Unencrypted card can't be saved in encrypted data")
             }
 
             is CardRecords.Unencrypted -> when (card) {
               is CardData.Unencrypted -> it.copy(it.cards.put(card.unencrypted.id, card.unencrypted))
-              is CardData.Encrypted -> throw IllegalArgumentException("Encrypted card can't be saved in unencrypted records")
+              is CardData.Encrypted -> throw IllegalArgumentException("Encrypted card can't be saved in unencrypted data")
             }
           }
         }
       } catch (e: Exception) {
         throw when (e) {
           is IllegalArgumentException -> e
-          else -> Exception("Error adding or updating local card", e)
+          else -> Exception("Failed to add or update card", e)
         }
       }
     }
@@ -122,11 +122,11 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
           val ref = rtDb.getReference("$uid/cards/${card.encrypted.id}")
           ref.setValue(card.encrypted)
         } catch (e: Exception) {
-          throw Exception("Error adding or updating remote card", e)
+          throw Exception("Failed to add or update card on server", e)
         }
       }
     } else {
-      throw IllegalArgumentException("Unencrypted card can't be saved in remote database")
+      throw IllegalArgumentException("Unencrypted cards can't be saved on server")
     }
   }
 
@@ -148,7 +148,7 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
           }
         }
       } catch (e: Exception) {
-        throw Exception("Error deleting local card", e)
+        throw Exception("Failed to delete card", e)
       }
     }
   }
@@ -159,7 +159,7 @@ class CardRepository(private val localDb: DataStore<CardRecords>) {
         val ref = rtDb.getReference("$uid/cards/$id")
         ref.removeValue()
       } catch (e: Exception) {
-        throw Exception("Error deleting remote card", e)
+        throw Exception("Failed to delete card from server", e)
       }
     }
   }

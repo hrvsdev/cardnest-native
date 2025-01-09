@@ -119,7 +119,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
   }
 
   fun unlockWithPassword(password: String) {
-    val passwordData = passwordData.value.checkNotNull { "Complete sign-in process to unlock app" }
+    val passwordData = passwordData.value.checkNotNull { "Complete sign-in process or update password to unlock app" }
     val dek = decryptDek(password, passwordData.salt, passwordData.encryptedDek)
 
     authState.update { it.copy(dek = dek) }
@@ -151,7 +151,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
   }
 
   fun unlockWithPin(pin: String) {
-    val pinData = pinData.value.checkNotNull { "Create PIN first to unlock app by PIN" }
+    val pinData = pinData.value.checkNotNull { "Create PIN first to unlock app using PIN" }
     val dek = decryptDek(pin, pinData.salt, pinData.encryptedDek)
 
     authState.update { it.copy(dek = dek) }
@@ -179,7 +179,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
   }
 
   suspend fun unlockWithBiometrics(ctx: FragmentActivity, onSuccess: () -> Unit) {
-    val encryptedDek = biometricsData.value?.encryptedDek.checkNotNull { "Enable biometrics first to unlock app by biometrics" }
+    val encryptedDek = biometricsData.value?.encryptedDek.checkNotNull { "Enable biometrics first to unlock app using biometrics" }
 
     val androidKey = crypto.getOrCreateAndroidSecretKey()
     val cipher = crypto.getInitializedCipherForDecryption(androidKey, encryptedDek.iv.decoded)
@@ -271,7 +271,7 @@ class AuthManager(private val repo: AuthRepository, private val crypto: CryptoMa
     val hasAnyAuthData = hasEnabledAuth.first()
 
     if (hasAnyAuthData) {
-      throw IllegalStateException("Restart and unlock app again")
+      throw IllegalStateException("Restart and unlock app again to proceed")
     }
 
     return crypto.generateKey()

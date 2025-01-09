@@ -41,9 +41,9 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
       Firebase.auth.signInWithCredential(getGoogleAuthCredential(ctx)).await()
     } catch (e: FirebaseAuthException) {
       throw when (e) {
-        is FirebaseAuthInvalidUserException -> Exception("User is deleted or disabled", e)
-        is FirebaseAuthInvalidCredentialsException -> Exception("Invalid credentials", e)
-        else -> Exception("Error signing in with Google", e)
+        is FirebaseAuthInvalidUserException -> Exception("This account is either deleted or disabled", e)
+        is FirebaseAuthInvalidCredentialsException -> Exception("Credentials are invalid", e)
+        else -> Exception("Failed to sign in with Google", e)
       }
     }
 
@@ -79,20 +79,20 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
       Firebase.auth.currentUser?.reauthenticate(getGoogleAuthCredential(ctx))?.await()
     } catch (e: FirebaseAuthException) {
       throw when (e) {
-        is FirebaseAuthInvalidUserException -> Exception("User is deleted or disabled", e)
-        is FirebaseAuthInvalidCredentialsException -> Exception("Invalid credentials for selected account", e)
-        else -> Exception("Error re-authenticating user", e)
+        is FirebaseAuthInvalidUserException -> Exception("This account is either already deleted or disabled", e)
+        is FirebaseAuthInvalidCredentialsException -> Exception("Incorrect account selected for deletion or credentials are invalid", e)
+        else -> Exception("Failed to re-authenticate user", e)
       }
     }
 
-    val currentUser = Firebase.auth.currentUser.checkNotNull { "Sign-in first to delete user" }
+    val currentUser = Firebase.auth.currentUser.checkNotNull { "Sign-in again to delete user" }
 
     try {
       deleteRemoteData()
       deleteLocalData()
       currentUser.delete().await()
     } catch (e: FirebaseAuthException) {
-      throw Exception("Error deleting user", e)
+      throw Exception("Failed to delete user", e)
     }
   }
 
@@ -131,7 +131,7 @@ class UserManager(private val authManager: AuthManager, private val cardDataMana
       credentialManager.getCredential(context = ctx, request = request)
     } catch (e: GetCredentialException) {
       if (e is GetCredentialCancellationException) throw Exception()
-      throw Exception("Error getting Google ID credential", e)
+      throw Exception("Failed to Google ID credential for sign-in", e)
     }
 
     val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)

@@ -65,7 +65,7 @@ object UserScreen : Screen, ScreenTransition by NoTransition() {
           )
         }
 
-        SettingsGroup("Danger Zone", DELETE_DESCRIPTION) {
+        SettingsGroup("Danger Zone") {
           SettingsButton(
             title = "Delete all data",
             icon = painterResource(R.drawable.tabler__trash),
@@ -79,7 +79,3 @@ object UserScreen : Screen, ScreenTransition by NoTransition() {
     }
   }
 }
-
-const val DELETE_DESCRIPTION =
-  "Deleting data will forever delete all data from all your devices and there is no way to recover it."
-

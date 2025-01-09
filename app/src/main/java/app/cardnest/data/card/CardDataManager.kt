@@ -119,7 +119,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   private fun encryptToCardEncrypted(card: CardUnencrypted): CardEncrypted {
-    val dek = authState.value.dek.checkNotNull { "Encryption key is required to encrypt card data" }
+    val dek = authState.value.dek.checkNotNull { "Encryption Key is not present, restart and unlock app again to encrypt card data" }
     val encryptedData = encryptCard(card.data, dek)
 
     return CardEncrypted(card.id, encryptedData, card.modifiedAt)
@@ -133,7 +133,7 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
   }
 
   private fun decryptToCardUnencrypted(card: CardEncrypted): CardUnencrypted {
-    val dek = authState.value.dek.checkNotNull { "Encryption key is required to decrypt card data" }
+    val dek = authState.value.dek.checkNotNull { "Encryption Key is not present, restart and unlock app again to decrypt card data" }
     val decrypted = decryptCardData(card.data, dek)
 
     return CardUnencrypted(card.id, decrypted, card.modifiedAt)

@@ -10,7 +10,7 @@ class PreferencesRepository(private val localDb: DataStore<Preferences>) {
     try {
       return localDb.data
     } catch (e: Exception) {
-      throw Exception("Error getting preferences", e)
+      throw Exception("Failed to get preferences", e)
     }
   }
 
@@ -19,7 +19,7 @@ class PreferencesRepository(private val localDb: DataStore<Preferences>) {
       try {
         localDb.updateData(transform)
       } catch (e: Exception) {
-        throw Exception("Error setting preferences", e)
+        throw Exception("Failed to set preferences", e)
       }
     }
   }
