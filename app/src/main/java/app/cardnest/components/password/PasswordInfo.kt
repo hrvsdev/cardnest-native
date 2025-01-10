@@ -25,9 +25,9 @@ import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.TH_BLACK
 import app.cardnest.ui.theme.TH_GREEN
-import app.cardnest.ui.theme.TH_RED_70
+import app.cardnest.ui.theme.TH_RED
 import app.cardnest.ui.theme.TH_WHITE_20
-import app.cardnest.ui.theme.TH_YELLOW_70
+import app.cardnest.ui.theme.TH_YELLOW
 
 @Composable
 fun PasswordInfo(text: String, type: PasswordInfoType, isVisible: Boolean) {
@@ -54,7 +54,7 @@ fun PasswordInfo(text: String, type: PasswordInfoType, isVisible: Boolean) {
 
 enum class PasswordInfoType(val color: Color, val icon: Int) {
   SUCCESS(TH_GREEN, R.drawable.tabler__check),
-  ERROR(TH_RED_70, R.drawable.tabler__x),
-  WARN(TH_YELLOW_70, R.drawable.tabler__exclamation_mark),
+  ERROR(TH_RED, R.drawable.tabler__x),
+  WARN(TH_YELLOW, R.drawable.tabler__exclamation_mark),
   DONE(TH_WHITE_20, R.drawable.tabler__check)
 }

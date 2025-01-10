@@ -28,7 +28,7 @@ import app.cardnest.R
 import app.cardnest.components.loader.LoadingIcon
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_SKY
-import app.cardnest.ui.theme.TH_SKY_50
+import app.cardnest.ui.theme.TH_SKY_60
 import app.cardnest.ui.theme.TH_WHITE
 import app.cardnest.ui.theme.TH_WHITE_10
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -82,7 +82,7 @@ fun HeaderBackButton(label: String) {
 
 @Composable
 fun HeaderActionButton(label: String, icon: Painter? = null, isLoading: Boolean = false, onClick: () -> Unit) {
-  val color by animateColorAsState(if (isLoading) TH_SKY_50 else TH_SKY)
+  val color by animateColorAsState(if (isLoading) TH_SKY_60 else TH_SKY)
 
   Box(Modifier.fillMaxHeight().clickable(onClick = onClick, enabled = isLoading.not()).padding(start = 16.dp, end = 20.dp)) {
     Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {

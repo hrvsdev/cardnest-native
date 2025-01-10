@@ -21,13 +21,13 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.TH_RED
-import app.cardnest.ui.theme.TH_RED_05
-import app.cardnest.ui.theme.TH_RED_12
+import app.cardnest.ui.theme.TH_RED_07
+import app.cardnest.ui.theme.TH_RED_10
 import app.cardnest.ui.theme.TH_RED_70
 import app.cardnest.ui.theme.TH_WHITE
-import app.cardnest.ui.theme.TH_WHITE_03
+import app.cardnest.ui.theme.TH_WHITE_05
 import app.cardnest.ui.theme.TH_WHITE_07
-import app.cardnest.ui.theme.TH_WHITE_70
+import app.cardnest.ui.theme.TH_WHITE_60
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,13 +44,13 @@ fun SettingsItem(
   val color = if (isDanger) {
     if (isDisabled) TH_RED_70 else TH_RED
   } else {
-    if (isDisabled) TH_WHITE_70 else TH_WHITE
+    if (isDisabled) TH_WHITE_60 else TH_WHITE
   }
 
   val bgColor = if (isDanger) {
-    if (isDisabled) TH_RED_05 else TH_RED_12
+    if (isDisabled) TH_RED_07 else TH_RED_10
   } else {
-    if (isDisabled) TH_WHITE_03 else TH_WHITE_07
+    if (isDisabled) TH_WHITE_05 else TH_WHITE_07
   }
 
   val rippleColor = if (isDanger) TH_RED else TH_WHITE

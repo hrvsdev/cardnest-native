@@ -51,7 +51,7 @@ import app.cardnest.ui.theme.AppText
 import app.cardnest.ui.theme.AppTextSize
 import app.cardnest.ui.theme.LatoFamily
 import app.cardnest.ui.theme.TH_RED
-import app.cardnest.ui.theme.TH_SKY_80
+import app.cardnest.ui.theme.TH_SKY
 import app.cardnest.ui.theme.TH_WHITE
 import app.cardnest.ui.theme.TH_WHITE_07
 import app.cardnest.ui.theme.TH_WHITE_10
@@ -93,7 +93,7 @@ fun AppTextField(
 
     BasicTextField(
       state = state,
-      cursorBrush = SolidColor(TH_SKY_80),
+      cursorBrush = SolidColor(TH_SKY),
 
       textStyle = TextStyle(
         color = if (!error.hasError) TH_WHITE else TH_RED,
@@ -183,7 +183,7 @@ fun PasswordTextField(
   Column(Modifier.fillMaxWidth()) {
     BasicSecureTextField(
       state = state,
-      cursorBrush = SolidColor(TH_SKY_80),
+      cursorBrush = SolidColor(TH_SKY),
 
       enabled = isEnabled,
 

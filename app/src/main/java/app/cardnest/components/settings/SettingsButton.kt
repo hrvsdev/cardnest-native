@@ -4,13 +4,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import app.cardnest.R
 import app.cardnest.components.loader.LoadingIcon
+import app.cardnest.ui.theme.TH_RED_50
 import app.cardnest.ui.theme.TH_RED_60
 import app.cardnest.ui.theme.TH_WHITE_50
+import app.cardnest.ui.theme.TH_WHITE_60
 
 @Composable
 fun SettingsButton(
@@ -22,6 +25,12 @@ fun SettingsButton(
   isLoading: Boolean = false,
   onClick: () -> Unit,
 ) {
+  val color = if (isDanger) {
+    if (isLoading) TH_RED_50 else TH_RED_60
+  } else {
+    if (isLoading) TH_WHITE_50 else TH_WHITE_60
+  }
+
   SettingsItem(
     title = title,
     icon = icon,
@@ -32,20 +41,20 @@ fun SettingsButton(
     onClick = onClick,
     rightContent = {
       if (isLoading) {
-        LoadingIcon()
+        LoadingIcon(color)
       } else {
-        ChevronRightIcon(isDanger)
+        ChevronRightIcon(color)
       }
     }
   )
 }
 
 @Composable
-private fun ChevronRightIcon(isDanger: Boolean) {
+private fun ChevronRightIcon(color: Color) {
   Icon(
     painter = painterResource(R.drawable.tabler__chevron_right),
     contentDescription = null,
     modifier = Modifier.size(20.dp),
-    tint = if (isDanger) TH_RED_60 else TH_WHITE_50
+    tint = color
   )
 }

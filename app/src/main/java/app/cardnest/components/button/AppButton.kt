@@ -40,7 +40,7 @@ import app.cardnest.ui.theme.TH_SKY
 import app.cardnest.ui.theme.TH_SKY_10
 import app.cardnest.ui.theme.TH_SKY_20
 import app.cardnest.ui.theme.TH_WHITE
-import app.cardnest.ui.theme.TH_WHITE_70
+import app.cardnest.ui.theme.TH_WHITE_60
 
 @Composable
 fun AppButton(
@@ -71,7 +71,7 @@ fun AppButton(
 
   val textAndContentColor by animateColorAsState(
     when (variant) {
-      ButtonVariant.Solid -> if (isDisabled) TH_WHITE_70 else TH_WHITE
+      ButtonVariant.Solid -> if (isDisabled) TH_WHITE_60 else TH_WHITE
       ButtonVariant.Flat -> when (theme) {
         ButtonTheme.Primary -> TH_SKY
         ButtonTheme.Danger -> TH_RED
@@ -93,7 +93,7 @@ fun AppButton(
   Box(Modifier.height(48.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(containerColor).button()) {
     Row(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterVertically) {
       AnimatedVisibility(isLoading, enter = enter, exit = exit) {
-        LoadingIcon(color = TH_WHITE_70)
+        LoadingIcon()
       }
 
       AnimatedVisibility(isLoading, enter = expandHorizontally(), exit = shrinkHorizontally()) {
