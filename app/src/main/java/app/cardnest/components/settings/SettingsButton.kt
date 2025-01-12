@@ -23,6 +23,7 @@ fun SettingsButton(
   isFirst: Boolean = false,
   isLast: Boolean = false,
   isLoading: Boolean = false,
+  isExternalLink: Boolean = false,
   onClick: () -> Unit,
 ) {
   val color = if (isDanger) {
@@ -43,16 +44,16 @@ fun SettingsButton(
       if (isLoading) {
         LoadingIcon(color)
       } else {
-        ChevronRightIcon(color)
+        ChevronRightIcon(color, isExternalLink)
       }
     }
   )
 }
 
 @Composable
-private fun ChevronRightIcon(color: Color) {
+private fun ChevronRightIcon(color: Color, isExternalLink: Boolean) {
   Icon(
-    painter = painterResource(R.drawable.tabler__chevron_right),
+    painter = painterResource(if (isExternalLink) R.drawable.tabler__arrow_up_right else R.drawable.tabler__chevron_right),
     contentDescription = null,
     modifier = Modifier.size(20.dp),
     tint = color

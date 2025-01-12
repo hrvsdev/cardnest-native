@@ -11,6 +11,8 @@ import app.cardnest.components.settings.SettingsButton
 import app.cardnest.components.settings.SettingsGroup
 import app.cardnest.screens.NoTransition
 import app.cardnest.screens.user.account.AccountScreen
+import app.cardnest.screens.user.app_info.AboutScreen
+import app.cardnest.screens.user.app_info.updates.UpdatesScreen
 import app.cardnest.screens.user.manage_data.ManageDataScreen
 import app.cardnest.screens.user.security.SecurityScreen
 import app.cardnest.screens.user.user_interface.UserInterfaceScreen
@@ -62,6 +64,21 @@ object UserScreen : Screen, ScreenTransition by NoTransition() {
             isFirst = true,
             isLast = true,
             onClick = { navigator.push(ManageDataScreen()) }
+          )
+        }
+
+        SettingsGroup("APP INFO") {
+          SettingsButton(
+            title = "Updates",
+            icon = painterResource(R.drawable.tabler__refresh_dot),
+            isFirst = true,
+            onClick = { navigator.push(UpdatesScreen()) }
+          )
+          SettingsButton(
+            title = "About CardNest",
+            icon = painterResource(R.drawable.tabler__info_circle),
+            isLast = true,
+            onClick = { navigator.push(AboutScreen()) }
           )
         }
       }
