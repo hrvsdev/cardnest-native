@@ -98,6 +98,7 @@ dependencies {
   implementation(libs.firebase.auth)
   implementation(libs.firebase.database)
   implementation(libs.googleid)
+  implementation(libs.ktor.android)
 
   runtimeOnly(libs.androidx.material)
 }
