@@ -80,18 +80,20 @@ class AppViewModel(private val userManager: UserManager, private val authManager
   }
 
   private fun checkForUpdates() {
-    if (preferencesState.value.updates.checkAtLaunch.not()) return
     launchWithIO {
-      try {
-        val result = updatesManager.checkForUpdates()
-        val state = when (result) {
-          is UpdatesResult.NoUpdate -> UpdatesState.NoUpdate
-          is UpdatesResult.UpdateAvailable -> UpdatesState.UpdateAvailable(result.version, result.downloadUrl)
-        }
+      appDataState.first { it.prefs }
+      if (preferencesState.value.updates.checkAtLaunch) {
+        try {
+          val result = updatesManager.checkForUpdates()
+          val state = when (result) {
+            is UpdatesResult.NoUpdate -> UpdatesState.NoUpdate
+            is UpdatesResult.UpdateAvailable -> UpdatesState.UpdateAvailable(result.version, result.downloadUrl)
+          }
 
-        updatesState.update { state }
-      } catch (e: Exception) {
-        e.toastAndLog("UpdatesViewModel")
+          updatesState.update { state }
+        } catch (e: Exception) {
+          e.toastAndLog("UpdatesViewModel")
+        }
       }
     }
   }

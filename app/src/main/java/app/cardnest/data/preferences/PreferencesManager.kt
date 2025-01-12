@@ -1,5 +1,6 @@
 package app.cardnest.data.preferences
 
+import app.cardnest.data.appDataState
 import app.cardnest.data.preferencesState
 import app.cardnest.db.preferences.PreferencesRepository
 import app.cardnest.utils.extensions.toastAndLog
@@ -11,6 +12,7 @@ class PreferencesManager(private val repo: PreferencesRepository) {
   suspend fun collectPreferences() {
     repo.getPreferences().catch { it.toastAndLog("PreferencesManager") }.collectLatest { d ->
       preferencesState.update { d }
+      appDataState.update { it.copy(prefs = true) }
     }
   }
 

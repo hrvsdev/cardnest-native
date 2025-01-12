@@ -43,6 +43,7 @@ data class AppDataState(
   val remoteAuth: Boolean = false,
   val cards: Boolean = false,
   val areCardsMerging: Boolean = false,
+  val prefs : Boolean = false,
 )
 
 data class AuthState(
