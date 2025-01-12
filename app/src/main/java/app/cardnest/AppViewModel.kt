@@ -10,27 +10,31 @@ import app.cardnest.data.authState
 import app.cardnest.data.passwordData
 import app.cardnest.data.pinData
 import app.cardnest.data.preferences.PreferencesManager
+import app.cardnest.data.preferencesState
+import app.cardnest.data.updatesState
 import app.cardnest.data.user.UserManager
 import app.cardnest.data.userState
 import app.cardnest.screens.home.HomeScreen
 import app.cardnest.screens.password.unlock.UnlockWithNewPasswordScreen
 import app.cardnest.screens.password.unlock.UnlockWithPasswordScreen
 import app.cardnest.screens.pin.unlock.UnlockWithPinScreen
+import app.cardnest.screens.user.app_info.updates.UpdatesState
 import app.cardnest.utils.extensions.launchDefault
 import app.cardnest.utils.extensions.launchWithIO
 import app.cardnest.utils.extensions.stateInViewModel
+import app.cardnest.utils.extensions.toastAndLog
+import app.cardnest.utils.updates.UpdatesManager
+import app.cardnest.utils.updates.UpdatesResult
 import cafe.adriel.voyager.core.screen.Screen
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 
-class AppViewModel(
-  private val userManager: UserManager,
-  private val authManager: AuthManager,
-  private val prefsManager: PreferencesManager,
-) : ViewModel() {
+class AppViewModel(private val userManager: UserManager, private val authManager: AuthManager, private val prefsManager: PreferencesManager, private val updatesManager: UpdatesManager) : ViewModel() {
   var initialScreen by mutableStateOf<Screen?>(null)
     private set
 
+  val availableUpdate = updatesState.map { it as? UpdatesState.UpdateAvailable }.stateInViewModel(null)
   val isPasswordStale = authState.map { it.isPasswordStale }.stateInViewModel(false)
 
   init {
@@ -38,6 +42,7 @@ class AppViewModel(
     initUser()
     initAuth()
     initPreferences()
+    checkForUpdates()
   }
 
   private fun initScreen() {
@@ -71,6 +76,23 @@ class AppViewModel(
   private fun initPreferences() {
     launchWithIO {
       prefsManager.collectPreferences()
+    }
+  }
+
+  private fun checkForUpdates() {
+    if (preferencesState.value.updates.checkAtLaunch.not()) return
+    launchWithIO {
+      try {
+        val result = updatesManager.checkForUpdates()
+        val state = when (result) {
+          is UpdatesResult.NoUpdate -> UpdatesState.NoUpdate
+          is UpdatesResult.UpdateAvailable -> UpdatesState.UpdateAvailable(result.version, result.downloadUrl)
+        }
+
+        updatesState.update { state }
+      } catch (e: Exception) {
+        e.toastAndLog("UpdatesViewModel")
+      }
     }
   }
 }

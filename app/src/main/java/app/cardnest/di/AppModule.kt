@@ -62,9 +62,9 @@ val appModule = module {
 
   viewModel { CardEditorViewModel(it.getOrNull() ?: get()) }
 
-  viewModel { AppViewModel(get(), get(), get()) }
+  viewModel { AppViewModel(get(), get(), get(), get()) }
 
-  viewModel { HomeViewModel(get(), get(), it.get()) }
+  viewModel { HomeViewModel(get()) }
   viewModel { CardViewModel(get(), it.get()) }
   viewModel { UpdateCardViewModel(get(), it.get()) }
 

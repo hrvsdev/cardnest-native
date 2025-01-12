@@ -5,6 +5,7 @@ import app.cardnest.data.auth.PasswordData
 import app.cardnest.data.auth.PinData
 import app.cardnest.data.card.CardUnencrypted
 import app.cardnest.data.preferences.Preferences
+import app.cardnest.screens.user.app_info.updates.UpdatesState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import javax.crypto.SecretKey
@@ -24,9 +25,9 @@ val cardsState = MutableStateFlow<Map<String, CardUnencrypted>>(emptyMap())
 
 val preferencesState = MutableStateFlow(Preferences())
 
-val connectionState = MutableStateFlow(Connection())
-
 val appDataState = MutableStateFlow(AppDataState())
+
+val updatesState = MutableStateFlow<UpdatesState>(UpdatesState.Idle)
 
 val hasEnabledAuth = combine(passwordData, pinData) { password, pin ->
   password != null || pin != null
@@ -55,7 +56,3 @@ data class User(
   val fullName: String,
 )
 
-data class Connection(
-  val shouldWrite: Boolean = false,
-  val isConnected: Boolean = false
-)

@@ -12,6 +12,7 @@ fun AppRoot(splashScreen: SplashScreen) {
     val vm = koinViewModel<AppViewModel>()
 
     val initialScreen = vm.initialScreen
+    val availableUpdate = vm.availableUpdate.collectValue()
     val isPasswordStale = vm.isPasswordStale.collectValue()
 
     val isLoading = initialScreen == null
@@ -19,7 +20,7 @@ fun AppRoot(splashScreen: SplashScreen) {
     splashScreen.setKeepOnScreenCondition { isLoading }
 
     if (isLoading.not()) {
-      App(initialScreen, isPasswordStale)
+      App(initialScreen, isPasswordStale, availableUpdate)
     }
   }
 }
