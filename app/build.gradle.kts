@@ -17,12 +17,16 @@ android {
   namespace = "app.cardnest"
   compileSdk = 35
 
+  val MAJOR = 1
+  val MINOR = 0
+  val PATCH = 0
+
   defaultConfig {
     applicationId = "app.cardnest"
     minSdk = 24
     targetSdk = 35
-    versionCode = 1
-    versionName = "1.0"
+    versionCode = MAJOR * 10000 + MINOR * 100 + PATCH
+    versionName = "$MAJOR.$MINOR.$PATCH"
   }
 
   signingConfigs {
