@@ -17,4 +17,8 @@ class PreferencesManager(private val repo: PreferencesRepository) {
   suspend fun setMaskCardNumber(maskCardNumber: Boolean) {
     repo.setPreferences { it.copy(userInterface = it.userInterface.copy(maskCardNumber)) }
   }
+
+  suspend fun setCheckUpdatesAtLaunch(checkUpdatesAtLaunch: Boolean) {
+    repo.setPreferences { it.copy(updates = it.updates.copy(checkAtLaunch = checkUpdatesAtLaunch)) }
+  }
 }

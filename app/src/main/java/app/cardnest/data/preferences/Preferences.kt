@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 data class Preferences(
   val userInterface: UserInterface = UserInterface(),
   val interactions: Interactions = Interactions(),
+  val updates: Updates = Updates(),
 )
 
 @Keep
@@ -20,4 +21,10 @@ data class UserInterface(
 @Serializable
 data class Interactions(
   val hasSkippedPinSetup: Boolean = false,
+)
+
+@Keep
+@Serializable
+data class Updates(
+  val checkAtLaunch: Boolean = true,
 )
