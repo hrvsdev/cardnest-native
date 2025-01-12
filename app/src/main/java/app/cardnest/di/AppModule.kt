@@ -33,6 +33,9 @@ import app.cardnest.screens.user.security.SecurityViewModel
 import app.cardnest.screens.user.user_interface.UserInterfaceViewModel
 import app.cardnest.utils.card.defaultCard
 import app.cardnest.utils.crypto.CryptoManager
+import app.cardnest.utils.updates.UpdatesManager
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -50,6 +53,9 @@ val appModule = module {
 
   single { PreferencesRepository(androidContext().preferencesDataStore) }
   single { PreferencesManager(get()) }
+
+  single { HttpClient(Android) }
+  single { UpdatesManager(get()) }
 
   factory { defaultCard() }
 
