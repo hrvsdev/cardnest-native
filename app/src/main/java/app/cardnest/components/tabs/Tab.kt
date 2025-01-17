@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
@@ -60,7 +61,7 @@ fun BoxScope.TabBar(show: Boolean) {
 
   Box(Modifier.align(Alignment.BottomCenter)) {
     AnimatedVisibility(show, enter = slideInVertically { it }, exit = slideOutVertically { it }) {
-      Column(Modifier.background(TH_BLACK)) {
+      Column(Modifier.background(TH_BLACK).navigationBarsPadding()) {
         HorizontalDivider(thickness = 0.5.dp, color = TH_WHITE_10)
 
         Row {
