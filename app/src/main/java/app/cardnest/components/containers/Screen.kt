@@ -3,7 +3,12 @@ package app.cardnest.components.containers
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.areNavigationBarsVisible
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -32,6 +37,7 @@ fun TabScreenRoot(content: @Composable ColumnScope.() -> Unit) {
     content = content,
     modifier = Modifier
       .statusBarsPadding()
+      .navigationBarsPadding()
       .padding(bottom = 56.dp)
       .fillMaxHeight()
       .verticalScroll(rememberScrollState(0))
@@ -69,17 +75,23 @@ fun SubScreenRoot(title: String, backLabel: String = "Back", spacedBy: Dp? = nul
   }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SubScreenRoot(content: @Composable ColumnScope.() -> Unit) {
-  Column(Modifier.fillMaxHeight(), content = content)
+  Column(Modifier.fillMaxHeight()) {
+    content()
+    if (WindowInsets.areNavigationBarsVisible) {
+      Spacer(Modifier.navigationBarsPadding())
+    }
+  }
 }
 
 @Composable
-fun SubScreenContainer(spacedBy: Dp? = null, content: @Composable ColumnScope.() -> Unit) {
-  ScreenContainer(spacedBy, Modifier.fillMaxHeight().verticalScroll(rememberScrollState()), content)
+fun ColumnScope.SubScreenContainer(spacedBy: Dp? = null, content: @Composable ColumnScope.() -> Unit) {
+  ScreenContainer(spacedBy, Modifier.weight(1f).verticalScroll(rememberScrollState()), content)
 }
 
 @Composable
-fun ScreenContainer(spacedBy: Dp? = null, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+fun ColumnScope.ScreenContainer(spacedBy: Dp? = null, modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
   Column(modifier.padding(16.dp), if (spacedBy != null) Arrangement.spacedBy(spacedBy) else Arrangement.Top, content = content)
 }

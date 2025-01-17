@@ -21,8 +21,8 @@ import app.cardnest.screens.pin.unlock.UnlockWithPinScreen
 import app.cardnest.screens.user.app_info.updates.UpdatesState
 import app.cardnest.utils.extensions.launchDefault
 import app.cardnest.utils.extensions.launchWithIO
+import app.cardnest.utils.extensions.log
 import app.cardnest.utils.extensions.stateInViewModel
-import app.cardnest.utils.extensions.toastAndLog
 import app.cardnest.utils.updates.UpdatesManager
 import app.cardnest.utils.updates.UpdatesResult
 import cafe.adriel.voyager.core.screen.Screen
@@ -92,7 +92,7 @@ class AppViewModel(private val userManager: UserManager, private val authManager
 
           updatesState.update { state }
         } catch (e: Exception) {
-          e.toastAndLog("UpdatesViewModel")
+          e.log("AppViewModel")
         }
       }
     }
