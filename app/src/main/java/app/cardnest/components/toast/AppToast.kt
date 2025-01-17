@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,7 +54,12 @@ fun BoxScope.AppToast() {
     AppToastType.ERROR -> TH_RED
   }
 
-  AnimatedVisibility(state.show, Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, bottom = 72.dp), enter, exit) {
+  AnimatedVisibility(
+    state.show,
+    Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(start = 16.dp, end = 16.dp, bottom = 72.dp),
+    enter,
+    exit
+  ) {
     Box(Modifier.background(TH_BLACK, RoundedCornerShape(10.dp)), Alignment.Center) {
       Row(Modifier.padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
         ToastIcon(state.type)
