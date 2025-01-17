@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -31,7 +32,10 @@ fun BottomSheet(content: @Composable ColumnScope. () -> Unit) {
     Column(
       content = content,
       horizontalAlignment = Alignment.CenterHorizontally,
-      modifier = Modifier.padding(top = 1.dp).background(appGradient, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)).padding(16.dp),
+      modifier = Modifier.padding(top = 1.dp).background(
+        appGradient,
+        RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+      ).padding(16.dp).navigationBarsPadding(),
     )
   }
 }
