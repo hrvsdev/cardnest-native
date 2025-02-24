@@ -13,7 +13,6 @@ import app.cardnest.utils.extensions.decoded
 import app.cardnest.utils.extensions.encoded
 import app.cardnest.utils.extensions.toastAndLog
 import app.cardnest.utils.extensions.withDefault
-import app.cardnest.utils.extensions.zipWithNext
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.catch
@@ -58,20 +57,6 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     }
   }
 
-  suspend fun checkAndEncryptOrDecryptCards() {
-    hasEnabledAuth.zipWithNext().collectLatest { (previous, current) ->
-      if (userState.value == null) {
-        val shouldEncrypt = previous == false && current == true
-        val shouldDecrypt = previous == true && current == false
-
-        when {
-          shouldEncrypt -> encryptCards()
-          shouldDecrypt -> decryptCards()
-        }
-      }
-    }
-  }
-
   suspend fun encryptAndAddOrUpdateCard(cardUnencrypted: CardUnencrypted) {
     val cardData = if (hasEnabledAuth.first()) {
       CardData.Encrypted(encryptToCardEncrypted(cardUnencrypted))
@@ -108,12 +93,12 @@ class CardDataManager(private val repo: CardRepository, private val crypto: Cryp
     repo.setRemoteCards(CardRecords.Encrypted())
   }
 
-  private suspend fun encryptCards() {
+  suspend fun encryptCards() {
     val cards = cardsState.value.mapValues { encryptToCardEncrypted(it.value) }
     repo.setCards(CardRecords.Encrypted(cards.toPersistentMap()))
   }
 
-  private suspend fun decryptCards() {
+  suspend fun decryptCards() {
     val cards = cardsState.value.mapValues { it.value }
     repo.setCards(CardRecords.Unencrypted(cards.toPersistentMap()))
   }

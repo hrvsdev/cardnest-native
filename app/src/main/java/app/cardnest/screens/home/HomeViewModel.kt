@@ -12,7 +12,6 @@ import app.cardnest.data.cardsState
 import app.cardnest.data.preferencesState
 import app.cardnest.data.userState
 import app.cardnest.utils.extensions.combineStateInViewModel
-import app.cardnest.utils.extensions.launchDefault
 import app.cardnest.utils.extensions.launchWithIO
 import app.cardnest.utils.extensions.stateInViewModel
 import kotlinx.coroutines.flow.map
@@ -37,10 +36,6 @@ class HomeViewModel(private val dataManager: CardDataManager) : ViewModel() {
   private fun initCards() {
     launchWithIO {
       dataManager.collectAndDecryptCards()
-    }
-
-    launchDefault {
-      dataManager.checkAndEncryptOrDecryptCards()
     }
   }
 

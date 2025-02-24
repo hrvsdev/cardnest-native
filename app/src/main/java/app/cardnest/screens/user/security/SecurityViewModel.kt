@@ -7,6 +7,7 @@ import app.cardnest.data.actions.Actions.afterPinCreated
 import app.cardnest.data.actions.Actions.afterPinVerified
 import app.cardnest.data.auth.AuthManager
 import app.cardnest.data.biometricsData
+import app.cardnest.data.card.CardDataManager
 import app.cardnest.data.passwordData
 import app.cardnest.data.pinData
 import app.cardnest.screens.password.change.ChangePasswordScreen
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.map
 
 class SecurityViewModel(
   private val authManager: AuthManager,
+  private val cardDataManager: CardDataManager,
   private val navigator: Navigator,
   private val bottomSheetNavigator: BottomSheetNavigator
 ) : ViewModel() {
@@ -37,6 +39,7 @@ class SecurityViewModel(
   fun onCreatePin() {
     navigator.push(CreatePinScreen())
     afterPinCreated.set {
+      if (!hasCreatedPassword.value && !hasCreatedPin.value) cardDataManager.encryptCards()
       navigator.popUntil { it is SecurityScreen }
     }
   }
@@ -60,7 +63,8 @@ class SecurityViewModel(
       afterPinVerified.set {
         authManager.removePin()
 
-        if (hasCreatedPassword.value.not()) {
+        if (!hasCreatedPassword.value) {
+          cardDataManager.decryptCards()
           authManager.disableBiometrics()
         }
 
