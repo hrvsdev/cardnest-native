@@ -1,5 +1,6 @@
 <resources>
   <string name="app_name_release">CardNest</string>
   <string name="app_name_debug">CN Debug</string>
-  <string name="google_auth_client_id">212184976594-n3uje194ica7t1hfcvrp5cos4ve0r7a7.apps.googleusercontent.com</string>
+  <string name="google_auth_client_id_release">212184976594-89avubtq6ugr9tkqith230j8l0rqujiv.apps.googleusercontent.com</string>
+  <string name="google_auth_client_id_debug">507053569962-9afgnmfl87povqtecg3lae144gsug16s.apps.googleusercontent.com</string>
 </resources>

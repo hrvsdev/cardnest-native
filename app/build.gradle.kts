@@ -45,11 +45,13 @@ android {
       signingConfig = signingConfigs.getByName("release")
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       resValue("string", "app_name", "@string/app_name_release")
+      resValue("string", "google_auth_client_id", "@string/google_auth_client_id_release")
     }
 
     debug {
       applicationIdSuffix = ".debug"
       resValue("string", "app_name", "@string/app_name_debug")
+      resValue("string", "google_auth_client_id", "@string/google_auth_client_id_debug")
     }
   }
 

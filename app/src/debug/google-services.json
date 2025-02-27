@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "507053569962",
+    "firebase_url": "https://cardnest-app-debug-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "cardnest-app-debug",
+    "storage_bucket": "cardnest-app-debug.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:507053569962:android:1a7e0954909985b07cddd3",
+        "android_client_info": {
+          "package_name": "app.cardnest.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "507053569962-7h0mqmqtp3pin4tegumtpt64bvf6onun.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.cardnest.debug",
+            "certificate_hash": "86cb5e361cb48a47ce735bf48d2184e2a26e9080"
+          }
+        },
+        {
+          "client_id": "507053569962-9afgnmfl87povqtecg3lae144gsug16s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCo5L531TH1lky2TqszgflKJQXlE2SIjuk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "507053569962-9afgnmfl87povqtecg3lae144gsug16s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
