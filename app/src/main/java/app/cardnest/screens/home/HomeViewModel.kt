@@ -20,7 +20,7 @@ class HomeViewModel(private val dataManager: CardDataManager) : ViewModel() {
   val queryState = TextFieldState()
 
   val userName = userState.map { it?.name }.stateInViewModel(null)
-  val cardRecordList = cardsState.map { it.values.toList() }.stateInViewModel(emptyList())
+  val cardRecordList = cardsState.map { it.values.toList().sortedByDescending { it.modifiedAt } }.stateInViewModel(emptyList())
   val maskCardNumber = preferencesState.map { it.userInterface.maskCardNumber }.stateInViewModel(false)
 
   val loadState = appDataState.stateInViewModel(AppDataState())
