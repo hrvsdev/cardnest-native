@@ -19,7 +19,7 @@ android {
 
   val MAJOR = 1
   val MINOR = 0
-  val PATCH = 1
+  val PATCH = 2
 
   defaultConfig {
     applicationId = "app.cardnest"
